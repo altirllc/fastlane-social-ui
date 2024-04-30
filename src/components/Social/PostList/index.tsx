@@ -12,12 +12,10 @@ import {
 } from 'react-native';
 import { SvgXml } from 'react-native-svg';
 import {
-  arrowXml,
   commentXml,
   likedXml,
   likeXml,
   personXml,
-  threeDots,
 } from '../../../svg/svg-xml-list';
 import { useStyles } from './styles';
 import type { UserInterface } from '../../../types/user.interface';
@@ -89,7 +87,7 @@ export default function PostList({
   const styles = useStyles();
   const [isLike, setIsLike] = useState<boolean>(false);
   const [likeReaction, setLikeReaction] = useState<number>(0);
-  const [communityName, setCommunityName] = useState('');
+  const [, setCommunityName] = useState('');
   const [textPost, setTextPost] = useState<string>('');
   const [privateCommunityId, setPrivateCommunityId] = useState(null);
   const [isVisible, setIsVisible] = useState<boolean>(false);
@@ -143,9 +141,9 @@ export default function PostList({
     }
   }, [myReactions, reactionCount]);
 
-  const openModal = () => {
-    setIsVisible(true);
-  };
+  // const openModal = () => {
+  //   setIsVisible(true);
+  // };
 
   const closeModal = () => {
     Animated.timing(slideAnimation, {
@@ -179,22 +177,22 @@ export default function PostList({
     }
   }, [data?.text, myReactions, reactionCount?.like, targetId, targetType]);
 
-  const renderLikeText = useCallback(
-    (likeNumber: number | undefined): string => {
-      if (!likeNumber) return '';
-      if (likeNumber === 1) return 'like';
-      return 'likes';
-    },
-    []
-  );
-  const renderCommentText = useCallback(
-    (commentNumber: number | undefined): string => {
-      if (!commentNumber) return '';
-      if (commentNumber === 1) return 'comment';
-      return 'comments';
-    },
-    []
-  );
+  // const renderLikeText = useCallback(
+  //   (likeNumber: number | undefined): string => {
+  //     if (!likeNumber) return '';
+  //     if (likeNumber === 1) return 'like';
+  //     return 'likes';
+  //   },
+  //   []
+  // );
+  // const renderCommentText = useCallback(
+  //   (commentNumber: number | undefined): string => {
+  //     if (!commentNumber) return '';
+  //     if (commentNumber === 1) return 'comment';
+  //     return 'comments';
+  //   },
+  //   []
+  // );
 
   const addReactionToPost = useCallback(async () => {
     setIsLike((prev) => !prev);
@@ -263,14 +261,14 @@ export default function PostList({
     }
   };
 
-  const handleCommunityNamePress = () => {
-    if (targetType === 'community' && targetId) {
-      navigation.navigate('CommunityHome', {
-        communityId: targetId,
-        communityName: communityName,
-      });
-    }
-  };
+  // const handleCommunityNamePress = () => {
+  //   if (targetType === 'community' && targetId) {
+  //     navigation.navigate('CommunityHome', {
+  //       communityId: targetId,
+  //       communityName: communityName,
+  //     });
+  //   }
+  // };
   const deletePostObject = () => {
     Alert.alert(
       'Delete this post',
@@ -382,12 +380,12 @@ export default function PostList({
     setIsEdit(true);
   };
 
-  const onClickReactions = useCallback(() => {
-    navigation.navigate('ReactionList', {
-      referenceId: postId,
-      referenceType: 'post',
-    });
-  }, [navigation, postId]);
+  // const onClickReactions = useCallback(() => {
+  //   navigation.navigate('ReactionList', {
+  //     referenceId: postId,
+  //     referenceType: 'post',
+  //   });
+  // }, [navigation, postId]);
 
   return (
     <View key={postId} style={styles.postWrap}>
@@ -412,7 +410,7 @@ export default function PostList({
                 <Text style={styles.headerText}>{user?.displayName}</Text>
               </TouchableOpacity>
 
-              {communityName && (
+              {/* {communityName && (
                 <View style={styles.communityNameContainer}>
                   <SvgXml
                     style={styles.arrow}
@@ -431,7 +429,7 @@ export default function PostList({
                     </Text>
                   </TouchableOpacity>
                 </View>
-              )}
+              )} */}
             </View>
             <View style={styles.timeRow}>
               <Text style={styles.headerTextTime}>{timeDifference}</Text>
@@ -444,9 +442,9 @@ export default function PostList({
             </View>
           </View>
         </View>
-        <TouchableOpacity onPress={openModal} style={styles.threeDots}>
+        {/* <TouchableOpacity onPress={openModal} style={styles.threeDots}>
           <SvgXml xml={threeDots(theme.colors.base)} width="20" height="16" />
-        </TouchableOpacity>
+        </TouchableOpacity> */}
       </View>
       <View>
         <View style={styles.bodySection}>
@@ -461,7 +459,7 @@ export default function PostList({
           )}
         </View>
 
-        {likeReaction === 0 && commentsCount === 0 ? (
+        {/* {likeReaction === 0 && commentsCount === 0 ? (
           ''
         ) : (
           <View>
@@ -481,7 +479,7 @@ export default function PostList({
               )}
             </View>
           </View>
-        )}
+        )} */}
 
         <View style={styles.actionSection}>
           <TouchableOpacity onPress={addReactionToPost} style={styles.likeBtn}>
@@ -495,11 +493,14 @@ export default function PostList({
               <SvgXml xml={likeXml} width="20" height="16" />
             )}
 
-            <Text style={isLike ? styles.likedText : styles.btnText}>Like</Text>
+            <Text style={isLike ? styles.likedText : styles.btnText}>
+              {' '}
+              {likeReaction}{' '}
+            </Text>
           </TouchableOpacity>
           <TouchableOpacity onPress={onClickComment} style={styles.commentBtn}>
             <SvgXml xml={commentXml} width="20" height="16" />
-            <Text style={styles.btnText}>Comment</Text>
+            <Text style={styles.btnText}>{commentsCount}</Text>
           </TouchableOpacity>
         </View>
       </View>

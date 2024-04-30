@@ -60,6 +60,30 @@ export const useStyles = () => {
     btnWrap: {
       padding: 5,
     },
+    createFeedButton: {
+      position: 'absolute',
+      bottom: 177, // if complete Profile is hidden
+      right: 24,
+      width: 56,
+      height: 56,
+      // top: 0,
+      zIndex: 100,
+      borderRadius: 28,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    createFeedButtonWithProfileComplete: {
+      position: 'absolute',
+      bottom: 313,
+      right: 24,
+      width: 56,
+      height: 56,
+      // top: 0,
+      zIndex: 100,
+      borderRadius: 28,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
   });
 
   return styles;

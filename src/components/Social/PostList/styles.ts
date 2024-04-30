@@ -67,7 +67,7 @@ export const useStyles = () => {
       color: theme.colors.base,
     },
     actionSection: {
-      borderTopColor: theme.colors.baseShade4,
+      // borderTopColor: theme.colors.border,
       borderTopWidth: 1,
       flexDirection: 'row',
       marginTop: 8,
