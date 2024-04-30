@@ -1,37 +1,35 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import * as React from 'react';
 import { useEffect, useState } from 'react';
-// import { useTranslation } from 'react-i18next';
-
 import { View, TouchableOpacity, LogBox } from 'react-native';
-import { SvgXml } from 'react-native-svg';
-import { plusIcon, searchIcon } from '../../svg/svg-xml-list';
-import FloatingButton from '../../components/FloatingButton';
 import useAuth from '../../hooks/useAuth';
-import Explore from '../Explore';
 import GlobalFeed from '../GlobalFeed';
 import { useStyles } from './styles';
-import CustomTab from '../../components/CustomTab';
-import { useTheme } from 'react-native-paper';
-import type { MyMD3Theme } from '../../providers/amity-ui-kit-provider';
-import AllMyCommunity from '../AllMyCommunity';
-import useConfig from '../../hooks/useConfig';
-import { ComponentID } from '../../util/enumUIKitID';
+import { Icon } from 'react-native-paper';
+// import type { MyMD3Theme } from '../../providers/amity-ui-kit-provider';
+// import useConfig from '../../hooks/useConfig';
 import { TabName } from '../../enum/tabNameState';
 import { useNavigation } from '@react-navigation/native';
 import { useDispatch } from 'react-redux';
 import uiSlice from '../../redux/slices/uiSlice';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { getShadowProps } from '../../theme/helpers';
+import { useCustomTheme } from '../../hooks/useCustomTheme';
+import { PlusIcon } from '../../svg/PlusIcon';
+
 LogBox.ignoreAllLogs(true);
-export default function Home() {
+export default function Home({ route }: { route: any }) {
+  const { hideCompleteProfileCard } = route.params;
+
   const styles = useStyles();
   const { client } = useAuth();
-  const theme = useTheme() as MyMD3Theme;
+  // const theme = useTheme() as MyMD3Theme;
   const dispatch = useDispatch();
   const { openPostTypeChoiceModal } = uiSlice.actions;
-  const { excludes } = useConfig();
-  const [activeTab, setActiveTab] = useState<string>(TabName.NewsFeed);
+  // const { excludes } = useConfig();
+  const [activeTab] = useState<string>(TabName.NewsFeed);
   const navigation = useNavigation<NativeStackNavigationProp<any>>();
+  const { colors } = useCustomTheme();
 
   const onClickSearch = () => {
     navigation.navigate('CommunitySearch');
@@ -47,18 +45,18 @@ export default function Home() {
             onPress={onClickAddCommunity}
             style={styles.btnWrap}
           >
-            <SvgXml xml={plusIcon(theme.colors.base)} width="25" height="25" />
+            {/* <SvgXml xml={plusIcon(theme.colors.base)} width="25" height="25" /> */}
           </TouchableOpacity>
         ) : (
           <TouchableOpacity onPress={onClickSearch} style={styles.btnWrap}>
-            <SvgXml
+            {/* <SvgXml
               xml={searchIcon(theme.colors.base)}
               width="25"
               height="25"
-            />
+            /> */}
           </TouchableOpacity>
         ),
-      headerTitle: 'Community',
+      headerTitle: '',
     });
   }, []);
 
@@ -69,30 +67,47 @@ export default function Home() {
       })
     );
   };
-
+  // return null;
   return (
     <View>
-      <CustomTab
+      {/* <CustomTab
         tabName={
           excludes.includes(ComponentID.StoryTab)
             ? [TabName.NewsFeed, TabName.Explore]
             : [TabName.NewsFeed, TabName.Explore, TabName.MyCommunities]
         }
         onTabChange={setActiveTab}
-      />
+      /> */}
       {activeTab === TabName.NewsFeed ? (
         <View>
           <GlobalFeed />
-          <FloatingButton onPress={openModal} />
+          {/* <FloatingButton onPress={openModal} /> */}
+          <TouchableOpacity
+            onPress={openModal}
+            style={[
+              hideCompleteProfileCard
+                ? styles.createFeedButton
+                : styles.createFeedButtonWithProfileComplete,
+              {
+                ...getShadowProps({ color: colors.secondary.main }),
+                backgroundColor: colors.primary.main,
+              },
+            ]}
+          >
+            <Icon
+              source={PlusIcon}
+              size={'xs'}
+              color="transparent"
+              stroke="quaternary"
+              height={24}
+              width={24}
+            />
+          </TouchableOpacity>
         </View>
       ) : activeTab === TabName.Explore ? (
-        <View>
-          <Explore />
-        </View>
+        <View>{/* <Explore /> */}</View>
       ) : (
-        <View>
-          <AllMyCommunity />
-        </View>
+        <View>{/* <AllMyCommunity /> */}</View>
       )}
     </View>
   );

@@ -7,13 +7,13 @@ import {
 } from '@react-navigation/native-stack';
 import type { RootStackParamList } from './RouteParamList';
 import useAuth from '../hooks/useAuth';
-import Explore from '../screens/Explore';
+// import Explore from '../screens/Explore';
 import CategoryList from '../screens/CategorytList';
 import CommunityList from '../screens/CommunityList';
-import CommunityHome from '../v4/screen/CommunityHome';
+import CommunityHome from '../screens/CommunityHome/index';
 import { CommunitySetting } from '../screens/CommunitySetting/index';
 import CommunityMemberDetail from '../screens/CommunityMemberDetail/CommunityMemberDetail';
-import Home from '../v4/screen/Home';
+import Home from '../screens/Home';
 import PostDetail from '../screens/PostDetail';
 import CreatePost from '../screens/CreatePost';
 import UserProfile from '../screens/UserProfile/UserProfile';
@@ -36,10 +36,12 @@ import VideoPlayerFull from '../screens/VideoPlayerFullScreen';
 import PostTypeChoiceModal from '../components/PostTypeChoiceModal/PostTypeChoiceModal';
 import CreatePoll from '../screens/CreatePoll/CreatePoll';
 import ReactionListScreen from '../screens/ReactionListScreen/ReactionListScreen';
-import CreateStoryScreen from '../v4/screen/CreateStory/CreateStoryScreen';
-import Toast from '../components/Toast/Toast';
 
-export default function SocialNavigator() {
+export default function SocialNavigator({
+  hideCompleteProfileCard,
+}: {
+  hideCompleteProfileCard: boolean;
+}) {
   const Stack = createNativeStackNavigator<RootStackParamList>();
   const { isConnected } = useAuth();
   const theme = useTheme() as MyMD3Theme;
@@ -62,8 +64,12 @@ export default function SocialNavigator() {
             },
           }}
         >
-          <Stack.Screen name="Home" component={Home} />
-          <Stack.Screen name="Explore" component={Explore} />
+          <Stack.Screen
+            name="Home"
+            component={Home}
+            initialParams={{ hideCompleteProfileCard }}
+          />
+          {/* <Stack.Screen name="Explore" component={Explore} /> */}
           <Stack.Screen
             name="PostDetail"
             component={PostDetail}
@@ -88,13 +94,7 @@ export default function SocialNavigator() {
                 params: { communityName, communityId, isModerator },
               },
             }: any) => ({
-              headerLeft: () => (
-                <BackButton
-                  onPress={() => {
-                    navigation.navigate(Home);
-                  }}
-                />
-              ),
+              headerLeft: () => <BackButton />,
               title: communityName,
               headerRight: () => (
                 <TouchableOpacity
@@ -115,11 +115,7 @@ export default function SocialNavigator() {
               ),
             })}
           />
-          <Stack.Screen
-            name="PendingPosts"
-            component={PendingPosts}
-            options={{ title: 'Pending Posts' }}
-          />
+          <Stack.Screen name="PendingPosts" component={PendingPosts} />
           <Stack.Screen
             name="CommunitySearch"
             component={CommunitySearch}
@@ -216,28 +212,17 @@ export default function SocialNavigator() {
             component={VideoPlayerFull}
             options={{ headerShown: false }}
           />
-
-          <Stack.Group
-            screenOptions={{
-              headerShown: false,
-              animation: 'slide_from_bottom',
+          <Stack.Screen
+            name="ReactionList"
+            component={ReactionListScreen}
+            options={{
+              title: 'Reactions',
+              headerLeft: () => <BackButton />,
             }}
-          >
-            <Stack.Screen
-              name="ReactionList"
-              component={ReactionListScreen}
-              options={{
-                headerShown: true,
-                title: 'Reactions',
-                headerLeft: () => <BackButton />,
-              }}
-            />
-            <Stack.Screen name="CreateStory" component={CreateStoryScreen} />
-          </Stack.Group>
+          />
         </Stack.Navigator>
       )}
       <PostTypeChoiceModal />
-      <Toast />
     </NavigationContainer>
   );
 }
