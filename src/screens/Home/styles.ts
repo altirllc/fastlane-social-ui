@@ -74,7 +74,7 @@ export const useStyles = () => {
     },
     createFeedButtonWithProfileComplete: {
       position: 'absolute',
-      bottom: 313,
+      bottom: 20,
       right: 24,
       width: 56,
       height: 56,
