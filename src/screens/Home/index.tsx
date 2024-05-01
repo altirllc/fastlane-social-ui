@@ -94,14 +94,7 @@ export default function Home({ route }: { route: any }) {
               },
             ]}
           >
-            <Icon
-              source={PlusIcon}
-              size={'xs'}
-              color="transparent"
-              stroke="quaternary"
-              height={24}
-              width={24}
-            />
+            <Icon source={PlusIcon} size={'xs'} color="transparent" />
           </TouchableOpacity>
         </View>
       ) : activeTab === TabName.Explore ? (
