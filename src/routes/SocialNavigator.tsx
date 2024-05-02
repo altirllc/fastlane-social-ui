@@ -52,16 +52,7 @@ export default function SocialNavigator({
       {isConnected && (
         <Stack.Navigator
           screenOptions={{
-            headerShadowVisible: false,
-            contentStyle: {
-              backgroundColor: 'white',
-            },
-            headerStyle: {
-              backgroundColor: theme.colors.background,
-            },
-            headerTitleStyle: {
-              color: theme.colors.base,
-            },
+            headerShown: false,
           }}
         >
           <Stack.Screen
