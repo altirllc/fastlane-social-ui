@@ -61,6 +61,7 @@ export const useStyles = () => {
       padding: 5,
     },
     createFeedButton: {
+      display: 'none',
       position: 'absolute',
       bottom: 177, // if complete Profile is hidden
       right: 24,
