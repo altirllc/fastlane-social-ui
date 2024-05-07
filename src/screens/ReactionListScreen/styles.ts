@@ -11,6 +11,11 @@ export const useStyles = () => {
       width: '100%',
       backgroundColor: theme.colors.background,
     },
+    backBtn: {
+      alignItems: 'center',
+      justifyContent: 'center',
+      // marginRight: 10,
+    },
     errorContainer: {
       width: '100%',
       flex: 1,
@@ -22,6 +27,7 @@ export const useStyles = () => {
       borderBottomWidth: 1,
       borderBottomColor: theme.colors.baseShade4,
       paddingHorizontal: 20,
+      flexDirection: 'row',
     },
     reactionCountContainer: {
       borderBottomWidth: 2,
