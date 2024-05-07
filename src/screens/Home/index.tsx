@@ -23,9 +23,6 @@ export default function Home({
 }: {
   hideCompleteProfileCard: boolean;
 }) {
-  // const { hideCompleteProfileCard } = route.params;
-  console.log('hide HOME::', hideCompleteProfileCard);
-
   const styles = useStyles();
   const { client } = useAuth();
   // const theme = useTheme() as MyMD3Theme;
@@ -90,7 +87,7 @@ export default function Home({
           <TouchableOpacity
             onPress={openModal}
             style={[
-             hideCompleteProfileCard
+              hideCompleteProfileCard
                 ? styles.createFeedButton
                 : styles.createFeedButtonWithoutProfileComplete,
               {

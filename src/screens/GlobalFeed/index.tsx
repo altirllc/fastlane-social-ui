@@ -1,7 +1,6 @@
-import React, { useCallback, useRef, useState } from 'react';
-
+import React, { useCallback, useMemo, useRef, useState } from 'react';
+import moment from 'moment-timezone';
 // import { useTranslation } from 'react-i18next';
-
 import { FlatList, View } from 'react-native';
 import {
   deletePostById,
@@ -11,20 +10,20 @@ import {
 import useAuth from '../../hooks/useAuth';
 import PostList from '../../components/Social/PostList';
 import { useStyle } from './styles';
-import MyCommunity from '../../components/MyCommunity';
+// import MyCommunity from '../../components/MyCommunity';
 import { amityPostsFormatter } from '../../util/postDataFormatter';
 import { useDispatch, useSelector } from 'react-redux';
 import globalFeedSlice from '../../redux/slices/globalfeedSlice';
 import { RootState } from '../../redux/store';
-import useConfig from '../../hooks/useConfig';
-import { ComponentID } from '../../util/enumUIKitID';
+// import useConfig from '../../hooks/useConfig';
+// import { ComponentID } from '../../util/enumUIKitID';
 import { useFocusEffect } from '@react-navigation/native';
 import { RefreshControl } from 'react-native';
 
 export default function GlobalFeed() {
   const { postList } = useSelector((state: RootState) => state.globalFeed);
   const [refreshing, setRefreshing] = useState(false);
-  const { excludes } = useConfig();
+  // const { excludes } = useConfig();
   const { updateGlobalFeed, deleteByPostId, clearFeed } =
     globalFeedSlice.actions;
   const dispatch = useDispatch();
@@ -79,16 +78,32 @@ export default function GlobalFeed() {
     }
   };
 
+  const formatedPostList = useMemo(() => {
+    // To sorted the post by createdAt
+    const newArr = postList.map((item) => item);
+    const res = newArr.sort((a, b) => {
+      const dateA = moment(new Date(a.createdAt))
+        .tz(moment.tz.guess())
+        .format();
+      const dateB = moment(new Date(b.createdAt))
+        .tz(moment.tz.guess())
+        .format();
+      return moment(dateB).diff(moment(dateA));
+    });
+    return res;
+  }, [postList]);
+
   return (
     <View style={styles.feedWrap}>
       <View style={styles.feedWrap}>
         <FlatList
-          data={postList}
+          data={formatedPostList}
           renderItem={({ item, index }) => (
             <PostList
               onDelete={onDeletePost}
               postDetail={item}
               postIndex={index}
+              showBackBtn={true}
             />
           )}
           keyExtractor={(item) => item.postId.toString()}
@@ -104,9 +119,9 @@ export default function GlobalFeed() {
             />
           }
           extraData={postList}
-          ListHeaderComponent={
-            excludes.includes(ComponentID.StoryTab) && <MyCommunity />
-          }
+          // ListHeaderComponent={
+          //   excludes.includes(ComponentID.StoryTab) && <MyCommunity />
+          // }
         />
       </View>
     </View>
