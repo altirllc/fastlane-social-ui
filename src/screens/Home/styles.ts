@@ -65,7 +65,7 @@ export const useStyles = () => {
     },
     createFeedButtonWithoutProfileComplete: {
       position: 'absolute',
-      bottom: 10, // fasle: when profile card is not visible
+      bottom: 27, // fasle: when profile card is not visible
       right: 24,
       width: 56,
       height: 56,
