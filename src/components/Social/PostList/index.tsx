@@ -254,11 +254,11 @@ export default function PostList({
     });
   }
   const handleDisplayNamePress = () => {
-    if (user?.userId) {
-      navigation.navigate('UserProfile', {
-        userId: user.userId,
-      });
-    }
+    // if (user?.userId) {
+    //   navigation.navigate('UserProfile', {
+    //     userId: user.userId,
+    //   });
+    // }
   };
 
   // const handleCommunityNamePress = () => {

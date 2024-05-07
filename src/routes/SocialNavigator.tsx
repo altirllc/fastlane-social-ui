@@ -55,11 +55,9 @@ export default function SocialNavigator({
             headerShown: false,
           }}
         >
-          <Stack.Screen
-            name="Home"
-            component={Home}
-            initialParams={{ hideCompleteProfileCard }}
-          />
+          <Stack.Screen name="Home">
+            {() => <Home hideCompleteProfileCard={hideCompleteProfileCard} />}
+          </Stack.Screen>
           {/* <Stack.Screen name="Explore" component={Explore} /> */}
           <Stack.Screen
             name="PostDetail"

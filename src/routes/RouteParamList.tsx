@@ -1,5 +1,5 @@
 export type RootStackParamList = {
-  Home: { postIdCallBack?: string; hideCompleteProfileCard?: boolean };
+  Home: { postIdCallBack?: string };
   CommunitySearch: undefined;
   CommunityMemberDetail: {
     communityId: string;
