@@ -12,6 +12,11 @@ export const useStyles = () => {
       paddingHorizontal: 16,
       paddingTop: 4,
     },
+    backBtn: {
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginRight: 10,
+    },
     headerSection: {
       paddingVertical: 8,
       flexDirection: 'row',
@@ -67,11 +72,11 @@ export const useStyles = () => {
       color: theme.colors.base,
     },
     actionSection: {
-      // borderTopColor: theme.colors.border,
-      borderTopWidth: 1,
       flexDirection: 'row',
-      marginTop: 8,
-      marginBottom: 4,
+      // borderTopColor: theme.colors.border,
+      // borderTopWidth: 1,
+      // marginTop: 8,
+      // marginBottom: 4,
     },
     likeBtn: {
       flexDirection: 'row',

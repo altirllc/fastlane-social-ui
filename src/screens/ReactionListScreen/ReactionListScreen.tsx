@@ -5,7 +5,7 @@ import ContentLoader, { Rect, Circle } from 'react-content-loader/native';
 import { useReaction } from '../../hooks/useReaction';
 import { SvgXml } from 'react-native-svg';
 import { fileSearch } from '../../svg/svg-xml-list';
-import BackButton from 'amity-react-native-social-ui-kit/src/components/BackButton';
+import BackButton from '../../components/BackButton';
 
 const ReactionListScreen = ({ navigation, route }) => {
   const { referenceId, referenceType } = route.params;

@@ -42,6 +42,7 @@ import feedSlice from '../../../redux/slices/feedSlice';
 import RenderTextWithMention from './Components/RenderTextWithMention';
 import { RootStackParamList } from '../../../routes/RouteParamList';
 import { useTimeDifference } from '../../../hooks/useTimeDifference';
+import BackButton from '../../../components/BackButton';
 
 export interface IPost {
   postId: string;
@@ -82,8 +83,8 @@ export default function PostList({
   postIndex,
   onDelete,
   isGlobalfeed = true,
-}: // showBackBtn = false,
-IPostList) {
+  showBackBtn = false,
+}: IPostList) {
   const theme = useTheme() as MyMD3Theme;
   const { client, apiRegion } = useAuth();
   const styles = useStyles();
@@ -392,6 +393,15 @@ IPostList) {
   return (
     <View key={postId} style={styles.postWrap}>
       <View style={styles.headerSection}>
+        {showBackBtn ? null : (
+          <View style={styles.backBtn}>
+            <BackButton
+              onPress={() => {
+                console.log('back');
+              }}
+            />
+          </View>
+        )}
         <View style={styles.user}>
           {user?.avatarFileId ? (
             <Image
