@@ -1,4 +1,7 @@
 <div align="center">
+<img width="373" alt="image" src="https://github.com/altirllc/fastlane-social-ui/assets/129851647/11ae6277-1936-4a72-96e9-3a9db4a5bf5a">
+</div>
+<div align="center">
 <img src="https://github.com/AmityCo/Amity-Social-UIKit-React-Native-OpenSource/assets/112688936/ddeeef20-2dfa-449e-bd3d-62238d7c9be0" width="160" >
 <img src="https://github.com/AmityCo/Amity-Social-UIKit-React-Native-OpenSource/assets/112688936/e6b2d2a2-5158-429e-b1af-ea679b14fc11" width="150">
 <h1>Amity Ui-Kit for React native open-source (Native modules)</h1>
@@ -235,3 +238,4 @@ Please refer to our online documentation at https://docs.amity.co or contact a U
 
 
 ```
+

@@ -90,9 +90,9 @@ export default function Home({
           <TouchableOpacity
             onPress={openModal}
             style={[
-              hideCompleteProfileCard
+             hideCompleteProfileCard
                 ? styles.createFeedButton
-                : styles.createFeedButtonWithProfileComplete,
+                : styles.createFeedButtonWithoutProfileComplete,
               {
                 ...getShadowProps({ color: colors.secondary.main }),
                 backgroundColor: colors.primary.main,

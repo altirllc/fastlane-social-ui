@@ -62,20 +62,10 @@ export const useStyles = () => {
     },
     createFeedButton: {
       display: 'none',
-      position: 'absolute',
-      bottom: 177, // if complete Profile is hidden
-      right: 24,
-      width: 56,
-      height: 56,
-      // top: 0,
-      zIndex: 100,
-      borderRadius: 28,
-      alignItems: 'center',
-      justifyContent: 'center',
     },
-    createFeedButtonWithProfileComplete: {
+    createFeedButtonWithoutProfileComplete: {
       position: 'absolute',
-      bottom: 313,
+      bottom: 10, // fasle: when profile card is not visible
       right: 24,
       width: 56,
       height: 56,
