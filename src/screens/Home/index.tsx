@@ -18,8 +18,13 @@ import { useCustomTheme } from '../../hooks/useCustomTheme';
 import { PlusIcon } from '../../svg/PlusIcon';
 
 LogBox.ignoreAllLogs(true);
-export default function Home({ route }: { route: any }) {
-  const { hideCompleteProfileCard } = route.params;
+export default function Home({
+  hideCompleteProfileCard,
+}: {
+  hideCompleteProfileCard: boolean;
+}) {
+  // const { hideCompleteProfileCard } = route.params;
+  console.log('hide HOME::', hideCompleteProfileCard);
 
   const styles = useStyles();
   const { client } = useAuth();
