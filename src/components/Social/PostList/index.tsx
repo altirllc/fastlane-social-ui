@@ -66,6 +66,7 @@ export interface IPostList {
   postDetail: IPost;
   postIndex?: number;
   isGlobalfeed?: boolean;
+  showBackBtn?: boolean;
 }
 export interface MediaUri {
   uri: string;
@@ -81,7 +82,8 @@ export default function PostList({
   postIndex,
   onDelete,
   isGlobalfeed = true,
-}: IPostList) {
+}: // showBackBtn = false,
+IPostList) {
   const theme = useTheme() as MyMD3Theme;
   const { client, apiRegion } = useAuth();
   const styles = useStyles();
