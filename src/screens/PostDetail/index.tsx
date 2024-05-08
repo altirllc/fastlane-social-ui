@@ -299,8 +299,8 @@ const PostDetail = () => {
     <View />
   ) : (
     <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      keyboardVerticalOffset={Platform.select({ ios: 80, android: 80 })}
+      behavior={Platform.OS === 'ios' ? 'height' : 'height'}
+      keyboardVerticalOffset={Platform.select({ ios: 200, android: 80 })}
       style={styles.AllInputWrap}
     >
       <ScrollView onScroll={handleScroll} style={styles.container}>
@@ -309,7 +309,6 @@ const PostDetail = () => {
           postDetail={currentPostdetail as IPost}
           isGlobalfeed={isFromGlobalfeed}
         />
-
         <View style={styles.commentListWrap}>
           <FlatList
             data={commentList}
@@ -344,7 +343,6 @@ const PostDetail = () => {
           </TouchableOpacity>
         </View>
       )}
-
       <View style={styles.InputWrap}>
         <View style={styles.inputContainer}>
           <AmityMentionInput

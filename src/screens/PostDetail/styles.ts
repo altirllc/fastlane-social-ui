@@ -6,7 +6,7 @@ export const useStyles = () => {
   const theme = useTheme() as MyMD3Theme;
   const styles = StyleSheet.create({
     container: {
-      flex: 1,
+      // flex: 1,
       backgroundColor: theme.colors.background,
     },
     input: {
@@ -21,7 +21,7 @@ export const useStyles = () => {
     AllInputWrap: {
       backgroundColor: theme.colors.baseShade4,
       flex: 1,
-      marginTop: -16,
+      // marginTop: -16,
     },
     InputWrap: {
       backgroundColor: theme.colors.background,
@@ -38,9 +38,11 @@ export const useStyles = () => {
     postDisabledBtn: {
       color: '#A0BDF8',
       fontSize: 16,
+      marginBottom: 13,
     },
     postBtnText: {
       color: theme.colors.primary,
+      marginBottom: 13,
       fontSize: 16,
     },
     postBtn: {

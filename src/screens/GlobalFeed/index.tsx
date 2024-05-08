@@ -79,6 +79,7 @@ export default function GlobalFeed() {
   };
 
   const formatedPostList = useMemo(() => {
+    console.log('BEFORE::', JSON.stringify(postList));
     // To sorted the post by createdAt
     const newArr = postList.map((item) => item);
     const res = newArr.sort((a, b) => {
@@ -90,8 +91,11 @@ export default function GlobalFeed() {
         .format();
       return moment(dateB).diff(moment(dateA));
     });
+    console.log('AFTER::', JSON.stringify(res));
     return res;
   }, [postList]);
+
+  // console.log("AFTER post::", JSON.stringify(postList))
 
   return (
     <View style={styles.feedWrap}>
