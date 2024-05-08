@@ -1,5 +1,5 @@
-import React, { useCallback, useMemo, useRef, useState } from 'react';
-import moment from 'moment-timezone';
+import React, { useCallback, useRef, useState } from 'react';
+// import moment from 'moment-timezone';
 // import { useTranslation } from 'react-i18next';
 import { FlatList, View } from 'react-native';
 import {
@@ -78,22 +78,22 @@ export default function GlobalFeed() {
     }
   };
 
-  const formatedPostList = useMemo(() => {
-    console.log('BEFORE::', JSON.stringify(postList));
-    // To sorted the post by createdAt
-    const newArr = postList.map((item) => item);
-    const res = newArr.sort((a, b) => {
-      const dateA = moment(new Date(a.createdAt))
-        .tz(moment.tz.guess())
-        .format();
-      const dateB = moment(new Date(b.createdAt))
-        .tz(moment.tz.guess())
-        .format();
-      return moment(dateB).diff(moment(dateA));
-    });
-    console.log('AFTER::', JSON.stringify(res));
-    return res;
-  }, [postList]);
+  // const formatedPostList = useMemo(() => {
+  //   console.log('BEFORE::', JSON.stringify(postList));
+  //   // To sorted the post by createdAt
+  //   const newArr = postList.map((item) => item);
+  //   const res = newArr.sort((a, b) => {
+  //     const dateA = moment(new Date(a.createdAt))
+  //       .tz(moment.tz.guess())
+  //       .format();
+  //     const dateB = moment(new Date(b.createdAt))
+  //       .tz(moment.tz.guess())
+  //       .format();
+  //     return moment(dateB).diff(moment(dateA));
+  //   });
+  //   console.log('AFTER::', JSON.stringify(res));
+  //   return res;
+  // }, [postList]);
 
   // console.log("AFTER post::", JSON.stringify(postList))
 
@@ -101,7 +101,7 @@ export default function GlobalFeed() {
     <View style={styles.feedWrap}>
       <View style={styles.feedWrap}>
         <FlatList
-          data={formatedPostList}
+          data={postList}
           renderItem={({ item, index }) => (
             <PostList
               onDelete={onDeletePost}
