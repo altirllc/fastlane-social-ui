@@ -42,7 +42,7 @@ import feedSlice from '../../../redux/slices/feedSlice';
 import RenderTextWithMention from './Components/RenderTextWithMention';
 import { RootStackParamList } from '../../../routes/RouteParamList';
 import { useTimeDifference } from '../../../hooks/useTimeDifference';
-import BackButton from '../../../components/BackButton';
+import BackButton from '../../BackButton';
 
 export interface IPost {
   postId: string;

@@ -14,7 +14,7 @@ import {
   Alert,
 } from 'react-native';
 import { SvgXml } from 'react-native-svg';
-import { SafeAreaView } from 'react-native-safe-area-context';
+// import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   arrowDown,
   cameraIcon,
@@ -366,38 +366,38 @@ const CreatePost = ({ route }: any) => {
 
   return (
     <View style={styles.AllInputWrap}>
-      <SafeAreaView style={styles.barContainer} edges={['top']}>
-        <View style={styles.header}>
-          <TouchableOpacity style={styles.closeButton} onPress={goBack}>
-            <SvgXml xml={closeIcon(theme.colors.base)} width="17" height="17" />
-          </TouchableOpacity>
-          <View style={styles.headerTextContainer}>
-            <Text style={styles.headerText}>{targetName}</Text>
-          </View>
-          <TouchableOpacity
-            disabled={
+      {/* <SafeAreaView style={styles.barContainer} edges={['top']}> */}
+      <View style={styles.header}>
+        <TouchableOpacity style={styles.closeButton} onPress={goBack}>
+          <SvgXml xml={closeIcon(theme.colors.base)} width="17" height="17" />
+        </TouchableOpacity>
+        <View style={styles.headerTextContainer}>
+          <Text style={styles.headerText}>{targetName}</Text>
+        </View>
+        <TouchableOpacity
+          disabled={
+            inputMessage.length > 0 ||
+            displayImages.length > 0 ||
+            displayVideos.length > 0
+              ? false
+              : true
+          }
+          onPress={handleCreatePost}
+        >
+          <Text
+            style={
               inputMessage.length > 0 ||
               displayImages.length > 0 ||
               displayVideos.length > 0
-                ? false
-                : true
+                ? styles.postText
+                : [styles.postText, styles.disabled]
             }
-            onPress={handleCreatePost}
           >
-            <Text
-              style={
-                inputMessage.length > 0 ||
-                displayImages.length > 0 ||
-                displayVideos.length > 0
-                  ? styles.postText
-                  : [styles.postText, styles.disabled]
-              }
-            >
-              Post
-            </Text>
-          </TouchableOpacity>
-        </View>
-      </SafeAreaView>
+            Post
+          </Text>
+        </TouchableOpacity>
+      </View>
+      {/* </SafeAreaView> */}
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.AllInputWrap}

@@ -11,6 +11,7 @@ export const useStyles = () => {
     header: {
       zIndex: 1,
       padding: 12,
+      paddingTop: 0,
       flexDirection: 'row',
       justifyContent: 'space-between',
       alignItems: 'center',
