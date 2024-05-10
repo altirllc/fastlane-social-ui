@@ -20,8 +20,12 @@ import { PlusIcon } from '../../svg/PlusIcon';
 LogBox.ignoreAllLogs(true);
 export default function Home({
   hideCompleteProfileCard,
+  selectedChapterId,
+  selectedChapterName,
 }: {
   hideCompleteProfileCard: boolean;
+  selectedChapterId: string;
+  selectedChapterName: string;
 }) {
   const styles = useStyles();
   const { client } = useAuth();
@@ -63,11 +67,14 @@ export default function Home({
   }, []);
 
   const openModal = () => {
-    dispatch(
-      openPostTypeChoiceModal({
-        userId: (client as Amity.Client).userId as string,
-      })
-    );
+    navigation.navigate('CreatePost', {
+      userId: (client as Amity.Client).userId as string,
+    });
+    // dispatch(
+    //   openPostTypeChoiceModal({
+    //     userId: (client as Amity.Client).userId as string,
+    //   })
+    // );
   };
   // return null;
   return (
@@ -82,7 +89,10 @@ export default function Home({
       /> */}
       {activeTab === TabName.NewsFeed ? (
         <View>
-          <GlobalFeed />
+          <GlobalFeed
+            selectedChapterId={selectedChapterId}
+            selectedChapterName={selectedChapterName}
+          />
           {/* <FloatingButton onPress={openModal} /> */}
           <TouchableOpacity
             onPress={openModal}

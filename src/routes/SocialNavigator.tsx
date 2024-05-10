@@ -39,8 +39,12 @@ import ReactionListScreen from '../screens/ReactionListScreen/ReactionListScreen
 
 export default function SocialNavigator({
   hideCompleteProfileCard,
+  selectedChapterId,
+  selectedChapterName,
 }: {
   hideCompleteProfileCard: boolean;
+  selectedChapterId: string;
+  selectedChapterName: string;
 }) {
   const Stack = createNativeStackNavigator<RootStackParamList>();
   const { isConnected } = useAuth();
@@ -56,7 +60,7 @@ export default function SocialNavigator({
           }}
         >
           <Stack.Screen name="Home">
-            {() => <Home hideCompleteProfileCard={hideCompleteProfileCard} />}
+            {() => <Home hideCompleteProfileCard={hideCompleteProfileCard} selectedChapterId={selectedChapterId} selectedChapterName={selectedChapterName} />}
           </Stack.Screen>
           {/* <Stack.Screen name="Explore" component={Explore} /> */}
           <Stack.Screen
@@ -164,6 +168,10 @@ export default function SocialNavigator({
             name="CreatePost"
             component={CreatePost}
             options={{ headerShown: false }}
+            initialParams={{
+              selectedChapterId: selectedChapterId,
+              selectedChapterName: selectedChapterName,
+            }}
           />
           <Stack.Screen
             name="CreatePoll"

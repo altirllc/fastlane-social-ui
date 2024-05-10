@@ -12,6 +12,7 @@ import {
   ScrollView,
   Keyboard,
   Alert,
+  Image,
 } from 'react-native';
 import { SvgXml } from 'react-native-svg';
 // import { SafeAreaView } from 'react-native-safe-area-context';
@@ -38,6 +39,10 @@ import { checkCommunityPermission } from '../../providers/Social/communities-sdk
 import useAuth from '../../hooks/useAuth';
 import AmityMentionInput from '../../components/MentionInput/AmityMentionInput';
 import { TSearchItem } from '../../hooks/useSearch';
+import { UserInterface } from 'amity-react-native-social-ui-kit/src/types/user.interface';
+import { useSelector } from 'react-redux';
+import { RootState } from 'amity-react-native-social-ui-kit/src/redux/store';
+import { getAmityUser } from 'amity-react-native-social-ui-kit/src/providers/user-provider';
 
 export interface IDisplayImage {
   url: string;
@@ -56,9 +61,11 @@ export interface IMentionPosition {
 const CreatePost = ({ route }: any) => {
   const theme = useTheme() as MyMD3Theme;
   const styles = useStyles();
-  const { targetId, targetType, targetName } = route.params;
+  //const { targetId, targetType, targetName } = route.params;
   const navigation = useNavigation<NativeStackNavigationProp<any>>();
   const [inputMessage, setInputMessage] = useState('');
+  const [targetId, setTargetId] = useState('');
+  const [targetType, setTargetType] = useState('');
   const [imageMultipleUri, setImageMultipleUri] = useState<string[]>([]);
   const [videoMultipleUri, setVideoMultipleUri] = useState<string[]>([]);
   const [displayImages, setDisplayImages] = useState<IDisplayImage[]>([]);
@@ -68,21 +75,56 @@ const CreatePost = ({ route }: any) => {
   const [mentionsPosition, setMentionsPosition] = useState<IMentionPosition[]>(
     []
   );
-
+  const [myUser, setMyUser] = useState<UserInterface>();
   const [communityObject, setCommunityObject] =
     useState<Amity.LiveObject<Amity.Community>>();
   const { data: community } = communityObject ?? {};
   const privateCommunityId = !community?.isPublic && community?.communityId;
   const { client, apiRegion } = useAuth();
+  const userId = route?.params?.userId;
+  const selectedChapterId = route?.params?.selectedChapterId;
+  const selectedChapterName = route?.params?.selectedChapterName;
+
+  useEffect(() => {
+    if (selectedChapterName === 'All Chapters') {
+      setTargetType('user');
+      setTargetId(userId);
+    } else {
+      setTargetType('community');
+      setTargetId(selectedChapterId);
+    }
+
+  }, [selectedChapterId, selectedChapterName, userId])
+
+  const getMyUserDetail = useCallback(async () => {
+    if (userId) {
+      const { userObject } = await getAmityUser(userId);
+      let formattedUserObject: UserInterface;
+
+      formattedUserObject = {
+        userId: userObject.data.userId,
+        displayName: userObject.data.displayName,
+        avatarFileId: userObject.data.avatarFileId,
+      };
+      setMyUser(formattedUserObject);
+    }
+  }, [userId]);
 
   const getCommunityDetail = useCallback(() => {
     if (targetType === 'community') {
       CommunityRepository.getCommunity(targetId, setCommunityObject);
     }
   }, [targetId, targetType]);
+
   useEffect(() => {
     getCommunityDetail();
   }, [getCommunityDetail]);
+
+  useEffect(() => {
+    if (userId) {
+      getMyUserDetail();
+    }
+  }, [getMyUserDetail, userId]);
 
   const goBack = () => {
     navigation.goBack();
@@ -364,6 +406,31 @@ const CreatePost = ({ route }: any) => {
     });
   };
 
+  const renderMyTimeLine = () => {
+    return (
+      <View
+        style={styles.rowContainerMyTimeLine}
+      >
+        <View style={styles.imageNameContainer}>
+        <Image
+          style={styles.avatar}
+          source={
+            myUser
+              ? {
+                  uri: `https://api.${apiRegion}.amity.co/api/v3/files/${myUser.avatarFileId}/download`,
+                }
+              : require('./../../../assets/icon/Placeholder.png')
+          }
+        />
+        <Text style={styles.communityText}>{myUser?.displayName}</Text>
+        </View>
+        <View style={styles.communityNameContainer}>
+          <Text style={styles.communityName}>{selectedChapterName}</Text>
+        </View>
+      </View>
+    );
+  };
+
   return (
     <View style={styles.AllInputWrap}>
       {/* <SafeAreaView style={styles.barContainer} edges={['top']}> */}
@@ -372,13 +439,13 @@ const CreatePost = ({ route }: any) => {
           <SvgXml xml={closeIcon(theme.colors.base)} width="17" height="17" />
         </TouchableOpacity>
         <View style={styles.headerTextContainer}>
-          <Text style={styles.headerText}>{targetName}</Text>
+          <Text style={styles.headerText}>Create Post</Text>
         </View>
         <TouchableOpacity
           disabled={
             inputMessage.length > 0 ||
-            displayImages.length > 0 ||
-            displayVideos.length > 0
+              displayImages.length > 0 ||
+              displayVideos.length > 0
               ? false
               : true
           }
@@ -387,8 +454,8 @@ const CreatePost = ({ route }: any) => {
           <Text
             style={
               inputMessage.length > 0 ||
-              displayImages.length > 0 ||
-              displayVideos.length > 0
+                displayImages.length > 0 ||
+                displayVideos.length > 0
                 ? styles.postText
                 : [styles.postText, styles.disabled]
             }
@@ -397,6 +464,7 @@ const CreatePost = ({ route }: any) => {
           </Text>
         </TouchableOpacity>
       </View>
+      {renderMyTimeLine()}
       {/* </SafeAreaView> */}
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -416,7 +484,7 @@ const CreatePost = ({ route }: any) => {
               setIsScrollEnabled(true);
             }}
             multiline
-            placeholder="What's going on..."
+            placeholder="What’s on your mind?"
             placeholderTextColor={theme.colors.baseShade3}
             setInputMessage={setInputMessage}
             mentionsPosition={mentionsPosition}

@@ -1,5 +1,5 @@
 export type RootStackParamList = {
-  Home: { postIdCallBack?: string; hideCompleteProfileCard?: boolean };
+  Home: { postIdCallBack?: string, hideCompleteProfileCard?: boolean, selectedChapterId?: string, selectedChapterName?: string };
   CommunitySearch: undefined;
   CommunityMemberDetail: {
     communityId: string;
@@ -32,6 +32,8 @@ export type RootStackParamList = {
       }>
     >;
     needApprovalOnPostCreation: boolean;
+    selectedChapterId?: string;
+    selectedChapterName?: string;
   };
   CreatePoll: {
     targetId: string;
