@@ -39,10 +39,10 @@ import { checkCommunityPermission } from '../../providers/Social/communities-sdk
 import useAuth from '../../hooks/useAuth';
 import AmityMentionInput from '../../components/MentionInput/AmityMentionInput';
 import { TSearchItem } from '../../hooks/useSearch';
-import { UserInterface } from 'amity-react-native-social-ui-kit/src/types/user.interface';
-import { useSelector } from 'react-redux';
-import { RootState } from 'amity-react-native-social-ui-kit/src/redux/store';
-import { getAmityUser } from 'amity-react-native-social-ui-kit/src/providers/user-provider';
+// import { useSelector } from 'react-redux';
+// import { RootState } from 'amity-react-native-social-ui-kit/src/redux/store';
+import { getAmityUser } from '~/providers/user-provider';
+import { UserInterface } from '~/types';
 
 export interface IDisplayImage {
   url: string;
@@ -93,8 +93,7 @@ const CreatePost = ({ route }: any) => {
       setTargetType('community');
       setTargetId(selectedChapterId);
     }
-
-  }, [selectedChapterId, selectedChapterName, userId])
+  }, [selectedChapterId, selectedChapterName, userId]);
 
   const getMyUserDetail = useCallback(async () => {
     if (userId) {
@@ -408,21 +407,19 @@ const CreatePost = ({ route }: any) => {
 
   const renderMyTimeLine = () => {
     return (
-      <View
-        style={styles.rowContainerMyTimeLine}
-      >
+      <View style={styles.rowContainerMyTimeLine}>
         <View style={styles.imageNameContainer}>
-        <Image
-          style={styles.avatar}
-          source={
-            myUser
-              ? {
-                  uri: `https://api.${apiRegion}.amity.co/api/v3/files/${myUser.avatarFileId}/download`,
-                }
-              : require('./../../../assets/icon/Placeholder.png')
-          }
-        />
-        <Text style={styles.communityText}>{myUser?.displayName}</Text>
+          <Image
+            style={styles.avatar}
+            source={
+              myUser
+                ? {
+                    uri: `https://api.${apiRegion}.amity.co/api/v3/files/${myUser.avatarFileId}/download`,
+                  }
+                : require('./../../../assets/icon/Placeholder.png')
+            }
+          />
+          <Text style={styles.communityText}>{myUser?.displayName}</Text>
         </View>
         <View style={styles.communityNameContainer}>
           <Text style={styles.communityName}>{selectedChapterName}</Text>
@@ -444,8 +441,8 @@ const CreatePost = ({ route }: any) => {
         <TouchableOpacity
           disabled={
             inputMessage.length > 0 ||
-              displayImages.length > 0 ||
-              displayVideos.length > 0
+            displayImages.length > 0 ||
+            displayVideos.length > 0
               ? false
               : true
           }
@@ -454,8 +451,8 @@ const CreatePost = ({ route }: any) => {
           <Text
             style={
               inputMessage.length > 0 ||
-                displayImages.length > 0 ||
-                displayVideos.length > 0
+              displayImages.length > 0 ||
+              displayVideos.length > 0
                 ? styles.postText
                 : [styles.postText, styles.disabled]
             }
