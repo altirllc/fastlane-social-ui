@@ -12,6 +12,7 @@ export const useStyles = () => {
       zIndex: 1,
       padding: 12,
       paddingTop: 0,
+      paddingEnd: 24,
       flexDirection: 'row',
       justifyContent: 'space-between',
       alignItems: 'center',
@@ -28,7 +29,7 @@ export const useStyles = () => {
     },
     headerText: {
       fontWeight: '600',
-      fontSize: 17,
+      fontSize: 18,
       textAlign: 'center',
       color: theme.colors.base,
     },
@@ -36,7 +37,7 @@ export const useStyles = () => {
       fontWeight: '400',
       fontSize: 15,
       textAlign: 'center',
-      color: theme.colors.primary,
+      color: '#007AFF',
     },
     rowContainer: {
       flexDirection: 'row',
@@ -80,6 +81,7 @@ export const useStyles = () => {
     },
     container: {
       padding: 16,
+      paddingStart: 24,
     },
     AllInputWrap: {
       backgroundColor: theme.colors.background,
@@ -116,6 +118,39 @@ export const useStyles = () => {
     },
     videoContainer: {
       display: 'none',
+    },
+    rowContainerMyTimeLine: {
+      marginVertical: 16,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingHorizontal: 24,
+    },
+    avatar: {
+      width: 40,
+      height: 40,
+      borderRadius: 20,
+    },
+    communityText: {
+      marginLeft: 12,
+      fontSize: 16,
+      fontWeight: '600',
+      color: theme.colors.base,
+    },
+    imageNameContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
+    communityName: {
+      color: '#323642',
+      fontSize: 14,
+      fontWeight: '500',
+    },
+    communityNameContainer: {
+      paddingVertical: 6,
+      paddingHorizontal: 12,
+      borderRadius: 28,
+      backgroundColor: '#EDEFF5',
     },
   });
 
