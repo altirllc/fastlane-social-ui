@@ -10,8 +10,6 @@ import { Icon } from 'react-native-paper';
 // import useConfig from '../../hooks/useConfig';
 import { TabName } from '../../enum/tabNameState';
 import { useNavigation } from '@react-navigation/native';
-import { useDispatch } from 'react-redux';
-import uiSlice from '../../redux/slices/uiSlice';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { getShadowProps } from '../../theme/helpers';
 import { useCustomTheme } from '../../hooks/useCustomTheme';
@@ -20,8 +18,6 @@ import { PlusIcon } from '../../svg/PlusIcon';
 LogBox.ignoreAllLogs(true);
 export default function Home({
   hideCompleteProfileCard,
-  selectedChapterId,
-  selectedChapterName,
 }: {
   hideCompleteProfileCard: boolean;
   selectedChapterId: string;
@@ -30,8 +26,6 @@ export default function Home({
   const styles = useStyles();
   const { client } = useAuth();
   // const theme = useTheme() as MyMD3Theme;
-  const dispatch = useDispatch();
-  const { openPostTypeChoiceModal } = uiSlice.actions;
   // const { excludes } = useConfig();
   const [activeTab] = useState<string>(TabName.NewsFeed);
   const navigation = useNavigation<NativeStackNavigationProp<any>>();
@@ -89,10 +83,7 @@ export default function Home({
       /> */}
       {activeTab === TabName.NewsFeed ? (
         <View>
-          <GlobalFeed
-            selectedChapterId={selectedChapterId}
-            selectedChapterName={selectedChapterName}
-          />
+          <GlobalFeed />
           {/* <FloatingButton onPress={openModal} /> */}
           <TouchableOpacity
             onPress={openModal}
