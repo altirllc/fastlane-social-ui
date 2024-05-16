@@ -39,10 +39,10 @@ import { checkCommunityPermission } from '../../providers/Social/communities-sdk
 import useAuth from '../../hooks/useAuth';
 import AmityMentionInput from '../../components/MentionInput/AmityMentionInput';
 import { TSearchItem } from '../../hooks/useSearch';
-import { UserInterface } from 'amity-react-native-social-ui-kit/src/types/user.interface';
-import { useSelector } from 'react-redux';
-import { RootState } from 'amity-react-native-social-ui-kit/src/redux/store';
+// import { useSelector } from 'react-redux';
+// import { RootState } from 'amity-react-native-social-ui-kit/src/redux/store';
 import { getAmityUser } from 'amity-react-native-social-ui-kit/src/providers/user-provider';
+import { UserInterface } from 'amity-react-native-social-ui-kit/src/types';
 
 export interface IDisplayImage {
   url: string;
@@ -50,6 +50,13 @@ export interface IDisplayImage {
   fileName: string;
   isUploaded: boolean;
   thumbNail?: string;
+}
+interface ICommunityItems {
+  communityId: string;
+  avatarFileId: string;
+  displayName: string;
+  isPublic: boolean;
+  isOfficial: boolean;
 }
 export interface IMentionPosition {
   index: number;
@@ -66,6 +73,8 @@ const CreatePost = ({ route }: any) => {
   const [inputMessage, setInputMessage] = useState('');
   const [targetId, setTargetId] = useState('');
   const [targetType, setTargetType] = useState('');
+  const [defaultChapterName, setDefaultChapterName] = useState('');
+  const [communityItems, setCommunityItems] = useState<ICommunityItems[]>([]);
   const [imageMultipleUri, setImageMultipleUri] = useState<string[]>([]);
   const [videoMultipleUri, setVideoMultipleUri] = useState<string[]>([]);
   const [displayImages, setDisplayImages] = useState<IDisplayImage[]>([]);
@@ -84,17 +93,53 @@ const CreatePost = ({ route }: any) => {
   const userId = route?.params?.userId;
   const selectedChapterId = route?.params?.selectedChapterId;
   const selectedChapterName = route?.params?.selectedChapterName;
+  const defaultChapterId = route?.params?.defaultChapterId;
 
   useEffect(() => {
     if (selectedChapterName === 'All Chapters') {
-      setTargetType('user');
-      setTargetId(userId);
+      setTargetType('community');
+      setTargetId(defaultChapterId);
     } else {
       setTargetType('community');
       setTargetId(selectedChapterId);
     }
 
   }, [selectedChapterId, selectedChapterName, userId])
+
+  const queryCommunities = async () => {
+    const unsubscribe = CommunityRepository.getCommunities(
+      { tags: ['chapter', 'force-array-query-param'], limit: 100 },
+      async ({ data }) => {
+        const formattedData: ICommunityItems[] = data.map(
+          (item: Amity.Community) => {
+            return {
+              communityId: item.communityId as string,
+              avatarFileId: item.avatarFileId as string,
+              displayName: item.displayName as string,
+              isPublic: item.isPublic as boolean,
+              isOfficial: item.isOfficial as boolean,
+            };
+          }
+        );
+        setCommunityItems(formattedData);
+      }
+    );
+    unsubscribe();
+  };
+
+  useEffect(() => {
+    queryCommunities();
+  }, []);
+
+  useEffect(() => {
+    if (communityItems?.length > 0 && selectedChapterId === '' && defaultChapterId !== '') {
+      const chapterObj = communityItems.find(item => item.communityId === defaultChapterId)
+      if (chapterObj) {
+        setDefaultChapterName(chapterObj?.displayName);
+      }
+
+    }
+  }, [communityItems, selectedChapterId, defaultChapterId]);
 
   const getMyUserDetail = useCallback(async () => {
     if (userId) {
@@ -412,20 +457,20 @@ const CreatePost = ({ route }: any) => {
         style={styles.rowContainerMyTimeLine}
       >
         <View style={styles.imageNameContainer}>
-        <Image
-          style={styles.avatar}
-          source={
-            myUser
-              ? {
+          <Image
+            style={styles.avatar}
+            source={
+              myUser
+                ? {
                   uri: `https://api.${apiRegion}.amity.co/api/v3/files/${myUser.avatarFileId}/download`,
                 }
-              : require('./../../../assets/icon/Placeholder.png')
-          }
-        />
-        <Text style={styles.communityText}>{myUser?.displayName}</Text>
+                : require('./../../../assets/icon/Placeholder.png')
+            }
+          />
+          <Text style={styles.communityText}>{myUser?.displayName}</Text>
         </View>
         <View style={styles.communityNameContainer}>
-          <Text style={styles.communityName}>{selectedChapterName}</Text>
+          <Text style={styles.communityName}>{selectedChapterId !== '' ? selectedChapterName : defaultChapterName}</Text>
         </View>
       </View>
     );

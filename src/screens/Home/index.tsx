@@ -3,15 +3,16 @@ import * as React from 'react';
 import { useEffect, useState } from 'react';
 import { View, TouchableOpacity, LogBox } from 'react-native';
 import useAuth from '../../hooks/useAuth';
-import GlobalFeed from '../GlobalFeed';
+import GlobalFeed from '../GlobalFeed/';
+import Feed from '../../screens/Feed/index';
 import { useStyles } from './styles';
 import { Icon } from 'react-native-paper';
 // import type { MyMD3Theme } from '../../providers/amity-ui-kit-provider';
 // import useConfig from '../../hooks/useConfig';
 import { TabName } from '../../enum/tabNameState';
 import { useNavigation } from '@react-navigation/native';
-import { useDispatch } from 'react-redux';
-import uiSlice from '../../redux/slices/uiSlice';
+// import { useDispatch } from 'react-redux';
+// import uiSlice from '../../redux/slices/uiSlice';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { getShadowProps } from '../../theme/helpers';
 import { useCustomTheme } from '../../hooks/useCustomTheme';
@@ -22,16 +23,18 @@ export default function Home({
   hideCompleteProfileCard,
   selectedChapterId,
   selectedChapterName,
+  defaultChapterId,
 }: {
   hideCompleteProfileCard: boolean;
   selectedChapterId: string;
   selectedChapterName: string;
+  defaultChapterId: string;
 }) {
   const styles = useStyles();
   const { client } = useAuth();
   // const theme = useTheme() as MyMD3Theme;
-  const dispatch = useDispatch();
-  const { openPostTypeChoiceModal } = uiSlice.actions;
+  // const dispatch = useDispatch();
+  // const { openPostTypeChoiceModal } = uiSlice.actions;
   // const { excludes } = useConfig();
   const [activeTab] = useState<string>(TabName.NewsFeed);
   const navigation = useNavigation<NativeStackNavigationProp<any>>();
@@ -89,8 +92,9 @@ export default function Home({
       /> */}
       {activeTab === TabName.NewsFeed ? (
         <View>
-          <GlobalFeed
-            selectedChapterId={selectedChapterId}
+          <Feed
+            targetId={selectedChapterId}
+            targetType="community" 
             selectedChapterName={selectedChapterName}
           />
           {/* <FloatingButton onPress={openModal} /> */}

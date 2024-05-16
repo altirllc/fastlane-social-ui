@@ -298,14 +298,16 @@ const PostDetail = () => {
   return loading ? (
     <View />
   ) : (
+
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'height' : 'height'}
       keyboardVerticalOffset={Platform.select({ ios: 200, android: 80 })}
       style={styles.AllInputWrap}
     >
       <ScrollView onScroll={handleScroll} style={styles.container}>
+
         <PostList
-          onChange={() => {}}
+          onChange={() => { }}
           postDetail={currentPostdetail as IPost}
           isGlobalfeed={isFromGlobalfeed}
         />

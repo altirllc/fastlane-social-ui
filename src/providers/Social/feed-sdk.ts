@@ -76,24 +76,20 @@ export async function removePostReaction(
   );
   return reactionObject;
 }
-export function getPostById(postId: string): Promise<any> {
-  const communityObject = new Promise((resolve, reject) => {
-    let object;
-    const unsubscribe = PostRepository.getPost(
-      postId,
-      ({ data: postInfo, loading, error }) => {
-        if (error) {
-          reject(error);
+export async function getPostById(postId: string): Promise<any> {
+  return await new Promise((resolve, reject) => {
+    const unsubscribe = PostRepository.getPost(postId, (postObject) => {
+      if (postObject) {
+        if (postObject?.data) {
+          resolve({ data: postObject?.data, unsubscribe });
         }
-        if (!loading) {
-          object = postInfo;
-        }
+      } else {
+        reject((postObject as Record<string, any>).error);
       }
-    );
-    resolve({ data: object, unsubscribe });
+    });
   });
-  return communityObject;
 }
+
 export async function createPostToFeed(
   targetType: string,
   targetId: string,

@@ -1,4 +1,5 @@
 import React, { useCallback, useMemo, useRef, useState } from 'react';
+// import moment from 'moment-timezone';
 // import { useTranslation } from 'react-i18next';
 import { FlatList, View } from 'react-native';
 import {
@@ -19,7 +20,7 @@ import { RootState } from '../../redux/store';
 import { useFocusEffect } from '@react-navigation/native';
 import { RefreshControl } from 'react-native';
 
-export default function GlobalFeed({ selectedChapterId, selectedChapterName}: any) {
+export default function GlobalFeed() {
   const { postList } = useSelector((state: RootState) => state.globalFeed);
   const [refreshing, setRefreshing] = useState(false);
   // const { excludes } = useConfig();
