@@ -7,7 +7,7 @@ export const useStyle = () => {
   const styles = StyleSheet.create({
     feedWrap: {
       backgroundColor: theme.colors.baseShade4,
-      height: '100%',
+      height:'100%',
     },
   });
   return styles;

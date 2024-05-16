@@ -41,10 +41,12 @@ export default function SocialNavigator({
   hideCompleteProfileCard,
   selectedChapterId,
   selectedChapterName,
+  defaultChapterId,
 }: {
   hideCompleteProfileCard: boolean;
   selectedChapterId: string;
   selectedChapterName: string;
+  defaultChapterId: string;
 }) {
   const Stack = createNativeStackNavigator<RootStackParamList>();
   const { isConnected } = useAuth();
@@ -60,7 +62,7 @@ export default function SocialNavigator({
           }}
         >
           <Stack.Screen name="Home">
-            {() => <Home hideCompleteProfileCard={hideCompleteProfileCard} selectedChapterId={selectedChapterId} selectedChapterName={selectedChapterName} />}
+            {() => <Home hideCompleteProfileCard={hideCompleteProfileCard} selectedChapterId={selectedChapterId} selectedChapterName={selectedChapterName} defaultChapterId={defaultChapterId} />}
           </Stack.Screen>
           {/* <Stack.Screen name="Explore" component={Explore} /> */}
           <Stack.Screen
@@ -171,6 +173,7 @@ export default function SocialNavigator({
             initialParams={{
               selectedChapterId: selectedChapterId,
               selectedChapterName: selectedChapterName,
+              defaultChapterId: defaultChapterId,
             }}
           />
           <Stack.Screen

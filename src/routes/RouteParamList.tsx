@@ -34,6 +34,7 @@ export type RootStackParamList = {
     needApprovalOnPostCreation: boolean;
     selectedChapterId?: string;
     selectedChapterName?: string;
+    defaultChapterId?: string;
   };
   CreatePoll: {
     targetId: string;

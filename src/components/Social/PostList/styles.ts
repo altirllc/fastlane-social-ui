@@ -39,12 +39,15 @@ export const useStyles = () => {
       flexDirection: 'row',
       flex: 1,
     },
-
+    chapterNameText: {
+      fontSize: 13,
+      fontWeight: '400',
+      color: theme.colors.baseShade1,
+    },
     headerTextTime: {
       fontSize: 13,
       fontWeight: '400',
       color: theme.colors.baseShade1,
-      marginVertical: 4,
     },
     bodySection: {
       justifyContent: 'center',
@@ -101,6 +104,7 @@ export const useStyles = () => {
       marginRight: 12,
       backgroundColor: '#D9E5FC',
       alignItems: 'center',
+      alignSelf: 'center',
       justifyContent: 'center',
     },
     likedText: {

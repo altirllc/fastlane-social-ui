@@ -32,17 +32,17 @@ npm install --save react-native-image-viewing
 ## Usage
 
 ```jsx
-import ImageView from "react-native-image-viewing";
+import ImageView from 'react-native-image-viewing';
 
 const images = [
   {
-    uri: "https://images.unsplash.com/photo-1571501679680-de32f1e7aad4",
+    uri: 'https://images.unsplash.com/photo-1571501679680-de32f1e7aad4',
   },
   {
-    uri: "https://images.unsplash.com/photo-1573273787173-0eb81a833b34",
+    uri: 'https://images.unsplash.com/photo-1573273787173-0eb81a833b34',
   },
   {
-    uri: "https://images.unsplash.com/photo-1569569970363-df7b6160d111",
+    uri: 'https://images.unsplash.com/photo-1569569970363-df7b6160d111',
   },
 ];
 
@@ -53,7 +53,7 @@ const [visible, setIsVisible] = useState(false);
   imageIndex={0}
   visible={visible}
   onRequestClose={() => setIsVisible(false)}
-/>
+/>;
 ```
 
 #### [See Example](https://github.com/jobtoday/react-native-image-viewing/blob/master/example/App.tsx#L62-L80)
@@ -63,7 +63,7 @@ const [visible, setIsVisible] = useState(false);
 | Prop name                | Description                                                                                         | Type                                                        | Required |
 | ------------------------ | --------------------------------------------------------------------------------------------------- | ----------------------------------------------------------- | -------- |
 | `images`                 | Array of images to display                                                                          | ImageSource[]                                               | true     |
-| `keyExtractor`           | Uniqely identifying each image    | (imageSrc: ImageSource, index: number) => string | false |
+| `keyExtractor`           | Uniqely identifying each image                                                                      | (imageSrc: ImageSource, index: number) => string            | false    |
 | `imageIndex`             | Current index of image to display                                                                   | number                                                      | true     |
 | `visible`                | Is modal shown or not                                                                               | boolean                                                     | true     |
 | `onRequestClose`         | Function called to close the modal                                                                  | function                                                    | true     |

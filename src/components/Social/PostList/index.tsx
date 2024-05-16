@@ -68,6 +68,7 @@ export interface IPostList {
   postIndex?: number;
   isGlobalfeed?: boolean;
   showBackBtn?: boolean;
+  chapterName?: string;
 }
 export interface MediaUri {
   uri: string;
@@ -84,6 +85,7 @@ export default function PostList({
   onDelete,
   isGlobalfeed = true,
   showBackBtn = false,
+  chapterName,
 }: IPostList) {
   const theme = useTheme() as MyMD3Theme;
   const { client, apiRegion } = useAuth();
@@ -333,7 +335,7 @@ export default function PostList({
               styles.modalContent,
               modalStyle,
               user?.userId === (client as Amity.Client).userId &&
-                styles.twoOptions,
+              styles.twoOptions,
             ]}
           >
             {user?.userId === (client as Amity.Client).userId ? (
@@ -393,15 +395,9 @@ export default function PostList({
   return (
     <View key={postId} style={styles.postWrap}>
       <View style={styles.headerSection}>
-        {showBackBtn ? null : (
-          <View style={styles.backBtn}>
-            <BackButton
-              onPress={() => {
-                console.log('back');
-              }}
-            />
-          </View>
-        )}
+        {showBackBtn ? null : <View style={styles.backBtn}><BackButton onPress={() => {
+          console.log("back")
+        }} /></View>}
         <View style={styles.user}>
           {user?.avatarFileId ? (
             <Image
@@ -421,28 +417,16 @@ export default function PostList({
               <TouchableOpacity onPress={handleDisplayNamePress}>
                 <Text style={styles.headerText}>{user?.displayName}</Text>
               </TouchableOpacity>
-
-              {/* {communityName && (
-                <View style={styles.communityNameContainer}>
-                  <SvgXml
-                    style={styles.arrow}
-                    xml={arrowXml}
-                    width="8"
-                    height="8"
-                  />
-
-                  <TouchableOpacity onPress={handleCommunityNamePress}>
+            </View>
+            {chapterName && (
                     <Text
                       ellipsizeMode="tail"
-                      numberOfLines={3}
-                      style={styles.headerText}
+                      numberOfLines={1}
+                      style={styles.chapterNameText}
                     >
-                      {communityName}
+                      {chapterName}
                     </Text>
-                  </TouchableOpacity>
-                </View>
-              )} */}
-            </View>
+              )}
             <View style={styles.timeRow}>
               <Text style={styles.headerTextTime}>{timeDifference}</Text>
               {(editedAt !== createdAt || isEdit) && (
