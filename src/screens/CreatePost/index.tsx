@@ -41,10 +41,10 @@ import AmityMentionInput from '../../components/MentionInput/AmityMentionInput';
 import { TSearchItem } from '../../hooks/useSearch';
 // import { useSelector } from 'react-redux';
 // import { RootState } from 'amity-react-native-social-ui-kit/src/redux/store';
-import { getAmityUser } from 'amity-react-native-social-ui-kit/src/providers/user-provider';
-import { UserInterface } from 'amity-react-native-social-ui-kit/src/types/user.interface';
 import { SocialContext } from '../../store/context';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { getAmityUser } from '../../providers/user-provider';
+import { UserInterface } from '../../types';
 
 export interface IDisplayImage {
   url: string;

@@ -55,6 +55,7 @@ export default function SocialNavigator({
   socialNavigation: any;
   userData: {
     avatarUrl: string;
+    stepsCompleted: number;
   };
 }) {
   const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -86,7 +87,8 @@ export default function SocialNavigator({
                   selectedChapterName={selectedChapterName}
                   defaultChapterId={defaultChapterId}
                   socialNavigation={socialNavigation}
-                  avatarUrl={userData.avatarUrl}
+                  avatarUrl={userData?.avatarUrl}
+                  stepsCompleted={userData?.stepsCompleted}
                 />
               )}
             </Stack.Screen>
