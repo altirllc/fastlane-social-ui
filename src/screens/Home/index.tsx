@@ -123,7 +123,10 @@ export default function Home({
           />
         </View>
       </View>
-      <TouchableOpacity style={styles.titleContainer} onPress={onDropdownClick}>
+      <TouchableOpacity
+        style={styles.titleContainer}
+        onPress={() => onDropdownClick(selectedChapterId)}
+      >
         <Text style={styles.chapterName}>{selectedChapterName}</Text>
         <View style={styles.chevronDownIcon}>
           <ChevronDownIcon height={17} width={17} />
