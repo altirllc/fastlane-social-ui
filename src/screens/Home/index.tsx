@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import * as React from 'react';
-import { useEffect, useState } from 'react';
-import { View, TouchableOpacity, LogBox } from 'react-native';
+import { useContext, useEffect, useState } from 'react';
+import { View, TouchableOpacity, LogBox, Text } from 'react-native';
 import useAuth from '../../hooks/useAuth';
 import Feed from '../../screens/Feed/index';
 import { useStyles } from './styles';
@@ -9,13 +9,18 @@ import { Icon } from 'react-native-paper';
 // import type { MyMD3Theme } from '../../providers/amity-ui-kit-provider';
 // import useConfig from '../../hooks/useConfig';
 import { TabName } from '../../enum/tabNameState';
-import { useNavigation } from '@react-navigation/native';
+import { DrawerActions, useNavigation } from '@react-navigation/native';
 // import { useDispatch } from 'react-redux';
 // import uiSlice from '../../redux/slices/uiSlice';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { getShadowProps } from '../../theme/helpers';
 import { useCustomTheme } from '../../hooks/useCustomTheme';
 import { PlusIcon } from '../../svg/PlusIcon';
+import { Avatar } from '../../../../../src/components/Avatar/Avatar';
+import { screens } from '../../../../../src/constants/screens';
+import { SideBarIcon } from '../../svg/Sidebar';
+import { ChevronDownIcon } from '../../svg/ChevronDown';
+import { SocialContext } from '../../store/context';
 
 LogBox.ignoreAllLogs(true);
 export default function Home({
@@ -23,11 +28,15 @@ export default function Home({
   selectedChapterId,
   selectedChapterName,
   // defaultChapterId,
+  socialNavigation,
+  avatarUrl,
 }: {
   hideCompleteProfileCard: boolean;
   selectedChapterId: string;
   selectedChapterName: string;
   defaultChapterId: string;
+  socialNavigation: any;
+  avatarUrl: string;
 }) {
   const styles = useStyles();
   const { client } = useAuth();
@@ -38,6 +47,7 @@ export default function Home({
   const [activeTab] = useState<string>(TabName.NewsFeed);
   const navigation = useNavigation<NativeStackNavigationProp<any>>();
   const { colors } = useCustomTheme();
+  const { onDropdownClick } = useContext(SocialContext);
 
   const onClickSearch = () => {
     navigation.navigate('CommunitySearch');
@@ -78,39 +88,63 @@ export default function Home({
     //   })
     // );
   };
-  // return null;
+
   return (
-    <View>
-      {/* <CustomTab
-        tabName={
-          excludes.includes(ComponentID.StoryTab)
-            ? [TabName.NewsFeed, TabName.Explore]
-            : [TabName.NewsFeed, TabName.Explore, TabName.MyCommunities]
-        }
-        onTabChange={setActiveTab}
-      /> */}
-        <View>
-          <Feed
-            targetId={selectedChapterId}
-            targetType="community"
-            selectedChapterName={selectedChapterName}
-          />
-          {/* <FloatingButton onPress={openModal} /> */}
+    <View style={styles.container}>
+      <View
+        style={[
+          styles.welcomeContainer,
+          { backgroundColor: colors.secondary.main },
+        ]}
+      >
+        <View style={styles.width1}>
           <TouchableOpacity
-            onPress={openModal}
-            style={[
-              hideCompleteProfileCard
-                ? styles.createFeedButton
-                : styles.createFeedButtonWithoutProfileComplete,
-              {
-                ...getShadowProps({ color: colors.secondary.main }),
-                backgroundColor: colors.primary.main,
-              },
-            ]}
+            onPress={() => {
+              socialNavigation.dispatch(DrawerActions.openDrawer());
+            }}
           >
-            <Icon source={PlusIcon} size={'xs'} color="transparent" />
+            <SideBarIcon height={30} width={30} />
           </TouchableOpacity>
         </View>
+        <View style={styles.width2} />
+        <View style={styles.width1}>
+          <Avatar
+            image={avatarUrl}
+            size={40}
+            onPress={() => {
+              socialNavigation.navigate(screens.Profile);
+            }}
+            light={true}
+            shadow
+            disabled={hideCompleteProfileCard}
+          />
+        </View>
+      </View>
+      <TouchableOpacity style={styles.titleContainer} onPress={onDropdownClick}>
+        <Text style={styles.chapterName}>{selectedChapterName}</Text>
+        <View style={styles.chevronDownIcon}>
+          <ChevronDownIcon height={17} width={17} />
+        </View>
+      </TouchableOpacity>
+      <Feed
+        targetId={selectedChapterId}
+        targetType="community"
+        selectedChapterName={selectedChapterName}
+      />
+      <TouchableOpacity
+        onPress={openModal}
+        style={[
+          hideCompleteProfileCard
+            ? styles.createFeedButton
+            : styles.createFeedButtonWithoutProfileComplete,
+          {
+            ...getShadowProps({ color: colors.secondary.main }),
+            backgroundColor: colors.primary.main,
+          },
+        ]}
+      >
+        <Icon source={PlusIcon} size={'xs'} color="transparent" />
+      </TouchableOpacity>
     </View>
   );
 }

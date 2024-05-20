@@ -43,7 +43,8 @@ import { TSearchItem } from '../../hooks/useSearch';
 // import { RootState } from 'amity-react-native-social-ui-kit/src/redux/store';
 import { getAmityUser } from 'amity-react-native-social-ui-kit/src/providers/user-provider';
 import { UserInterface } from 'amity-react-native-social-ui-kit/src/types/user.interface';
-import { SocialContext } from 'amity-react-native-social-ui-kit/src/store/context';
+import { SocialContext } from '../../store/context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export interface IDisplayImage {
   url: string;
@@ -69,6 +70,7 @@ export interface IMentionPosition {
 const CreatePost = ({ route }: any) => {
   const theme = useTheme() as MyMD3Theme;
   const styles = useStyles();
+  const { top } = useSafeAreaInsets();
   //const { targetId, targetType, targetName } = route.params;
   const navigation = useNavigation<NativeStackNavigationProp<any>>();
   const [inputMessage, setInputMessage] = useState('');
@@ -106,8 +108,7 @@ const CreatePost = ({ route }: any) => {
       setTargetType('community');
       setTargetId(selectedChapterId);
     }
-
-  }, [selectedChapterId, selectedChapterName, userId])
+  }, [selectedChapterId, selectedChapterName, userId]);
 
   const queryCommunities = async () => {
     const unsubscribe = CommunityRepository.getCommunities(
@@ -135,12 +136,17 @@ const CreatePost = ({ route }: any) => {
   }, []);
 
   useEffect(() => {
-    if (communityItems?.length > 0 && selectedChapterId === '' && defaultChapterId !== '') {
-      const chapterObj = communityItems.find(item => item.communityId === defaultChapterId)
+    if (
+      communityItems?.length > 0 &&
+      selectedChapterId === '' &&
+      defaultChapterId !== ''
+    ) {
+      const chapterObj = communityItems.find(
+        (item) => item.communityId === defaultChapterId
+      );
       if (chapterObj) {
         setDefaultChapterName(chapterObj?.displayName);
       }
-
     }
   }, [communityItems, selectedChapterId, defaultChapterId]);
 
@@ -456,32 +462,42 @@ const CreatePost = ({ route }: any) => {
 
   const renderMyTimeLine = () => {
     return (
-      <View
-        style={styles.rowContainerMyTimeLine}
-      >
+      <View style={styles.rowContainerMyTimeLine}>
         <View style={styles.imageNameContainer}>
           <Image
             style={styles.avatar}
             source={
               myUser
                 ? {
-                  uri: `https://api.${apiRegion}.amity.co/api/v3/files/${myUser.avatarFileId}/download`,
-                }
+                    uri: `https://api.${apiRegion}.amity.co/api/v3/files/${myUser.avatarFileId}/download`,
+                  }
                 : require('./../../../assets/icon/Placeholder.png')
             }
           />
           <Text style={styles.communityText}>{myUser?.displayName}</Text>
         </View>
-        <TouchableOpacity style={styles.communityNameContainer} onPress={() => onDropdownClick(selectedChapterId)}>
-          <Text style={styles.communityName}>{selectedChapterId !== '' ? selectedChapterName : defaultChapterName}</Text>
-          <SvgXml xml={arrowDown(theme.colors.base)} width="12" height="12" style={styles.downArrow} />
+        <TouchableOpacity
+          style={styles.communityNameContainer}
+          onPress={() => onDropdownClick(selectedChapterId)}
+        >
+          <Text style={styles.communityName}>
+            {selectedChapterId !== ''
+              ? selectedChapterName
+              : defaultChapterName}
+          </Text>
+          <SvgXml
+            xml={arrowDown(theme.colors.base)}
+            width="12"
+            height="12"
+            style={styles.downArrow}
+          />
         </TouchableOpacity>
       </View>
     );
   };
 
   return (
-    <View style={styles.AllInputWrap}>
+    <View style={[styles.AllInputWrap, { paddingTop: top }]}>
       {/* <SafeAreaView style={styles.barContainer} edges={['top']}> */}
       <View style={styles.header}>
         <TouchableOpacity style={styles.closeButton} onPress={goBack}>
@@ -493,8 +509,8 @@ const CreatePost = ({ route }: any) => {
         <TouchableOpacity
           disabled={
             inputMessage.length > 0 ||
-              displayImages.length > 0 ||
-              displayVideos.length > 0
+            displayImages.length > 0 ||
+            displayVideos.length > 0
               ? false
               : true
           }
@@ -503,8 +519,8 @@ const CreatePost = ({ route }: any) => {
           <Text
             style={
               inputMessage.length > 0 ||
-                displayImages.length > 0 ||
-                displayVideos.length > 0
+              displayImages.length > 0 ||
+              displayVideos.length > 0
                 ? styles.postText
                 : [styles.postText, styles.disabled]
             }
