@@ -1,6 +1,7 @@
 import { StyleSheet } from 'react-native';
 import { useTheme } from 'react-native-paper';
 import type { MyMD3Theme } from '../../../providers/amity-ui-kit-provider';
+import { SCREEN_PADDING } from '../../../theme';
 
 export const useStyles = () => {
   const theme = useTheme() as MyMD3Theme;
@@ -8,8 +9,8 @@ export const useStyles = () => {
   const styles = StyleSheet.create({
     postWrap: {
       backgroundColor: theme.colors.background,
-      marginTop: 8,
-      paddingHorizontal: 16,
+      marginBottom: 8,
+      paddingHorizontal: SCREEN_PADDING,
       paddingTop: 4,
     },
     backBtn: {

@@ -1,11 +1,20 @@
+import { SCREEN_PADDING } from '../../theme';
 import { StyleSheet } from 'react-native';
 import { useTheme } from 'react-native-paper';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import type { MyMD3Theme } from 'src/providers/amity-ui-kit-provider';
 
 export const useStyles = () => {
   const theme = useTheme() as MyMD3Theme;
+  const { top } = useSafeAreaInsets();
 
   const styles = StyleSheet.create({
+    container: {
+      height: '100%',
+      width: '100%',
+      paddingTop: top,
+      backgroundColor: theme.colors.background,
+    },
     modalContainer: {
       flex: 1,
       justifyContent: 'flex-end',
@@ -74,6 +83,37 @@ export const useStyles = () => {
       borderRadius: 28,
       alignItems: 'center',
       justifyContent: 'center',
+    },
+    welcomeContainer: {
+      paddingHorizontal: SCREEN_PADDING,
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      width: '100%',
+      paddingBottom: 10,
+    },
+    width1: {
+      width: '10%',
+      alignItems: 'center',
+    },
+    width2: {
+      width: '80%',
+      alignItems: 'center',
+    },
+    titleContainer: {
+      width: '100%',
+      alignSelf: 'flex-start',
+      flexDirection: 'row',
+      paddingVertical: 15,
+      paddingHorizontal: SCREEN_PADDING,
+    },
+    chevronDownIcon: {
+      alignSelf: 'center',
+      marginStart: 20,
+    },
+    chapterName: {
+      fontWeight: '600',
+      fontSize: 24,
     },
   });
 
