@@ -1,7 +1,6 @@
 import React, {
   forwardRef,
   useCallback,
-  useEffect,
   useImperativeHandle,
   useState,
 } from 'react';
@@ -28,11 +27,12 @@ import { RootState } from '../../redux/store';
 import feedSlice from '../../redux/slices/feedSlice';
 import { useFocusEffect } from '@react-navigation/native';
 import useAuth from '../../hooks/useAuth';
-import { LoadingOverlay } from 'amity-react-native-social-ui-kit/src/components/LoadingOverlay';
+import { LoadingOverlay } from '../../components/LoadingOverlay';
 
 interface IFeed {
   targetId: string;
   targetType: string;
+  selectedChapterName?: string;
 }
 interface ICommunityItems {
   communityId: string;
@@ -54,7 +54,7 @@ function Feed({ targetId, targetType }: IFeed, ref: React.Ref<FeedRefType>) {
   const { data: posts, onNextPage, hasNextPage } = postData ?? {};
   const [loading, setLoading] = useState(false);
   const [unSubFunc, setUnSubPageFunc] = useState<() => void>();
-  const { client } = useAuth();
+  const { client }: any = useAuth();
   const accessToken = client?.token?.accessToken;
   const dispatch = useDispatch();
 
@@ -80,7 +80,7 @@ function Feed({ targetId, targetType }: IFeed, ref: React.Ref<FeedRefType>) {
     );
     unsubscribe();
   };
-  
+
   function extractCommunityIds(data) {
     return data.map(item => item.communityId);
   }
@@ -101,19 +101,19 @@ function Feed({ targetId, targetType }: IFeed, ref: React.Ref<FeedRefType>) {
         size: 500,
       })
     })
-    .then(response => {
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
-      }
-      return response.json();
-    })
-    .then(data => {
-      fetchPostDetail(data?.postIds);
-    })
-    .catch(error => {
-      console.error('Error fetching data one:', error);
-      fetchAllChaptersPostId();
-    });
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.json();
+      })
+      .then(data => {
+        fetchPostDetail(data?.postIds);
+      })
+      .catch(error => {
+        console.error('Error fetching data one:', error);
+        fetchAllChaptersPostId();
+      });
   };
 
   const fetchPostDetail = (postIds) => {
@@ -121,7 +121,7 @@ function Feed({ targetId, targetType }: IFeed, ref: React.Ref<FeedRefType>) {
       acc.append("postIds", p);
       return acc;
     }, new URLSearchParams());
-  
+
     fetch(`https://api.us.amity.co/api/v3/posts/list?${searchParams}`, {
       method: 'GET',
       headers: {
@@ -129,25 +129,25 @@ function Feed({ targetId, targetType }: IFeed, ref: React.Ref<FeedRefType>) {
         'Authorization': `Bearer ${accessToken}`
       },
     })
-    .then(response => {
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
-      }
-      return response.json();
-    })
-    .then(data => {
-      return amityPostsFormatter(data?.posts);
-    })
-    .then(formattedPostList => {
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.json();
+      })
+      .then(data => {
+        return amityPostsFormatter(data?.posts);
+      })
+      .then(formattedPostList => {
         const invertedList = formattedPostList.reverse();
         dispatch(updateFeed(invertedList));
         setLoading(false);
-    })
-    .catch(error => {
-      console.error('Error fetching data two:', error);
-    });
+      })
+      .catch(error => {
+        console.error('Error fetching data two:', error);
+      });
   };
-  
+
   useFocusEffect(
     useCallback(() => {
       setLoading(true);
@@ -156,13 +156,13 @@ function Feed({ targetId, targetType }: IFeed, ref: React.Ref<FeedRefType>) {
   );
 
   useFocusEffect(
-  useCallback(() => {
-    if (targetId === '' && communityIds?.length > 0) {
-      setLoading(true);
-      fetchAllChaptersPostId()
-    }
-  }, [targetId, communityIds])
-);  
+    useCallback(() => {
+      if (targetId === '' && communityIds?.length > 0) {
+        setLoading(true);
+        fetchAllChaptersPostId()
+      }
+    }, [targetId, communityIds])
+  );
 
   const disposers: Amity.Unsubscriber[] = [];
   let isSubscribed = false;
@@ -245,7 +245,7 @@ function Feed({ targetId, targetType }: IFeed, ref: React.Ref<FeedRefType>) {
   );
 
   const getPostList = useCallback(async () => {
-    if (posts.length > 0  && targetId !== '') {
+    if (posts.length > 0 && targetId !== '') {
       const formattedPostList = await amityPostsFormatter(posts);
       dispatch(updateFeed(formattedPostList));
       setLoading(false);
@@ -269,13 +269,13 @@ function Feed({ targetId, targetType }: IFeed, ref: React.Ref<FeedRefType>) {
     }
   };
 
-  function getFeedChapterName (targetId: string) {
+  function getFeedChapterName(targetId: string) {
     let chapterName = '';
     const chapterObj = communityItems.find(item => item.communityId === targetId);
     if (chapterObj) {
       chapterName = chapterObj.displayName;
-      return chapterName;
     }
+    return chapterName;
   }
 
   return (

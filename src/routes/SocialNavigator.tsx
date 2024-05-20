@@ -36,17 +36,20 @@ import VideoPlayerFull from '../screens/VideoPlayerFullScreen';
 import PostTypeChoiceModal from '../components/PostTypeChoiceModal/PostTypeChoiceModal';
 import CreatePoll from '../screens/CreatePoll/CreatePoll';
 import ReactionListScreen from '../screens/ReactionListScreen/ReactionListScreen';
+import { SocialContext } from 'amity-react-native-social-ui-kit/src/store/context';
 
 export default function SocialNavigator({
   hideCompleteProfileCard,
   selectedChapterId,
   selectedChapterName,
   defaultChapterId,
+  onDropdownClick,
 }: {
   hideCompleteProfileCard: boolean;
   selectedChapterId: string;
   selectedChapterName: string;
   defaultChapterId: string;
+  onDropdownClick: (value) => void;
 }) {
   const Stack = createNativeStackNavigator<RootStackParamList>();
   const { isConnected } = useAuth();
@@ -55,6 +58,7 @@ export default function SocialNavigator({
   const styles = useStyles();
   return (
     <NavigationContainer independent={true}>
+      <SocialContext.Provider value={{ selectedChapterId, selectedChapterName, defaultChapterId, onDropdownClick }}>
       {isConnected && (
         <Stack.Navigator
           screenOptions={{
@@ -223,6 +227,7 @@ export default function SocialNavigator({
         </Stack.Navigator>
       )}
       <PostTypeChoiceModal />
+      </SocialContext.Provider>
     </NavigationContainer>
   );
 }

@@ -145,13 +145,18 @@ export const useStyles = () => {
       color: '#323642',
       fontSize: 14,
       fontWeight: '500',
+      marginEnd: 8,
     },
     communityNameContainer: {
       paddingVertical: 6,
       paddingHorizontal: 12,
       borderRadius: 28,
       backgroundColor: '#EDEFF5',
+      flexDirection: 'row',
     },
+    downArrow: {
+      alignSelf: 'center',
+    }
   });
 
   return styles;

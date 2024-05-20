@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 // import moment from 'moment-timezone';
 // import { useTranslation } from 'react-i18next';
 import { FlatList, View } from 'react-native';
