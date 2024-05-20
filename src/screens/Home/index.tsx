@@ -3,7 +3,6 @@ import * as React from 'react';
 import { useEffect, useState } from 'react';
 import { View, TouchableOpacity, LogBox } from 'react-native';
 import useAuth from '../../hooks/useAuth';
-import GlobalFeed from '../GlobalFeed/';
 import Feed from '../../screens/Feed/index';
 import { useStyles } from './styles';
 import { Icon } from 'react-native-paper';
@@ -23,7 +22,7 @@ export default function Home({
   hideCompleteProfileCard,
   selectedChapterId,
   selectedChapterName,
-  defaultChapterId,
+  // defaultChapterId,
 }: {
   hideCompleteProfileCard: boolean;
   selectedChapterId: string;
@@ -90,11 +89,10 @@ export default function Home({
         }
         onTabChange={setActiveTab}
       /> */}
-      {activeTab === TabName.NewsFeed ? (
         <View>
           <Feed
             targetId={selectedChapterId}
-            targetType="community" 
+            targetType="community"
             selectedChapterName={selectedChapterName}
           />
           {/* <FloatingButton onPress={openModal} /> */}
@@ -113,11 +111,6 @@ export default function Home({
             <Icon source={PlusIcon} size={'xs'} color="transparent" />
           </TouchableOpacity>
         </View>
-      ) : activeTab === TabName.Explore ? (
-        <View>{/* <Explore /> */}</View>
-      ) : (
-        <View>{/* <AllMyCommunity /> */}</View>
-      )}
     </View>
   );
 }

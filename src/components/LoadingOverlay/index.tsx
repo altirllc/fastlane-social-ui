@@ -3,7 +3,8 @@ import { ActivityIndicator, View, StyleSheet } from 'react-native';
 import { useTheme } from "react-native-paper";
 import type { MyMD3Theme } from "../../providers/amity-ui-kit-provider";
 interface LoadingOverlayProps {
-
+  isLoading?: Boolean;
+  loadingText?: string;
 }
 
 export const LoadingOverlay: React.FC<LoadingOverlayProps> = ({ }) => {

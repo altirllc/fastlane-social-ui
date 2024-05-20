@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import {
   TouchableOpacity,
   View,
@@ -42,7 +42,8 @@ import { TSearchItem } from '../../hooks/useSearch';
 // import { useSelector } from 'react-redux';
 // import { RootState } from 'amity-react-native-social-ui-kit/src/redux/store';
 import { getAmityUser } from 'amity-react-native-social-ui-kit/src/providers/user-provider';
-import { UserInterface } from 'amity-react-native-social-ui-kit/src/types';
+import { UserInterface } from 'amity-react-native-social-ui-kit/src/types/user.interface';
+import { SocialContext } from 'amity-react-native-social-ui-kit/src/store/context';
 
 export interface IDisplayImage {
   url: string;
@@ -91,9 +92,11 @@ const CreatePost = ({ route }: any) => {
   const privateCommunityId = !community?.isPublic && community?.communityId;
   const { client, apiRegion } = useAuth();
   const userId = route?.params?.userId;
-  const selectedChapterId = route?.params?.selectedChapterId;
-  const selectedChapterName = route?.params?.selectedChapterName;
-  const defaultChapterId = route?.params?.defaultChapterId;
+  const socialContext = useContext(SocialContext);
+  const selectedChapterId = socialContext?.selectedChapterId;
+  const selectedChapterName = socialContext?.selectedChapterName;
+  const defaultChapterId = socialContext?.defaultChapterId;
+  const onDropdownClick = socialContext?.onDropdownClick;
 
   useEffect(() => {
     if (selectedChapterName === 'All Chapters') {
@@ -469,9 +472,10 @@ const CreatePost = ({ route }: any) => {
           />
           <Text style={styles.communityText}>{myUser?.displayName}</Text>
         </View>
-        <View style={styles.communityNameContainer}>
+        <TouchableOpacity style={styles.communityNameContainer} onPress={() => onDropdownClick(selectedChapterId)}>
           <Text style={styles.communityName}>{selectedChapterId !== '' ? selectedChapterName : defaultChapterName}</Text>
-        </View>
+          <SvgXml xml={arrowDown(theme.colors.base)} width="12" height="12" style={styles.downArrow} />
+        </TouchableOpacity>
       </View>
     );
   };
