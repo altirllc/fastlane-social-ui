@@ -21,6 +21,7 @@ import { screens } from '../../../../../src/constants/screens';
 import { SideBarIcon } from '../../svg/Sidebar';
 import { ChevronDownIcon } from '../../svg/ChevronDown';
 import { SocialContext } from '../../store/context';
+import { CompleteProfileCard } from '../../../../../src/components/CompleteProfileCard/CompleteProfileCard';
 
 LogBox.ignoreAllLogs(true);
 export default function Home({
@@ -30,6 +31,7 @@ export default function Home({
   // defaultChapterId,
   socialNavigation,
   avatarUrl,
+  stepsCompleted,
 }: {
   hideCompleteProfileCard: boolean;
   selectedChapterId: string;
@@ -37,6 +39,7 @@ export default function Home({
   defaultChapterId: string;
   socialNavigation: any;
   avatarUrl: string;
+  stepsCompleted: number;
 }) {
   const styles = useStyles();
   const { client } = useAuth();
@@ -120,12 +123,25 @@ export default function Home({
           />
         </View>
       </View>
-      <TouchableOpacity style={styles.titleContainer} onPress={onDropdownClick}>
+      <TouchableOpacity
+        style={styles.titleContainer}
+        onPress={() => onDropdownClick(selectedChapterId)}
+      >
         <Text style={styles.chapterName}>{selectedChapterName}</Text>
         <View style={styles.chevronDownIcon}>
           <ChevronDownIcon height={17} width={17} />
         </View>
       </TouchableOpacity>
+      {hideCompleteProfileCard ? (
+        <View style={[styles.cardContainer]}>
+          <CompleteProfileCard
+            onPress={() => {
+              socialNavigation.navigate(screens.CompleteProfile);
+            }}
+            stepsCompleted={stepsCompleted}
+          />
+        </View>
+      ) : null}
       <Feed
         targetId={selectedChapterId}
         targetType="community"

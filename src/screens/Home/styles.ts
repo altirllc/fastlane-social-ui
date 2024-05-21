@@ -12,7 +12,7 @@ export const useStyles = () => {
     container: {
       height: '100%',
       width: '100%',
-      paddingTop: top,
+      paddingTop: top + 1,
       backgroundColor: theme.colors.background,
     },
     modalContainer: {
@@ -106,6 +106,7 @@ export const useStyles = () => {
       flexDirection: 'row',
       paddingVertical: 15,
       paddingHorizontal: SCREEN_PADDING,
+      marginTop: 6,
     },
     chevronDownIcon: {
       alignSelf: 'center',
@@ -114,6 +115,10 @@ export const useStyles = () => {
     chapterName: {
       fontWeight: '600',
       fontSize: 24,
+    },
+    cardContainer: {
+      paddingHorizontal: SCREEN_PADDING,
+      paddingBottom: SCREEN_PADDING,
     },
   });
 
