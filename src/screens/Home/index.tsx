@@ -16,11 +16,14 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { getShadowProps } from '../../theme/helpers';
 import { useCustomTheme } from '../../hooks/useCustomTheme';
 import { PlusIcon } from '../../svg/PlusIcon';
+// @ts-ignore
 import { Avatar } from '../../../../../src/components/Avatar/Avatar';
+// @ts-ignore
 import { screens } from '../../../../../src/constants/screens';
 import { SideBarIcon } from '../../svg/Sidebar';
 import { ChevronDownIcon } from '../../svg/ChevronDown';
 import { SocialContext } from '../../store/context';
+// @ts-ignore
 import { CompleteProfileCard } from '../../../../../src/components/CompleteProfileCard/CompleteProfileCard';
 
 LogBox.ignoreAllLogs(true);
