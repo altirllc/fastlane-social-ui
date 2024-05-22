@@ -7,7 +7,7 @@ import React, {
 
 // import { useTranslation } from 'react-i18next';
 
-import { FlatList, RefreshControl, View } from 'react-native';
+import { FlatList, RefreshControl, View, ActivityIndicator, Dimensions } from 'react-native';
 import PostList from '../../components/Social/PostList';
 import { useStyles } from './styles';
 import {
@@ -26,8 +26,9 @@ import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../redux/store';
 import feedSlice from '../../redux/slices/feedSlice';
 import { useFocusEffect } from '@react-navigation/native';
+import { useTheme } from "react-native-paper";
+import type { MyMD3Theme } from "../../providers/amity-ui-kit-provider";
 import useAuth from '../../hooks/useAuth';
-import { LoadingOverlay } from '../../components/LoadingOverlay';
 
 interface IFeed {
   targetId: string;
@@ -44,6 +45,7 @@ interface ICommunityItems {
 
 function Feed({ targetId, targetType }: IFeed, ref: React.Ref<FeedRefType>) {
   const styles = useStyles();
+  const theme = useTheme() as MyMD3Theme;
   const [postData, setPostData] =
     useState<Amity.LiveCollection<Amity.Post<any>>>();
   const [communityItems, setCommunityItems] = useState<ICommunityItems[]>([]);
@@ -97,8 +99,10 @@ function Feed({ targetId, targetType }: IFeed, ref: React.Ref<FeedRefType>) {
           targetId: communityIds,
           targetType: "community"
         },
+        sort: [{ "createdAt": { "order": "desc" } }],
         from: 0,
         size: 500,
+        populatePostObject: true,
       })
     })
       .then(response => {
@@ -108,8 +112,12 @@ function Feed({ targetId, targetType }: IFeed, ref: React.Ref<FeedRefType>) {
         return response.json();
       })
       .then(data => {
-        fetchPostDetail(data?.postIds);
+        return amityPostsFormatter(data?.objects?.posts);
       })
+      .then(formattedPostList => {
+          dispatch(updateFeed(formattedPostList));
+          setLoading(false);
+        })
       .catch(error => {
         console.error('Error fetching data one:', error);
         fetchAllChaptersPostId();
@@ -279,7 +287,7 @@ function Feed({ targetId, targetType }: IFeed, ref: React.Ref<FeedRefType>) {
   }
 
   return (
-    <View style={styles.feedWrap}>
+    <View style={[styles.feedWrap, { backgroundColor: loading ? 'rgba(255, 255, 255, .75)' : theme.colors.baseShade4}]}>
       <FlatList
         data={postList}
         renderItem={({ item, index }) => (
@@ -303,7 +311,7 @@ function Feed({ targetId, targetType }: IFeed, ref: React.Ref<FeedRefType>) {
         keyExtractor={(_, index) => index.toString()}
         extraData={postList}
       />
-      {loading ? <LoadingOverlay /> : null}
+      {loading ? <View style={styles.activityIndicator}><ActivityIndicator color={theme.colors.baseShade1} /></View> : null}
     </View>
   );
 }

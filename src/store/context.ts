@@ -6,9 +6,11 @@ export const SocialContext = createContext<{
   selectedChapterName: string;
   defaultChapterId: string;
   onDropdownClick: (value) => void;
+  screen: string;
 }>({
   selectedChapterId: '',
   selectedChapterName: '',
   defaultChapterId: '',
   onDropdownClick: () => {},
+  screen: '',
 });
