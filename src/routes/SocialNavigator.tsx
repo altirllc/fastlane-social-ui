@@ -46,6 +46,7 @@ export default function SocialNavigator({
   onDropdownClick,
   socialNavigation,
   userData,
+  screen,
 }: {
   hideCompleteProfileCard: boolean;
   selectedChapterId: string;
@@ -57,6 +58,7 @@ export default function SocialNavigator({
     avatarUrl: string;
     stepsCompleted: number;
   };
+  screen: string;
 }) {
   const Stack = createNativeStackNavigator<RootStackParamList>();
   const { isConnected } = useAuth();
@@ -71,6 +73,7 @@ export default function SocialNavigator({
           selectedChapterName,
           defaultChapterId,
           onDropdownClick,
+          screen,
         }}
       >
         {isConnected && (

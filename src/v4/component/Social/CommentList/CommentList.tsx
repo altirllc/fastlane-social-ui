@@ -235,7 +235,7 @@ const CommentList: FC<ICommentListProp> = ({
                 initialValue=""
                 privateCommunityId={null}
                 multiline
-                placeholder="Say something nice..."
+                placeholder="Leave your thoughts here..."
                 placeholderTextColor={theme.colors.baseShade3}
                 mentionUsers={mentionNames}
                 setInputMessage={setInputMessage}

@@ -53,7 +53,7 @@ export default function Home({
   const [activeTab] = useState<string>(TabName.NewsFeed);
   const navigation = useNavigation<NativeStackNavigationProp<any>>();
   const { colors } = useCustomTheme();
-  const { onDropdownClick } = useContext(SocialContext);
+  const { onDropdownClick, screen } = useContext(SocialContext);
 
   const onClickSearch = () => {
     navigation.navigate('CommunitySearch');
@@ -129,11 +129,14 @@ export default function Home({
       <TouchableOpacity
         style={styles.titleContainer}
         onPress={() => onDropdownClick(selectedChapterId)}
+        disabled={screen === screens.MarketPlace}
       >
         <Text style={styles.chapterName}>{selectedChapterName}</Text>
+        { screen === screens.Home ? 
         <View style={styles.chevronDownIcon}>
           <ChevronDownIcon height={17} width={17} />
         </View>
+        : null}
       </TouchableOpacity>
       {hideCompleteProfileCard ? (
         <View style={[styles.cardContainer]}>

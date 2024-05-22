@@ -45,6 +45,7 @@ import { SocialContext } from '../../store/context';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { getAmityUser } from '../../providers/user-provider';
 import { UserInterface } from '../../types';
+import { screens } from '../../../../../src/constants/screens';
 
 export interface IDisplayImage {
   url: string;
@@ -99,6 +100,7 @@ const CreatePost = ({ route }: any) => {
   const selectedChapterName = socialContext?.selectedChapterName;
   const defaultChapterId = socialContext?.defaultChapterId;
   const onDropdownClick = socialContext?.onDropdownClick;
+  const screen = socialContext?.screen;
 
   useEffect(() => {
     if (selectedChapterName === 'All Chapters') {
@@ -476,6 +478,7 @@ const CreatePost = ({ route }: any) => {
           />
           <Text style={styles.communityText}>{myUser?.displayName}</Text>
         </View>
+        {screen === screens.Home ?
         <TouchableOpacity
           style={styles.communityNameContainer}
           onPress={() => onDropdownClick(selectedChapterId)}
@@ -492,6 +495,7 @@ const CreatePost = ({ route }: any) => {
             style={styles.downArrow}
           />
         </TouchableOpacity>
+        : null}
       </View>
     );
   };
@@ -549,7 +553,7 @@ const CreatePost = ({ route }: any) => {
               setIsScrollEnabled(true);
             }}
             multiline
-            placeholder="What’s on your mind?"
+            placeholder="Share your thoughts..."
             placeholderTextColor={theme.colors.baseShade3}
             setInputMessage={setInputMessage}
             mentionsPosition={mentionsPosition}
@@ -621,9 +625,9 @@ const CreatePost = ({ route }: any) => {
               <SvgXml xml={playVideoIcon} width="27" height="27" />
             </View>
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => Keyboard.dismiss()}>
+          {/* <TouchableOpacity onPress={() => Keyboard.dismiss()}>
             <SvgXml xml={arrowDown(theme.colors.base)} width="20" height="20" />
-          </TouchableOpacity>
+          </TouchableOpacity> */}
         </View>
       </KeyboardAvoidingView>
     </View>
