@@ -300,8 +300,8 @@ const PostDetail = () => {
   ) : (
 
     <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'height' : 'height'}
-      keyboardVerticalOffset={Platform.select({ ios: 200, android: 80 })}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={Platform.select({ ios: 0, android: 80 })}
       style={styles.AllInputWrap}
     >
       <ScrollView onScroll={handleScroll} style={styles.container}>
@@ -352,7 +352,7 @@ const PostDetail = () => {
             initialValue={initialInputText}
             privateCommunityId={privateCommunityId}
             multiline
-            placeholder="Say something nice..."
+            placeholder="Leave your thoughts here..."
             placeholderTextColor={theme.colors.baseShade3}
             mentionUsers={mentionNames}
             setInputMessage={setInputMessage}

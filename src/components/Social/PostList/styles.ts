@@ -89,6 +89,7 @@ export const useStyles = () => {
     },
     commentBtn: {
       flexDirection: 'row',
+      alignItems: 'center',
       paddingHorizontal: 10,
       paddingVertical: 12,
     },

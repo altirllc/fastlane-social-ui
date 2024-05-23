@@ -7,7 +7,12 @@ import React, {
 
 // import { useTranslation } from 'react-i18next';
 
-import { FlatList, RefreshControl, View, ActivityIndicator, Dimensions } from 'react-native';
+import {
+  FlatList,
+  RefreshControl,
+  View,
+  ActivityIndicator,
+} from 'react-native';
 import PostList from '../../components/Social/PostList';
 import { useStyles } from './styles';
 import {
@@ -26,8 +31,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../redux/store';
 import feedSlice from '../../redux/slices/feedSlice';
 import { useFocusEffect } from '@react-navigation/native';
-import { useTheme } from "react-native-paper";
-import type { MyMD3Theme } from "../../providers/amity-ui-kit-provider";
+import { useTheme } from 'react-native-paper';
+import type { MyMD3Theme } from '../../providers/amity-ui-kit-provider';
 import useAuth from '../../hooks/useAuth';
 
 interface IFeed {
@@ -84,7 +89,7 @@ function Feed({ targetId, targetType }: IFeed, ref: React.Ref<FeedRefType>) {
   };
 
   function extractCommunityIds(data) {
-    return data.map(item => item.communityId);
+    return data.map((item) => item.communityId);
   }
 
   const fetchAllChaptersPostId = () => {
@@ -92,69 +97,69 @@ function Feed({ targetId, targetType }: IFeed, ref: React.Ref<FeedRefType>) {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${accessToken}`
+        'Authorization': `Bearer ${accessToken}`,
       },
       body: JSON.stringify({
         query: {
           targetId: communityIds,
-          targetType: "community"
+          targetType: 'community',
         },
-        sort: [{ "createdAt": { "order": "desc" } }],
+        sort: [{ createdAt: { order: 'desc' } }],
         from: 0,
         size: 500,
         populatePostObject: true,
-      })
+      }),
     })
-      .then(response => {
+      .then((response) => {
         if (!response.ok) {
           throw new Error('Network response was not ok');
         }
         return response.json();
       })
-      .then(data => {
+      .then((data) => {
         return amityPostsFormatter(data?.objects?.posts);
       })
-      .then(formattedPostList => {
-          dispatch(updateFeed(formattedPostList));
-          setLoading(false);
-        })
-      .catch(error => {
+      .then((formattedPostList) => {
+        dispatch(updateFeed(formattedPostList));
+        setLoading(false);
+      })
+      .catch((error) => {
         console.error('Error fetching data one:', error);
         fetchAllChaptersPostId();
       });
   };
 
-  const fetchPostDetail = (postIds) => {
-    const searchParams = postIds.reduce((acc, p) => {
-      acc.append("postIds", p);
-      return acc;
-    }, new URLSearchParams());
+  // const fetchPostDetail = (postIds) => {
+  //   const searchParams = postIds.reduce((acc, p) => {
+  //     acc.append("postIds", p);
+  //     return acc;
+  //   }, new URLSearchParams());
 
-    fetch(`https://api.us.amity.co/api/v3/posts/list?${searchParams}`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${accessToken}`
-      },
-    })
-      .then(response => {
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-        return response.json();
-      })
-      .then(data => {
-        return amityPostsFormatter(data?.posts);
-      })
-      .then(formattedPostList => {
-        const invertedList = formattedPostList.reverse();
-        dispatch(updateFeed(invertedList));
-        setLoading(false);
-      })
-      .catch(error => {
-        console.error('Error fetching data two:', error);
-      });
-  };
+  //   fetch(`https://api.us.amity.co/api/v3/posts/list?${searchParams}`, {
+  //     method: 'GET',
+  //     headers: {
+  //       'Content-Type': 'application/json',
+  //       'Authorization': `Bearer ${accessToken}`
+  //     },
+  //   })
+  //     .then(response => {
+  //       if (!response.ok) {
+  //         throw new Error('Network response was not ok');
+  //       }
+  //       return response.json();
+  //     })
+  //     .then(data => {
+  //       return amityPostsFormatter(data?.posts);
+  //     })
+  //     .then(formattedPostList => {
+  //       const invertedList = formattedPostList.reverse();
+  //       dispatch(updateFeed(invertedList));
+  //       setLoading(false);
+  //     })
+  //     .catch(error => {
+  //       console.error('Error fetching data two:', error);
+  //     });
+  // };
 
   useFocusEffect(
     useCallback(() => {
@@ -167,7 +172,7 @@ function Feed({ targetId, targetType }: IFeed, ref: React.Ref<FeedRefType>) {
     useCallback(() => {
       if (targetId === '' && communityIds?.length > 0) {
         setLoading(true);
-        fetchAllChaptersPostId()
+        fetchAllChaptersPostId();
       }
     }, [targetId, communityIds])
   );
@@ -279,7 +284,9 @@ function Feed({ targetId, targetType }: IFeed, ref: React.Ref<FeedRefType>) {
 
   function getFeedChapterName(targetId: string) {
     let chapterName = '';
-    const chapterObj = communityItems.find(item => item.communityId === targetId);
+    const chapterObj = communityItems.find(
+      (item) => item.communityId === targetId
+    );
     if (chapterObj) {
       chapterName = chapterObj.displayName;
     }
@@ -287,7 +294,16 @@ function Feed({ targetId, targetType }: IFeed, ref: React.Ref<FeedRefType>) {
   }
 
   return (
-    <View style={[styles.feedWrap, { backgroundColor: loading ? 'rgba(255, 255, 255, .75)' : theme.colors.baseShade4}]}>
+    <View
+      style={[
+        styles.feedWrap,
+        {
+          backgroundColor: loading
+            ? 'rgba(255, 255, 255, .75)'
+            : theme.colors.baseShade4,
+        },
+      ]}
+    >
       <FlatList
         data={postList}
         renderItem={({ item, index }) => (
@@ -311,7 +327,11 @@ function Feed({ targetId, targetType }: IFeed, ref: React.Ref<FeedRefType>) {
         keyExtractor={(_, index) => index.toString()}
         extraData={postList}
       />
-      {loading ? <View style={styles.activityIndicator}><ActivityIndicator color={theme.colors.baseShade1} /></View> : null}
+      {loading ? (
+        <View style={styles.activityIndicator}>
+          <ActivityIndicator color={theme.colors.baseShade1} />
+        </View>
+      ) : null}
     </View>
   );
 }
