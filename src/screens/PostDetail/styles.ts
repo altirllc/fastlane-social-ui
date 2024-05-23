@@ -1,9 +1,12 @@
 import { StyleSheet } from 'react-native';
 import { useTheme } from 'react-native-paper';
 import type { MyMD3Theme } from '../../providers/amity-ui-kit-provider';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export const useStyles = () => {
   const theme = useTheme() as MyMD3Theme;
+  const { top } = useSafeAreaInsets();
+
   const styles = StyleSheet.create({
     container: {
       // flex: 1,
@@ -19,9 +22,9 @@ export const useStyles = () => {
       color: theme.colors.base,
     },
     AllInputWrap: {
-      backgroundColor: theme.colors.baseShade4,
+      backgroundColor: theme.colors.background,
       flex: 1,
-      // marginTop: -16,
+      paddingTop: top,
     },
     InputWrap: {
       backgroundColor: theme.colors.background,

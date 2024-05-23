@@ -10,7 +10,6 @@ import {
   Platform,
   KeyboardAvoidingView,
   ScrollView,
-  Keyboard,
   Alert,
   Image,
 } from 'react-native';
@@ -479,24 +478,24 @@ const CreatePost = ({ route }: any) => {
           />
           <Text style={styles.communityText}>{myUser?.displayName}</Text>
         </View>
-        {screen === screens.Home ?
-        <TouchableOpacity
-          style={styles.communityNameContainer}
-          onPress={() => onDropdownClick(selectedChapterId)}
-        >
-          <Text style={styles.communityName}>
-            {selectedChapterId !== ''
-              ? selectedChapterName
-              : defaultChapterName}
-          </Text>
-          <SvgXml
-            xml={arrowDown(theme.colors.base)}
-            width="12"
-            height="12"
-            style={styles.downArrow}
-          />
-        </TouchableOpacity>
-        : null}
+        {screen === screens.Home ? (
+          <TouchableOpacity
+            style={styles.communityNameContainer}
+            onPress={() => onDropdownClick(selectedChapterId)}
+          >
+            <Text style={styles.communityName}>
+              {selectedChapterId !== ''
+                ? selectedChapterName
+                : defaultChapterName}
+            </Text>
+            <SvgXml
+              xml={arrowDown(theme.colors.base)}
+              width="12"
+              height="12"
+              style={styles.downArrow}
+            />
+          </TouchableOpacity>
+        ) : null}
       </View>
     );
   };

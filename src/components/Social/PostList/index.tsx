@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 // import { useTranslation } from 'react-i18next';
 import {
   View,
@@ -12,9 +12,6 @@ import {
 } from 'react-native';
 import { SvgXml } from 'react-native-svg';
 import {
-  commentXml,
-  likedXml,
-  likeXml,
   personXml,
 } from '../../../svg/svg-xml-list';
 import { useStyles } from './styles';
@@ -43,6 +40,9 @@ import RenderTextWithMention from './Components/RenderTextWithMention';
 import { RootStackParamList } from '../../../routes/RouteParamList';
 import { useTimeDifference } from '../../../hooks/useTimeDifference';
 import BackButton from '../../BackButton';
+import { SocialContext } from '../../../store/context';
+import { HeartIcon } from '../../../svg/HeartIcon';
+import { CommentIcon } from '../../../svg/CommentIcon';
 
 export interface IPost {
   postId: string;
@@ -126,6 +126,7 @@ export default function PostList({
     mentionPosition,
   } = postDetail ?? {};
   const timeDifference = useTimeDifference(createdAt);
+  const { onMemberClick } = useContext(SocialContext);
 
   useEffect(() => {
     if (mentionPosition) {
@@ -259,11 +260,9 @@ export default function PostList({
     });
   }
   const handleDisplayNamePress = () => {
-    // if (user?.userId) {
-    //   navigation.navigate('UserProfile', {
-    //     userId: user.userId,
-    //   });
-    // }
+    if (user?.userId) {
+      onMemberClick(user.userId);
+    }
   };
 
   // const handleCommunityNamePress = () => {
@@ -399,6 +398,7 @@ export default function PostList({
           console.log("back")
         }} /></View>}
         <View style={styles.user}>
+        <TouchableOpacity onPress={handleDisplayNamePress}>
           {user?.avatarFileId ? (
             <Image
               style={styles.avatar}
@@ -411,6 +411,7 @@ export default function PostList({
               <SvgXml xml={personXml} width="20" height="16" />
             </View>
           )}
+          </TouchableOpacity>
 
           <View style={styles.fillSpace}>
             <View style={styles.headerRow}>
@@ -479,24 +480,20 @@ export default function PostList({
 
         <View style={styles.actionSection}>
           <TouchableOpacity onPress={addReactionToPost} style={styles.likeBtn}>
-            {isLike ? (
-              <SvgXml
-                xml={likedXml(theme.colors.primary)}
-                width="20"
-                height="16"
+              <HeartIcon
+                width={18}
+                height={18}
+                color={isLike ? '#FF3830' : '#FFFFFF'}
+                stroke={isLike ? '#FF3830' : '#14151A'}
               />
-            ) : (
-              <SvgXml xml={likeXml} width="20" height="16" />
-            )}
-
             <Text style={isLike ? styles.likedText : styles.btnText}>
               {' '}
               {likeReaction}{' '}
             </Text>
           </TouchableOpacity>
           <TouchableOpacity onPress={onClickComment} style={styles.commentBtn}>
-            <SvgXml xml={commentXml} width="20" height="16" />
-            <Text style={styles.btnText}>{commentsCount}</Text>
+            <CommentIcon width={17} height={17} />
+            <Text style={[styles.btnText, { marginStart: 8 }]}>{commentsCount}</Text>
           </TouchableOpacity>
         </View>
       </View>

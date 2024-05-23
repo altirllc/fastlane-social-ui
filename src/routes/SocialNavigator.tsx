@@ -44,6 +44,7 @@ export default function SocialNavigator({
   selectedChapterName,
   defaultChapterId,
   onDropdownClick,
+  onMemberClick,
   socialNavigation,
   userData,
   screen,
@@ -53,6 +54,7 @@ export default function SocialNavigator({
   selectedChapterName: string;
   defaultChapterId: string;
   onDropdownClick: (value) => void;
+  onMemberClick: (value) => void;
   socialNavigation: any;
   userData: {
     avatarUrl: string;
@@ -73,6 +75,7 @@ export default function SocialNavigator({
           selectedChapterName,
           defaultChapterId,
           onDropdownClick,
+          onMemberClick,
           screen,
         }}
       >
