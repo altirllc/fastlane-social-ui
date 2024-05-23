@@ -1,15 +1,19 @@
 import { StyleSheet } from 'react-native';
 import { useTheme } from 'react-native-paper';
 import type { MyMD3Theme } from '../../providers/amity-ui-kit-provider';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export const useStyles = () => {
   const theme = useTheme() as MyMD3Theme;
+  const { top, bottom } = useSafeAreaInsets();
 
   const styles = StyleSheet.create({
     container: {
       flex: 1,
       width: '100%',
       backgroundColor: theme.colors.background,
+      paddingTop: top,
+      paddingBottom: bottom,
     },
     backBtn: {
       alignItems: 'center',

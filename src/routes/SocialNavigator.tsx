@@ -48,6 +48,7 @@ export default function SocialNavigator({
   socialNavigation,
   userData,
   screen,
+  setIsTabBarVisible,
 }: {
   hideCompleteProfileCard: boolean;
   selectedChapterId: string;
@@ -61,6 +62,7 @@ export default function SocialNavigator({
     stepsCompleted: number;
   };
   screen: string;
+  setIsTabBarVisible: (value: boolean) => void;
 }) {
   const Stack = createNativeStackNavigator<RootStackParamList>();
   const { isConnected } = useAuth();
@@ -77,6 +79,7 @@ export default function SocialNavigator({
           onDropdownClick,
           onMemberClick,
           screen,
+          setIsTabBarVisible,
         }}
       >
         {isConnected && (

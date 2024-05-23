@@ -5,8 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export const useStyles = () => {
   const theme = useTheme() as MyMD3Theme;
-  const { top } = useSafeAreaInsets();
-
+  const { bottom, top } = useSafeAreaInsets();
   const styles = StyleSheet.create({
     container: {
       // flex: 1,
@@ -25,6 +24,7 @@ export const useStyles = () => {
       backgroundColor: theme.colors.background,
       flex: 1,
       paddingTop: top,
+      paddingBottom: bottom,
     },
     InputWrap: {
       backgroundColor: theme.colors.background,

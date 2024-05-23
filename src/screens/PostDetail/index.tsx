@@ -1,6 +1,12 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { type RouteProp, useRoute } from '@react-navigation/native';
-import React, { useEffect, useRef, useState } from 'react';
+import React, {
+  useContext,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from 'react';
 import {
   View,
   Text,
@@ -12,6 +18,7 @@ import {
   FlatList,
   type NativeSyntheticEvent,
   type NativeScrollEvent,
+  LayoutAnimation,
 } from 'react-native';
 
 import type { RootStackParamList } from '../../routes/RouteParamList';
@@ -46,6 +53,7 @@ import { SvgXml } from 'react-native-svg';
 import { closeIcon } from '../../svg/svg-xml-list';
 import AmityMentionInput from '../../components/MentionInput/AmityMentionInput';
 import { TSearchItem } from '../../hooks/useSearch';
+import { SocialContext } from '../../store/context';
 
 const PostDetail = () => {
   const theme = useTheme() as MyMD3Theme;
@@ -68,6 +76,7 @@ const PostDetail = () => {
   const flatListRef = useRef(null);
   let isSubscribed = false;
   const disposers: Amity.Unsubscriber[] = [];
+  const { setIsTabBarVisible } = useContext(SocialContext);
 
   const [postCollection, setPostCollection] = useState<Amity.Post<any>>();
 
@@ -90,6 +99,11 @@ const PostDetail = () => {
 
   const [replyUserName, setReplyUserName] = useState<string>('');
   const [replyCommentId, setReplyCommentId] = useState<string>('');
+
+  useLayoutEffect(() => {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.spring);
+    setIsTabBarVisible(false);
+  }, []);
 
   useEffect(() => {
     const checkMentionNames = mentionNames.filter((item) => {
@@ -298,16 +312,14 @@ const PostDetail = () => {
   return loading ? (
     <View />
   ) : (
-
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       keyboardVerticalOffset={Platform.select({ ios: 0, android: 80 })}
       style={styles.AllInputWrap}
     >
       <ScrollView onScroll={handleScroll} style={styles.container}>
-
         <PostList
-          onChange={() => { }}
+          onChange={() => {}}
           postDetail={currentPostdetail as IPost}
           isGlobalfeed={isFromGlobalfeed}
         />
