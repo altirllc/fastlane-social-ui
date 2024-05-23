@@ -1,7 +1,13 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { useNavigation } from '@react-navigation/native';
+import { useIsFocused, useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import React, { useCallback, useContext, useEffect, useState } from 'react';
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useLayoutEffect,
+  useState,
+} from 'react';
 import {
   TouchableOpacity,
   View,
@@ -12,6 +18,7 @@ import {
   ScrollView,
   Alert,
   Image,
+  LayoutAnimation,
 } from 'react-native';
 import { SvgXml } from 'react-native-svg';
 // import { SafeAreaView } from 'react-native-safe-area-context';
@@ -71,7 +78,7 @@ export interface IMentionPosition {
 const CreatePost = ({ route }: any) => {
   const theme = useTheme() as MyMD3Theme;
   const styles = useStyles();
-  const { top } = useSafeAreaInsets();
+  const { top, bottom } = useSafeAreaInsets();
   //const { targetId, targetType, targetName } = route.params;
   const navigation = useNavigation<NativeStackNavigationProp<any>>();
   const [inputMessage, setInputMessage] = useState('');
@@ -101,6 +108,20 @@ const CreatePost = ({ route }: any) => {
   const defaultChapterId = socialContext?.defaultChapterId;
   const onDropdownClick = socialContext?.onDropdownClick;
   const screen = socialContext?.screen;
+
+  const setIsTabBarVisible = socialContext?.setIsTabBarVisible;
+
+  const isFocused = useIsFocused();
+
+  useLayoutEffect(() => {
+    //IMP: Don't remove setTimeout as this is used for showing footer on the screen.
+    setTimeout(() => {
+      if (isFocused) {
+        LayoutAnimation.configureNext(LayoutAnimation.Presets.spring);
+        setIsTabBarVisible?.(false);
+      }
+    }, 500);
+  }, [isFocused]);
 
   useEffect(() => {
     if (selectedChapterName === 'All Chapters') {
@@ -501,7 +522,9 @@ const CreatePost = ({ route }: any) => {
   };
 
   return (
-    <View style={[styles.AllInputWrap, { paddingTop: top }]}>
+    <View
+      style={[styles.AllInputWrap, { paddingTop: top, paddingBottom: bottom }]}
+    >
       {/* <SafeAreaView style={styles.barContainer} edges={['top']}> */}
       <View style={styles.header}>
         <TouchableOpacity style={styles.closeButton} onPress={goBack}>

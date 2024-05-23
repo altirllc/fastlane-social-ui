@@ -18,6 +18,7 @@ import type { IComment } from '../Social/CommentList';
 import { editComment } from '../../providers/Social/comment-sdk';
 import { useTheme } from 'react-native-paper';
 import type { MyMD3Theme } from '../../providers/amity-ui-kit-provider';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 interface IModal {
   visible: boolean;
@@ -37,6 +38,7 @@ const EditCommentModal = ({
   const [inputMessage, setInputMessage] = useState(
     commentDetail?.data?.text ?? ''
   );
+  const { top } = useSafeAreaInsets();
 
   const handleEditComment = async () => {
     if (inputMessage) {
@@ -52,7 +54,7 @@ const EditCommentModal = ({
   };
 
   return (
-    <Modal visible={visible} animationType="slide">
+    <Modal style={{ paddingTop: top }} visible={visible} animationType="slide">
       <View style={styles.header}>
         <TouchableOpacity style={styles.closeButton} onPress={onClose}>
           <SvgXml xml={closeIcon(theme.colors.base)} width="17" height="17" />

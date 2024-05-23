@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import * as React from 'react';
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useLayoutEffect, useState } from 'react';
 import { View, TouchableOpacity, LogBox, Text } from 'react-native';
 import useAuth from '../../hooks/useAuth';
 import Feed from '../../screens/Feed/index';
@@ -9,7 +9,11 @@ import { Icon } from 'react-native-paper';
 // import type { MyMD3Theme } from '../../providers/amity-ui-kit-provider';
 // import useConfig from '../../hooks/useConfig';
 import { TabName } from '../../enum/tabNameState';
-import { DrawerActions, useNavigation } from '@react-navigation/native';
+import {
+  DrawerActions,
+  useIsFocused,
+  useNavigation,
+} from '@react-navigation/native';
 // import { useDispatch } from 'react-redux';
 // import uiSlice from '../../redux/slices/uiSlice';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -53,7 +57,9 @@ export default function Home({
   const [activeTab] = useState<string>(TabName.NewsFeed);
   const navigation = useNavigation<NativeStackNavigationProp<any>>();
   const { colors } = useCustomTheme();
-  const { onDropdownClick, screen } = useContext(SocialContext);
+  const isFocused = useIsFocused();
+  const { onDropdownClick, screen, setIsTabBarVisible } =
+    useContext(SocialContext);
 
   const onClickSearch = () => {
     navigation.navigate('CommunitySearch');
@@ -95,6 +101,15 @@ export default function Home({
     // );
   };
 
+  useLayoutEffect(() => {
+    //IMP: Don't remove setTimeout as this is used for showing footer on the screen.
+    setTimeout(() => {
+      if (isFocused) {
+        setIsTabBarVisible?.(true);
+      }
+    }, 500);
+  }, [isFocused]);
+
   return (
     <View style={styles.container}>
       <View
@@ -132,11 +147,11 @@ export default function Home({
         disabled={screen === screens.MarketPlace}
       >
         <Text style={styles.chapterName}>{selectedChapterName}</Text>
-        { screen === screens.Home ? 
-        <View style={styles.chevronDownIcon}>
-          <ChevronDownIcon height={17} width={17} />
-        </View>
-        : null}
+        {screen === screens.Home ? (
+          <View style={styles.chevronDownIcon}>
+            <ChevronDownIcon height={17} width={17} />
+          </View>
+        ) : null}
       </TouchableOpacity>
       {hideCompleteProfileCard ? (
         <View style={[styles.cardContainer]}>

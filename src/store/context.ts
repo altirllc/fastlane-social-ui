@@ -1,4 +1,3 @@
-/* eslint-disable indent */
 import { createContext } from 'react';
 
 export const SocialContext = createContext<{
@@ -8,6 +7,7 @@ export const SocialContext = createContext<{
   onDropdownClick: (value) => void;
   onMemberClick: (value) => void;
   screen: string;
+  setIsTabBarVisible: (value: boolean) => void;
 }>({
   selectedChapterId: '',
   selectedChapterName: '',
@@ -15,4 +15,5 @@ export const SocialContext = createContext<{
   onDropdownClick: () => {},
   onMemberClick: () => {},
   screen: '',
+  setIsTabBarVisible: () => {},
 });
