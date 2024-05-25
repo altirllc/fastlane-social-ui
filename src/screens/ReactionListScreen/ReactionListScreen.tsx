@@ -33,13 +33,12 @@ const ReactionListScreen = ({ navigation, route }) => {
         : require('../../../assets/icon/Placeholder.png');
 
       return (
-        <TouchableOpacity
+        <View
           style={styles.rowContainer}
-          onPress={() => onPressReactor(item.userId)}
         >
           <Image source={avatarUrl} style={styles.avater} />
           <Text style={styles.userName}>{item.displayName}</Text>
-        </TouchableOpacity>
+        </View>
       );
     },
     [onPressReactor, styles]
