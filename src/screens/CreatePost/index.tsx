@@ -490,7 +490,7 @@ const CreatePost = ({ route }: any) => {
           <Image
             style={styles.avatar}
             source={
-              myUser
+              myUser?.avatarFileId
                 ? {
                     uri: `https://api.${apiRegion}.amity.co/api/v3/files/${myUser.avatarFileId}/download`,
                   }
