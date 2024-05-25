@@ -24,7 +24,7 @@ export const useStyles = () => {
       backgroundColor: theme.colors.background,
       flex: 1,
       paddingTop: top,
-      paddingBottom: bottom,
+      marginBottom: bottom,
     },
     InputWrap: {
       backgroundColor: theme.colors.background,

@@ -102,7 +102,7 @@ const PostDetail = () => {
 
   useLayoutEffect(() => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.spring);
-    setIsTabBarVisible(false);
+    setIsTabBarVisible?.(false);
   }, []);
 
   useEffect(() => {
