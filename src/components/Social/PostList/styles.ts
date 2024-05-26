@@ -93,11 +93,17 @@ export const useStyles = () => {
       paddingHorizontal: 10,
       paddingVertical: 12,
     },
+    sendIcon: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingLeft: 7,
+    },
     btnText: {
       color: theme.colors.baseShade2,
       fontSize: 15,
       fontWeight: '600',
       marginHorizontal: 4,
+      marginStart: 8,
     },
     avatar: {
       width: 40,

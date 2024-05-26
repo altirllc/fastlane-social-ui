@@ -37,6 +37,8 @@ import PostTypeChoiceModal from '../components/PostTypeChoiceModal/PostTypeChoic
 import CreatePoll from '../screens/CreatePoll/CreatePoll';
 import ReactionListScreen from '../screens/ReactionListScreen/ReactionListScreen';
 import { SocialContext } from '../store/context';
+import { MemberListModal } from '../screens/MemberListModal/MemberListModal';
+import { TransitionPresets } from '@react-navigation/stack';
 
 export default function SocialNavigator({
   hideCompleteProfileCard,
@@ -257,6 +259,17 @@ export default function SocialNavigator({
                 headerLeft: () => <BackButton />,
               }}
             />
+            <Stack.Group
+              screenOptions={{
+                presentation: 'transparentModal',
+                headerShown: false,
+                gestureEnabled: true,
+                ...TransitionPresets.ModalPresentationIOS,
+                gestureDirection: 'vertical',
+              }}
+            >
+              <Stack.Screen name={'MembersList'} component={MemberListModal} />
+            </Stack.Group>
           </Stack.Navigator>
         )}
         <PostTypeChoiceModal />
