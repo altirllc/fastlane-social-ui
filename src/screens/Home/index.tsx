@@ -163,11 +163,13 @@ export default function Home({
           />
         </View>
       ) : null}
-      <Feed
-        targetId={selectedChapterId}
-        targetType="community"
-        selectedChapterName={selectedChapterName}
-      />
+      <View style={{ flex: 1 }}>
+        <Feed
+          targetId={selectedChapterId}
+          targetType="community"
+          selectedChapterName={selectedChapterName}
+        />
+      </View>
       <TouchableOpacity
         onPress={openModal}
         style={[
