@@ -1,4 +1,4 @@
-import { Text, View, FlatList, Image, TouchableOpacity } from 'react-native';
+import { Text, View, FlatList, Image } from 'react-native';
 import React, { useCallback } from 'react';
 import { useStyles } from './styles';
 import ContentLoader, { Rect, Circle } from 'react-content-loader/native';
@@ -7,7 +7,7 @@ import { SvgXml } from 'react-native-svg';
 import { fileSearch } from '../../svg/svg-xml-list';
 import BackButton from '../../components/BackButton';
 
-const ReactionListScreen = ({ navigation, route }) => {
+const ReactionListScreen = ({ route }) => {
   const { referenceId, referenceType } = route.params;
   const styles = useStyles();
   const { reactions, reactors, loading } = useReaction({
@@ -19,12 +19,12 @@ const ReactionListScreen = ({ navigation, route }) => {
     const formatter = Intl.NumberFormat('en', { notation: 'compact' });
     return formatter.format(num) || '0';
   };
-  const onPressReactor = useCallback(
-    (userId: string) => {
-      navigation.navigate('UserProfile', { userId });
-    },
-    [navigation]
-  );
+  // const onPressReactor = useCallback(
+  //   (userId: string) => {
+  //     navigation.navigate('UserProfile', { userId });
+  //   },
+  //   [navigation]
+  // );
 
   const renderReactors = useCallback(
     ({ item }: { item: Amity.User }) => {
@@ -33,15 +33,13 @@ const ReactionListScreen = ({ navigation, route }) => {
         : require('../../../assets/icon/Placeholder.png');
 
       return (
-        <View
-          style={styles.rowContainer}
-        >
+        <View style={styles.rowContainer}>
           <Image source={avatarUrl} style={styles.avater} />
           <Text style={styles.userName}>{item.displayName}</Text>
         </View>
       );
     },
-    [onPressReactor, styles]
+    [styles]
   );
   const renderContentLoading = useCallback(() => {
     return Array.from({ length: 8 }, (_, index) => {

@@ -6,7 +6,7 @@ import { BottomModalScreen } from '../../../../../src/components/BottomModalScre
 import { Separator } from '../../../../../src/components/Separator/Separator';
 import { useStyles } from './styles';
 import { getShadowProps } from '../../theme/helpers';
-import { SendIcon } from 'amity-react-native-social-ui-kit/src/svg/SendIcon';
+import { SendIcon } from '../../../src/svg/SendIcon';
 import {
   ChannelRepository,
   MessageContentType,
@@ -17,6 +17,7 @@ import {
 import useAuth from 'amity-react-native-social-ui-kit/src/hooks/useAuth';
 import { LoadingOverlay } from 'amity-react-native-social-ui-kit/src/components/LoadingOverlay';
 import { useNavigation, useRoute } from '@react-navigation/native';
+// @ts-ignore
 import { ECustomData } from '@amityco/react-native-cli-chat-ui-kit/src/screens/ChatRoom/ChatRoom';
 
 type TChannelObject = {
@@ -190,7 +191,7 @@ export const MemberListModal = () => {
       </View>
       <Separator style={[styles.separator, { ...getShadowProps() }]} />
       {renderRecentChat}
-      {loadChannel ? <LoadingOverlay /> : null}
+      {loadChannel ? <LoadingOverlay isLoading /> : null}
     </BottomModalScreen>
   );
 };
