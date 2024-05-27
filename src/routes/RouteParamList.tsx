@@ -1,5 +1,10 @@
 export type RootStackParamList = {
-  Home: { postIdCallBack?: string, hideCompleteProfileCard?: boolean, selectedChapterId?: string, selectedChapterName?: string };
+  Home: {
+    postIdCallBack?: string;
+    hideCompleteProfileCard?: boolean;
+    selectedChapterId?: string;
+    selectedChapterName?: string;
+  };
   CommunitySearch: undefined;
   CommunityMemberDetail: {
     communityId: string;
@@ -80,5 +85,8 @@ export type RootStackParamList = {
   CreateStory: {
     targetId: string;
     targetType: Amity.StoryTargetType;
+  };
+  MembersList: {
+    postId: string;
   };
 };

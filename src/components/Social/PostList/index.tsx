@@ -1,4 +1,10 @@
-import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 // import { useTranslation } from 'react-i18next';
 import {
   View,
@@ -11,10 +17,7 @@ import {
   Alert,
 } from 'react-native';
 import { SvgXml } from 'react-native-svg';
-import {
-  personXml,
-  threeDots,
-} from '../../../svg/svg-xml-list';
+import { personXml } from '../../../svg/svg-xml-list';
 import { useStyles } from './styles';
 import type { UserInterface } from '../../../types/user.interface';
 import {
@@ -42,8 +45,8 @@ import BackButton from '../../BackButton';
 import { SocialContext } from '../../../store/context';
 import { HeartIcon } from '../../../svg/HeartIcon';
 import { CommentIcon } from '../../../svg/CommentIcon';
-import { useTheme } from 'react-native-paper';
-import { MyMD3Theme } from 'amity-react-native-social-ui-kit/src/providers/amity-ui-kit-provider';
+// @ts-ignore
+import { SendIcon } from 'amity-react-native-social-ui-kit/src/svg/SendIcon';
 
 export interface IPost {
   postId: string;
@@ -90,7 +93,6 @@ export default function PostList({
 }: IPostList) {
   const { client, apiRegion } = useAuth();
   const styles = useStyles();
-  const theme = useTheme() as MyMD3Theme;
   const [isLike, setIsLike] = useState<boolean>(false);
   const [likeReaction, setLikeReaction] = useState<number>(0);
   const [, setCommunityName] = useState('');
@@ -148,9 +150,9 @@ export default function PostList({
     }
   }, [myReactions, reactionCount]);
 
-  const openModal = () => {
-    setIsVisible(true);
-  };
+  // const openModal = () => {
+  //   setIsVisible(true);
+  // };
 
   const closeModal = () => {
     Animated.timing(slideAnimation, {
@@ -260,9 +262,15 @@ export default function PostList({
       isFromGlobalfeed: isGlobalfeed,
     });
   }
+
+  const onSendPress = () => {
+    if (!postDetail.postId) return;
+    navigation.navigate('MembersList', { postId: postDetail.postId });
+  };
+
   const handleDisplayNamePress = () => {
     if (user?.userId) {
-      onMemberClick?.(user.userId);
+      onMemberClick(user.userId);
     }
   };
 
@@ -335,7 +343,7 @@ export default function PostList({
               styles.modalContent,
               modalStyle,
               user?.userId === (client as Amity.Client).userId &&
-              styles.twoOptions,
+                styles.twoOptions,
             ]}
           >
             {user?.userId === (client as Amity.Client).userId ? (
@@ -393,13 +401,22 @@ export default function PostList({
   // }, [navigation, postId]);
 
   return (
-    <View key={postId} style={[styles.postWrap, { marginTop: postIndex === 0 ? 8 : 0 }]}>
+    <View key={postId} style={styles.postWrap}>
       <View style={styles.headerSection}>
-        {showBackBtn ? null : <View style={styles.backBtn}><BackButton onPress={() => {
-          console.log("back")
-        }} /></View>}
+        {showBackBtn ? null : (
+          <View style={styles.backBtn}>
+            <BackButton
+              onPress={() => {
+                console.log('back');
+              }}
+            />
+          </View>
+        )}
         <View style={styles.user}>
-          <TouchableOpacity onPress={handleDisplayNamePress}>
+          <TouchableOpacity
+            style={styles.displayNameContainer}
+            onPress={handleDisplayNamePress}
+          >
             {user?.avatarFileId ? (
               <Image
                 style={styles.avatar}
@@ -440,11 +457,9 @@ export default function PostList({
             </View>
           </View>
         </View>
-        {user?.userId === (client as Amity.Client).userId ?
-        <TouchableOpacity onPress={openModal} style={styles.threeDots}>
+        {/* <TouchableOpacity onPress={openModal} style={styles.threeDots}>
           <SvgXml xml={threeDots(theme.colors.base)} width="20" height="16" />
-        </TouchableOpacity>
-        : null}
+        </TouchableOpacity> */}
       </View>
       <View>
         <View style={styles.bodySection}>
@@ -496,7 +511,10 @@ export default function PostList({
           </TouchableOpacity>
           <TouchableOpacity onPress={onClickComment} style={styles.commentBtn}>
             <CommentIcon width={17} height={17} />
-            <Text style={[styles.btnText, { marginStart: 8 }]}>{commentsCount}</Text>
+            <Text style={[styles.btnText]}>{commentsCount}</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.sendIcon} onPress={onSendPress}>
+            <SendIcon strokeColor={'#14151A'} width={17} height={17} />
           </TouchableOpacity>
         </View>
       </View>
