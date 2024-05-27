@@ -17,7 +17,7 @@ import {
   Alert,
 } from 'react-native';
 import { SvgXml } from 'react-native-svg';
-import { personXml } from '../../../svg/svg-xml-list';
+import { personXml, threeDots } from '../../../svg/svg-xml-list';
 import { useStyles } from './styles';
 import type { UserInterface } from '../../../types/user.interface';
 import {
@@ -45,6 +45,8 @@ import BackButton from '../../BackButton';
 import { SocialContext } from '../../../store/context';
 import { HeartIcon } from '../../../svg/HeartIcon';
 import { CommentIcon } from '../../../svg/CommentIcon';
+import { useTheme } from 'react-native-paper';
+import { MyMD3Theme } from 'amity-react-native-social-ui-kit/src/providers/amity-ui-kit-provider';
 // @ts-ignore
 import { SendIcon } from 'amity-react-native-social-ui-kit/src/svg/SendIcon';
 
@@ -93,6 +95,7 @@ export default function PostList({
 }: IPostList) {
   const { client, apiRegion } = useAuth();
   const styles = useStyles();
+  const theme = useTheme() as MyMD3Theme;
   const [isLike, setIsLike] = useState<boolean>(false);
   const [likeReaction, setLikeReaction] = useState<number>(0);
   const [, setCommunityName] = useState('');
@@ -150,9 +153,9 @@ export default function PostList({
     }
   }, [myReactions, reactionCount]);
 
-  // const openModal = () => {
-  //   setIsVisible(true);
-  // };
+  const openModal = () => {
+    setIsVisible(true);
+  };
 
   const closeModal = () => {
     Animated.timing(slideAnimation, {
@@ -270,7 +273,7 @@ export default function PostList({
 
   const handleDisplayNamePress = () => {
     if (user?.userId) {
-      onMemberClick(user.userId);
+      onMemberClick?.(user.userId);
     }
   };
 
@@ -401,7 +404,7 @@ export default function PostList({
   // }, [navigation, postId]);
 
   return (
-    <View key={postId} style={styles.postWrap}>
+    <View key={postId} style={[styles.postWrap, { marginTop: postIndex === 0 ? 8 : 0 }]}>
       <View style={styles.headerSection}>
         {showBackBtn ? null : (
           <View style={styles.backBtn}>
@@ -457,9 +460,11 @@ export default function PostList({
             </View>
           </View>
         </View>
-        {/* <TouchableOpacity onPress={openModal} style={styles.threeDots}>
+        {user?.userId === (client as Amity.Client).userId ?
+        <TouchableOpacity onPress={openModal} style={styles.threeDots}>
           <SvgXml xml={threeDots(theme.colors.base)} width="20" height="16" />
-        </TouchableOpacity> */}
+        </TouchableOpacity>
+        : null}
       </View>
       <View>
         <View style={styles.bodySection}>
