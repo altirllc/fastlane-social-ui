@@ -413,7 +413,10 @@ export default function PostList({
           </View>
         )}
         <View style={styles.user}>
-          <TouchableOpacity onPress={handleDisplayNamePress}>
+          <TouchableOpacity
+            style={styles.displayNameContainer}
+            onPress={handleDisplayNamePress}
+          >
             {user?.avatarFileId ? (
               <Image
                 style={styles.avatar}

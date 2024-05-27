@@ -272,6 +272,7 @@ export const useStyles = () => {
       color: theme.colors.base,
       fontSize: 15,
     },
+    displayNameContainer: { alignSelf: 'center' },
   });
 
   return styles;
