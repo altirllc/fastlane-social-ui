@@ -45,6 +45,8 @@ import BackButton from '../../BackButton';
 import { SocialContext } from '../../../store/context';
 import { HeartIcon } from '../../../svg/HeartIcon';
 import { CommentIcon } from '../../../svg/CommentIcon';
+// @ts-ignore
+import { SendIcon } from 'amity-react-native-social-ui-kit/src/svg/SendIcon';
 
 export interface IPost {
   postId: string;
@@ -261,10 +263,10 @@ export default function PostList({
     });
   }
 
-  // const onSendPress = () => {
-  //   if (!postDetail.postId)
-  //     navigation.navigate("MembersList", { postId: postDetail.postId })
-  // }
+  const onSendPress = () => {
+    if (!postDetail.postId) return;
+    navigation.navigate('MembersList', { postId: postDetail.postId });
+  };
 
   const handleDisplayNamePress = () => {
     if (user?.userId) {
@@ -508,9 +510,9 @@ export default function PostList({
             <CommentIcon width={17} height={17} />
             <Text style={[styles.btnText]}>{commentsCount}</Text>
           </TouchableOpacity>
-          {/* <TouchableOpacity style={styles.sendIcon} onPress={onSendPress}>
+          <TouchableOpacity style={styles.sendIcon} onPress={onSendPress}>
             <SendIcon strokeColor={'#14151A'} width={17} height={17} />
-          </TouchableOpacity> */}
+          </TouchableOpacity>
         </View>
       </View>
       {renderOptionModal()}

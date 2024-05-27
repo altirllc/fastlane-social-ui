@@ -1,12 +1,16 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { View, FlatList, TouchableOpacity, Text } from 'react-native';
+import React, {
+  ReactElement,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
+import { View, FlatList, Text } from 'react-native';
 // @ts-ignore
 import { BottomModalScreen } from '../../../../../src/components/BottomModalScreen/BottomModalScreen';
 // @ts-ignore
 import { Separator } from '../../../../../src/components/Separator/Separator';
 import { useStyles } from './styles';
-import { getShadowProps } from '../../theme/helpers';
-import { SendIcon } from '../../../src/svg/SendIcon';
 import {
   ChannelRepository,
   MessageContentType,
@@ -14,11 +18,15 @@ import {
   getChannelTopic,
   subscribeTopic,
 } from '@amityco/ts-sdk-react-native';
-import useAuth from 'amity-react-native-social-ui-kit/src/hooks/useAuth';
-import { LoadingOverlay } from 'amity-react-native-social-ui-kit/src/components/LoadingOverlay';
+import useAuth from '../../../src/hooks/useAuth';
+import { LoadingOverlay } from '../../../src/components/LoadingOverlay';
 import { useNavigation, useRoute } from '@react-navigation/native';
 // @ts-ignore
 import { ECustomData } from '@amityco/react-native-cli-chat-ui-kit/src/screens/ChatRoom/ChatRoom';
+// import uiSlice from 'amity-react-native-social-ui-kit/src/redux/slices/uiSlice';
+// import { useDispatch } from 'react-redux';
+// import Toast from '../../components/Toast/Toast';
+import { EachChatObject } from './EachChatObject';
 
 type TChannelObject = {
   chatId: string;
@@ -38,6 +46,8 @@ export const MemberListModal = () => {
 
   const disposers: Amity.Unsubscriber[] = [];
   const subscribedChannels: Amity.Channel['channelId'][] = [];
+  // const { showToastMessage } = uiSlice.actions;
+  // const dispatch = useDispatch();
 
   const [channelObjects, setChannelObjects] = useState<TChannelObject[]>([]);
   const [channelData, setChannelData] =
@@ -54,54 +64,35 @@ export const MemberListModal = () => {
 
   const { data: channels = [], onNextPage, hasNextPage } = channelData ?? {};
 
-  const onChannelSelected = async (subChannelId: string) => {
-    if (!postId || !subChannelId) return;
-    const customMessage = {
-      subChannelId: subChannelId,
-      dataType: MessageContentType.CUSTOM,
-      data: {
-        id: postId,
-        type: ECustomData.post,
-      },
-    };
+  const onChannelSelected = useCallback(
+    async (subChannelId: string) => {
+      if (!postId || !subChannelId) return;
+      const customMessage = {
+        subChannelId: subChannelId,
+        dataType: MessageContentType.CUSTOM,
+        data: {
+          id: postId,
+          type: ECustomData.post,
+        },
+      };
 
-    try {
-      setLoadChannel(true);
-      const { data: message } = await MessageRepository.createMessage(
-        customMessage
-      );
-      console.log('message', message);
-      if (message) {
-        navigation.goBack();
+      try {
+        setLoadChannel(true);
+        const { data: message } = await MessageRepository.createMessage(
+          customMessage
+        );
+        console.log('message', message);
+        if (message) {
+          navigation.goBack();
+        }
+      } catch (e) {
+        console.log('e', e);
+      } finally {
+        setLoadChannel(false);
       }
-    } catch (e) {
-      console.log('e', e);
-    } finally {
-      setLoadChannel(false);
-    }
-  };
-
-  const renderItem = ({ item }: { item: TChannelObject; index: number }) => {
-    return (
-      <>
-        <TouchableOpacity
-          onPress={() => onChannelSelected(item.chatId)}
-          style={[styles.itemContainer]}
-        >
-          <View style={styles.itemSubContainer}>
-            {/* <Image source={{ uri: chapterImage }} style={styles.image} /> */}
-            <View style={styles.itemChapterName}>
-              <Text>{item.chatName}</Text>
-            </View>
-          </View>
-          <View style={styles.itemIcon}>
-            <SendIcon />
-          </View>
-        </TouchableOpacity>
-        <Separator style={styles.itemSeparator} />
-      </>
-    );
-  };
+    },
+    [postId, navigation]
+  );
 
   useEffect(() => {
     if (channels.length > 0) {
@@ -161,12 +152,26 @@ export const MemberListModal = () => {
     }
   };
 
+  const renderItem = (item: TChannelObject): ReactElement => {
+    return (
+      <EachChatObject
+        key={item.chatId}
+        chatId={item.chatId}
+        chatName={item.chatName}
+        chatMemberNumber={item.chatMemberNumber}
+        channelType={item.channelType}
+        avatarFileId={item.avatarFileId}
+        onChannelSelected={onChannelSelected}
+      />
+    );
+  };
+
   const renderRecentChat = useMemo(() => {
     return !loadChannel ? (
       channelObjects.length > 0 ? (
         <FlatList
           data={channelObjects}
-          renderItem={renderItem}
+          renderItem={({ item }) => renderItem(item)}
           keyExtractor={(item) => item.chatId.toString()}
           onEndReached={handleLoadMore}
           showsVerticalScrollIndicator={false}
@@ -185,11 +190,15 @@ export const MemberListModal = () => {
   }, [loadChannel, channelObjects, handleLoadMore]);
 
   return (
-    <BottomModalScreen style={styles.screen} horizontalIntent={false}>
+    <BottomModalScreen
+      onHolderPress={() => navigation.goBack()}
+      style={styles.screen}
+      horizontalIntent={true}
+    >
       <View style={styles.header}>
-        <Text style={styles.chatHeader}>Select a chat to send post</Text>
+        <Text style={styles.chatHeader}>Select a chat</Text>
       </View>
-      <Separator style={[styles.separator, { ...getShadowProps() }]} />
+      <Separator style={[styles.separator]} />
       {renderRecentChat}
       {loadChannel ? <LoadingOverlay isLoading /> : null}
     </BottomModalScreen>

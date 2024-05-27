@@ -1,14 +1,17 @@
 import { useTheme } from 'react-native-paper';
 import { SCREEN_PADDING } from '../../theme';
 import { StyleSheet } from 'react-native';
-import { MyMD3Theme } from 'amity-react-native-social-ui-kit/src/providers/amity-ui-kit-provider';
+import { MyMD3Theme } from '../../../src/providers/amity-ui-kit-provider';
+// @ts-ignore
+import { AVATAR_SIZE } from '@amityco/react-native-cli-chat-ui-kit/src/components/Avatar/Avatar.styles';
 
+export const imagesize = AVATAR_SIZE;
 export const useStyles = () => {
   const theme = useTheme() as MyMD3Theme;
   const styles = StyleSheet.create({
     screen: {
       flex: 1,
-      height: '80%',
+      height: '100%',
     },
     headerStyle: {
       backgroundColor: '#FFFFFF',
@@ -35,8 +38,10 @@ export const useStyles = () => {
       paddingHorizontal: SCREEN_PADDING,
     },
     header: {
-      alignSelf: 'center',
       marginBottom: SCREEN_PADDING,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
     },
     chapterName: {
       alignSelf: 'center',
@@ -56,30 +61,30 @@ export const useStyles = () => {
     },
     itemContainer: {
       flexDirection: 'row',
-      justifyContent: 'space-between',
-      paddingVertical: 8,
-      paddingHorizontal: SCREEN_PADDING,
+      paddingVertical: 10,
+      alignItems: 'center',
     },
-    itemSubContainer: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
+    imageContainer: {
+      width: '15%',
     },
-    itemIcon: {
-      alignSelf: 'center',
+    sendIcon: {
+      width: '15%',
+      alignItems: 'flex-end',
     },
     iconChevronRight: {
       alignSelf: 'center',
     },
     image: {
-      height: 40,
-      width: 40,
-      borderRadius: 4,
-      alignSelf: 'center',
+      height: imagesize,
+      width: imagesize,
+      borderRadius: imagesize / 2,
+      alignItems: 'center',
       backgroundColor: '#EDEFF5',
+      justifyContent: 'center',
     },
-    itemChapterName: {
-      alignSelf: 'center',
-      marginStart: SCREEN_PADDING,
+    chatName: {
+      width: '70%',
+      paddingHorizontal: 10,
     },
     itemSeparator: {
       backgroundColor: '#E1E5ED',
@@ -98,7 +103,8 @@ export const useStyles = () => {
       fontWeight: 'normal',
       color: theme.colors.base,
     },
-    chatHeader: { fontSize: 15, fontWeight: '500' },
+    chatHeader: { fontSize: 16, fontWeight: '500', textAlign: 'center' },
+    chatDisplayName: { fontSize: 15, fontWeight: '500' },
   });
   return styles;
 };
