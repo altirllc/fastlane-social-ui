@@ -11,7 +11,7 @@ import {
   ScrollView,
 } from 'react-native';
 import { SvgXml } from 'react-native-svg';
-import { closeIcon } from '../../svg/svg-xml-list';
+import { cameraIcon, closeIcon, galleryIcon, playVideoIcon } from '../../svg/svg-xml-list';
 import { useStyles } from './styles';
 import type { IDisplayImage, IMentionPosition } from '../../screens/CreatePost';
 import { editPost, getPostById } from '../../providers/Social/feed-sdk';
@@ -28,6 +28,11 @@ import globalFeedSlice from '../../redux/slices/globalfeedSlice';
 import { useDispatch } from 'react-redux';
 import MentionInput from '../MentionInput/AmityMentionInput';
 import { TSearchItem } from 'src/hooks/useSearch';
+import ImagePicker, {
+  launchImageLibrary,
+  type Asset,
+  launchCamera,
+} from 'react-native-image-picker';
 interface IModal {
   visible: boolean;
   userId?: string;
@@ -65,7 +70,8 @@ const EditPostModal = ({
   const [mentionUsers, setMentionUsers] = useState<TSearchItem[]>([]);
   const [imagePosts, setImagePosts] = useState<string[]>([]);
   const [videoPosts, setVideoPosts] = useState<IVideoPost[]>([]);
-
+  const [imageMultipleUri, setImageMultipleUri] = useState<string[]>([]);
+  const [videoMultipleUri, setVideoMultipleUri] = useState<string[]>([]);
   const [childrenPostArr, setChildrenPostArr] = useState<string[]>([]);
   const [initialText, setInitialText] = useState('');
   const { updateByPostId } = globalFeedSlice.actions;
@@ -220,6 +226,7 @@ const EditPostModal = ({
             {
               text: inputMessage,
               mediaUrls: imageUrls,
+              childPosts: formattedPost[0]?.childrenPosts,
             },
             type
           );
@@ -240,11 +247,20 @@ const EditPostModal = ({
         mentionPosition
       );
       if (response) {
+        const formattedPost = await amityPostsFormatter([response]);
+        dispatch(
+          updateByPostId({
+            postId: postDetail.postId,
+            postDetail: formattedPost[0],
+          })
+        );
+        dispatch(updatePostDetail(formattedPost[0]));
         onFinishEdit &&
           onFinishEdit(
             {
               text: inputMessage,
               mediaUrls: videoPostList,
+              childPosts: formattedPost[0]?.childrenPosts,
             },
             type
           );
@@ -316,6 +332,199 @@ const EditPostModal = ({
     });
   };
 
+  const pickCamera = async () => {
+    // const permission = await ImagePicker();
+
+    const result: ImagePicker.ImagePickerResponse = await launchCamera({
+      mediaType: 'mixed',
+      quality: 1,
+      presentationStyle: 'fullScreen',
+      videoQuality: 'high',
+    });
+
+    if (
+      result.assets &&
+      result.assets.length > 0 &&
+      result.assets[0] !== null &&
+      result.assets[0]
+    ) {
+      if (result.assets[0].type?.includes('image')) {
+        const imagesArr: string[] = [...imageMultipleUri];
+        imagesArr.push(result.assets[0].uri as string);
+        setImageMultipleUri(imagesArr);
+      } else {
+        const selectedVideos: Asset[] = result.assets;
+        const imageUriArr: string[] = selectedVideos.map(
+          (item: Asset) => item.uri
+        ) as string[];
+        const videosArr: string[] = [...videoMultipleUri];
+        const totalVideos: string[] = videosArr.concat(imageUriArr);
+        setVideoMultipleUri(totalVideos);
+      }
+    }
+  };
+
+  const pickImage = async () => {
+    const result: ImagePicker.ImagePickerResponse = await launchImageLibrary({
+      mediaType: 'photo',
+      quality: 1,
+      selectionLimit: 10,
+    });
+    if (!result.didCancel && result.assets && result.assets.length > 0) {
+      const selectedImages: Asset[] = result.assets;
+      const imageUriArr: string[] = selectedImages.map(
+        (item: Asset) => item.uri
+      ) as string[];
+      const imagesArr = [...imageMultipleUri];
+      const totalImages = imagesArr.concat(imageUriArr);
+      setImageMultipleUri(totalImages);
+    }
+  };
+  const pickVideo = async () => {
+    const result: ImagePicker.ImagePickerResponse = await launchImageLibrary({
+      mediaType: 'video',
+      quality: 1,
+      selectionLimit: 10,
+    });
+    if (!result.didCancel && result.assets && result.assets.length > 0) {
+      const selectedVideos: Asset[] = result.assets;
+      const imageUriArr: string[] = selectedVideos.map(
+        (item: Asset) => item.uri
+      ) as string[];
+      const videosArr = [...videoMultipleUri];
+      const totalVideos = videosArr.concat(imageUriArr);
+      setVideoMultipleUri(totalVideos);
+    }
+  };
+
+  const handleOnFinishImage = (
+    fileId: string,
+    fileUrl: string,
+    fileName: string,
+    index: number,
+    originalPath: string
+  ) => {
+    const imageObject: IDisplayImage = {
+      url: fileUrl,
+      fileId: fileId,
+      fileName: fileName,
+      isUploaded: true,
+    };
+    setDisplayImages((prevData) => {
+      const newData = [...prevData];
+      newData[index] = imageObject;
+      return newData;
+    });
+    setImageMultipleUri((prevData) => {
+      const newData = prevData.filter((url: string) => url !== originalPath); // Filter out objects containing the desired value
+      return newData; // Update the state with the filtered array
+    });
+  };
+
+  const handleOnFinishVideo = (
+    fileId: string,
+    fileUrl: string,
+    fileName: string,
+    index: number,
+    originalPath: string,
+    thumbnail: string
+  ) => {
+    const imageObject: IDisplayImage = {
+      url: fileUrl,
+      fileId: fileId,
+      fileName: fileName,
+      isUploaded: true,
+      thumbNail: thumbnail,
+    };
+    setDisplayVideos((prevData) => {
+      const newData = [...prevData];
+      newData[index] = imageObject;
+      return newData;
+    });
+    setVideoMultipleUri((prevData) => {
+      const newData = prevData.filter((url: string) => url !== originalPath); // Filter out objects containing the desired value
+      return newData; // Update the state with the filtered array
+    });
+  };
+
+  useEffect(() => {
+    if (imageMultipleUri.length > 0 && displayImages.length === 0) {
+      const imagesObject: IDisplayImage[] = imageMultipleUri.map(
+        (url: string) => {
+          const fileName: string = url.substring(url.lastIndexOf('/') + 1);
+
+          return {
+            url: url,
+            fileName: fileName,
+            fileId: '',
+            isUploaded: false,
+          };
+        }
+      );
+      setDisplayImages((prev) => [...prev, ...imagesObject]);
+    } else if (imageMultipleUri.length > 0 && displayImages.length > 0) {
+      const filteredDuplicate = imageMultipleUri.filter((url: string) => {
+        const fileName: string = url.substring(url.lastIndexOf('/') + 1);
+        return !displayImages.some((item) => item.fileName === fileName);
+      });
+
+      const imagesObject: IDisplayImage[] = filteredDuplicate.map(
+        (url: string) => {
+          const fileName: string = url.substring(url.lastIndexOf('/') + 1);
+
+          return {
+            url: url,
+            fileName: fileName,
+            fileId: '',
+            isUploaded: false,
+          };
+        }
+      );
+      setDisplayImages((prev) => [...prev, ...imagesObject]);
+    }
+  }, [imageMultipleUri]);
+
+  useEffect(() => {
+    handleProcessVideo();
+  }, [videoMultipleUri]);
+
+  const handleProcessVideo = async () => {
+    if (videoMultipleUri.length > 0 && displayVideos.length === 0) {
+      const videosObject: IDisplayImage[] = await Promise.all(
+        videoMultipleUri.map(async (url: string) => {
+          const fileName: string = url.substring(url.lastIndexOf('/') + 1);
+
+          return {
+            url: url,
+            fileName: fileName,
+            fileId: '',
+            isUploaded: false,
+            thumbNail: '',
+          };
+        })
+      );
+      setDisplayVideos((prev) => [...prev, ...videosObject]);
+    } else if (videoMultipleUri.length > 0 && displayVideos.length > 0) {
+      const filteredDuplicate = videoMultipleUri.filter((url: string) => {
+        const fileName: string = url.substring(url.lastIndexOf('/') + 1);
+        return !displayVideos.some((item) => item.fileName === fileName);
+      });
+      const videosObject: IDisplayImage[] = await Promise.all(
+        filteredDuplicate.map(async (url: string) => {
+          const fileName: string = url.substring(url.lastIndexOf('/') + 1);
+          return {
+            url: url,
+            fileName: fileName,
+            fileId: '',
+            isUploaded: false,
+            thumbNail: '',
+          };
+        })
+      );
+      setDisplayVideos((prev) => [...prev, ...videosObject]);
+    }
+  };
+
   return (
     <Modal visible={visible} animationType="slide">
       <View style={styles.header}>
@@ -366,6 +575,7 @@ const EditPostModal = ({
                         source={item.url}
                         onClose={handleOnCloseImage}
                         index={index}
+                        onLoadFinish={handleOnFinishImage}
                         isUploaded={item.isUploaded}
                         fileId={item.fileId}
                         isEditMode
@@ -384,6 +594,7 @@ const EditPostModal = ({
                         source={item.url}
                         onClose={handleOnCloseVideo}
                         index={index}
+                        onLoadFinish={handleOnFinishVideo}
                         isUploaded={item.isUploaded}
                         fileId={item.fileId}
                         thumbNail={item.thumbNail as string}
@@ -395,6 +606,36 @@ const EditPostModal = ({
                 )}
               </View>
             </ScrollView>
+            <View style={styles.InputWrap}>
+          <TouchableOpacity
+            disabled={displayVideos.length > 0 ? true : false}
+            onPress={pickCamera}
+          >
+            <View style={styles.iconWrap}>
+              <SvgXml xml={cameraIcon} width="27" height="27" />
+            </View>
+          </TouchableOpacity>
+          <TouchableOpacity
+            disabled={displayVideos.length > 0 ? true : false}
+            onPress={pickImage}
+          >
+            <View style={styles.iconWrap}>
+              <SvgXml xml={galleryIcon} width="27" height="27" />
+            </View>
+          </TouchableOpacity>
+          <TouchableOpacity
+            disabled={displayImages.length > 0 ? true : false}
+            onPress={pickVideo}
+            style={displayImages.length > 0 ? styles.disabled : []}
+          >
+            <View style={styles.iconWrap}>
+              <SvgXml xml={playVideoIcon} width="27" height="27" />
+            </View>
+          </TouchableOpacity>
+          {/* <TouchableOpacity onPress={() => Keyboard.dismiss()}>
+            <SvgXml xml={arrowDown(theme.colors.base)} width="20" height="20" />
+          </TouchableOpacity> */}
+        </View>
           </KeyboardAvoidingView>
         </View>
       </View>
