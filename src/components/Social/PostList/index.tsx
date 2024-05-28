@@ -131,6 +131,7 @@ export default function PostList({
     editedAt,
     mentionPosition,
   } = postDetail ?? {};
+  const [childPosts, setChildPosts] = useState(childrenPosts);
   const timeDifference = useTimeDifference(createdAt);
   const { onMemberClick } = useContext(SocialContext);
 
@@ -390,8 +391,10 @@ export default function PostList({
   const handleOnFinishEdit = (postData: {
     text: string;
     mediaUrls: string[] | IVideoPost[];
+    childPosts: string[];
   }) => {
     setTextPost(postData.text);
+    setChildPosts(postData.childPosts);
     setEditPostModalVisible(false);
     setIsEdit(true);
   };
@@ -477,8 +480,8 @@ export default function PostList({
               textPost={textPost}
             />
           )}
-          {childrenPosts?.length > 0 && (
-            <MediaSection childrenPosts={childrenPosts} />
+          {childPosts?.length > 0 && (
+            <MediaSection childrenPosts={childPosts} />
           )}
         </View>
 

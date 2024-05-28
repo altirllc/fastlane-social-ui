@@ -201,6 +201,9 @@ function Feed({ targetId, targetType }: IFeed, ref: React.Ref<FeedRefType>) {
     if (type === 'community') {
       CommunityRepository.getCommunity(id, (data) => {
         if (data.data) {
+          if (data?.data?.postsCount === 0) {
+            setLoading(false);
+          }
           subscribeTopic(getCommunityTopic(data.data, SubscriptionLevels.POST));
         }
       });
