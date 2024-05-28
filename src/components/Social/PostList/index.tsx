@@ -46,9 +46,9 @@ import { SocialContext } from '../../../store/context';
 import { HeartIcon } from '../../../svg/HeartIcon';
 import { CommentIcon } from '../../../svg/CommentIcon';
 import { useTheme } from 'react-native-paper';
-import { MyMD3Theme } from 'amity-react-native-social-ui-kit/src/providers/amity-ui-kit-provider';
+import { MyMD3Theme } from '../../../../src/providers/amity-ui-kit-provider';
 // @ts-ignore
-import { SendIcon } from 'amity-react-native-social-ui-kit/src/svg/SendIcon';
+import { SendIcon } from '../../../svg/SendIcon';
 
 export interface IPost {
   postId: string;
@@ -404,7 +404,10 @@ export default function PostList({
   // }, [navigation, postId]);
 
   return (
-    <View key={postId} style={[styles.postWrap, { marginTop: postIndex === 0 ? 8 : 0 }]}>
+    <View
+      key={postId}
+      style={[styles.postWrap, { marginTop: postIndex === 0 ? 8 : 0 }]}
+    >
       <View style={styles.headerSection}>
         {showBackBtn ? null : (
           <View style={styles.backBtn}>
@@ -460,11 +463,11 @@ export default function PostList({
             </View>
           </View>
         </View>
-        {user?.userId === (client as Amity.Client).userId ?
-        <TouchableOpacity onPress={openModal} style={styles.threeDots}>
-          <SvgXml xml={threeDots(theme.colors.base)} width="20" height="16" />
-        </TouchableOpacity>
-        : null}
+        {user?.userId === (client as Amity.Client).userId ? (
+          <TouchableOpacity onPress={openModal} style={styles.threeDots}>
+            <SvgXml xml={threeDots(theme.colors.base)} width="20" height="16" />
+          </TouchableOpacity>
+        ) : null}
       </View>
       <View>
         <View style={styles.bodySection}>

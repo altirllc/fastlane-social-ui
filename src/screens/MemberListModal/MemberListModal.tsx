@@ -5,7 +5,7 @@ import React, {
   useMemo,
   useState,
 } from 'react';
-import { View, FlatList, Text } from 'react-native';
+import { View, FlatList, Text, TouchableOpacity } from 'react-native';
 // @ts-ignore
 import { BottomModalScreen } from '../../../../../src/components/BottomModalScreen/BottomModalScreen';
 // @ts-ignore
@@ -15,8 +15,6 @@ import {
   ChannelRepository,
   MessageContentType,
   MessageRepository,
-  getChannelTopic,
-  subscribeTopic,
 } from '@amityco/ts-sdk-react-native';
 import useAuth from '../../../src/hooks/useAuth';
 import { LoadingOverlay } from '../../../src/components/LoadingOverlay';
@@ -28,12 +26,13 @@ import { ECustomData } from '@amityco/react-native-cli-chat-ui-kit/src/screens/C
 // import Toast from '../../components/Toast/Toast';
 import { EachChatObject } from './EachChatObject';
 
-type TChannelObject = {
+export type TChannelObject = {
   chatId: string;
   chatName: string;
   chatMemberNumber: number;
   channelType: 'conversation' | 'broadcast' | 'live' | 'community' | '';
   avatarFileId: string | undefined;
+  selected: boolean;
 };
 
 export const MemberListModal = () => {
@@ -44,66 +43,102 @@ export const MemberListModal = () => {
   const navigation = useNavigation();
   const postId = route?.params?.postId;
 
-  const disposers: Amity.Unsubscriber[] = [];
-  const subscribedChannels: Amity.Channel['channelId'][] = [];
-  // const { showToastMessage } = uiSlice.actions;
-  // const dispatch = useDispatch();
-
   const [channelObjects, setChannelObjects] = useState<TChannelObject[]>([]);
   const [channelData, setChannelData] =
     useState<Amity.LiveCollection<Amity.Channel>>();
 
-  const subscribeChannels = (channels: Amity.Channel[]) => {
-    channels.forEach((c) => {
-      if (!subscribedChannels.includes(c.channelId) && !c.isDeleted) {
-        subscribedChannels.push(c.channelId);
-        disposers.push(subscribeTopic(getChannelTopic(c)));
-      }
-    });
-  };
+  const shouldShowSend = useMemo(() => {
+    return channelObjects.some((eachChannel) => eachChannel.selected);
+  }, [channelObjects]);
 
   const { data: channels = [], onNextPage, hasNextPage } = channelData ?? {};
 
-  const onChannelSelected = useCallback(
-    async (subChannelId: string) => {
-      if (!postId || !subChannelId) return;
-      const customMessage = {
-        subChannelId: subChannelId,
-        dataType: MessageContentType.CUSTOM,
-        data: {
-          id: postId,
-          type: ECustomData.post,
-        },
-      };
-
-      try {
-        setLoadChannel(true);
-        const { data: message } = await MessageRepository.createMessage(
-          customMessage
-        );
-        console.log('message', message);
-        if (message) {
-          navigation.goBack();
-        }
-      } catch (e) {
-        console.log('e', e);
-      } finally {
-        setLoadChannel(false);
+  const onSendClick = useCallback(async () => {
+    if (!postId || !channelObjects) return;
+    setLoadChannel(true);
+    // for (const eachChannel of channelObjects) {
+    //   if (eachChannel.selected) {
+    //     const customMessage = {
+    //       subChannelId: eachChannel.chatId,
+    //       dataType: MessageContentType.CUSTOM,
+    //       data: {
+    //         id: postId,
+    //         type: ECustomData.post,
+    //       },
+    //     };
+    //     const { data: message } = await MessageRepository.createMessage(
+    //       customMessage
+    //     );
+    //     console.log('message', message);
+    //   }
+    // }
+    // Create an array to hold all the promises
+    const promises = channelObjects.map((eachChannel) => {
+      if (eachChannel.selected) {
+        const customMessage = {
+          subChannelId: eachChannel.chatId,
+          dataType: MessageContentType.CUSTOM,
+          data: {
+            id: postId,
+            type: ECustomData.post,
+          },
+        };
+        return MessageRepository.createMessage(customMessage);
       }
-    },
-    [postId, navigation]
-  );
+      // Return a resolved promise for unselected channels to keep the array length consistent
+      return Promise.resolve(null);
+    });
+
+    try {
+      // Wait for all promises to be resolved
+      const results = await Promise.all(promises);
+
+      // Process the results
+      results.forEach((result) => {
+        if (result) {
+          const { data: message } = result;
+          console.log('message', message);
+        }
+      });
+    } catch (e) {
+      console.log('e', e);
+    } finally {
+      setLoadChannel(false);
+      navigation.goBack();
+    }
+  }, [postId, navigation, channelObjects]);
+
+  const onChannelSelected = useCallback(async (subChannelId: string) => {
+    if (!subChannelId) return;
+    setChannelObjects((prevChannels) =>
+      prevChannels.map((eachChannel) => {
+        if (eachChannel.chatId === subChannelId) {
+          return {
+            ...eachChannel,
+            selected: !eachChannel.selected,
+          };
+        } else return eachChannel;
+      })
+    );
+  }, []);
 
   useEffect(() => {
     if (channels.length > 0) {
       const formattedChannelObjects: TChannelObject[] = channels.map(
         (item: Amity.Channel<any>) => {
+          const channel =
+            channelObjects.length > 0
+              ? channelObjects.find(
+                  (eachChannel) => eachChannel.chatId === item.channelId
+                )
+              : null;
           return {
             chatId: item.channelId ?? '',
             chatName: item.displayName ?? '',
             chatMemberNumber: item.memberCount ?? 0,
             channelType: item.type ?? '',
             avatarFileId: item.avatarFileId,
+            selected: channel ? channel.selected : false,
           };
         }
       );
@@ -115,7 +150,7 @@ export const MemberListModal = () => {
 
   const onQueryChannel = () => {
     setLoadChannel(true);
-    const unsubscribe = ChannelRepository.getChannels(
+    ChannelRepository.getChannels(
       {
         sortBy: 'lastActivity',
         limit: 15,
@@ -124,7 +159,6 @@ export const MemberListModal = () => {
       },
       (value) => {
         setChannelData(value);
-        subscribeChannels(channels);
         if (
           value.data.length > 0 ||
           (value.data.length === 0 && !value.hasNextPage && !value.loading)
@@ -135,15 +169,10 @@ export const MemberListModal = () => {
         }
       }
     );
-    disposers.push(unsubscribe);
   };
 
   useEffect(() => {
     onQueryChannel();
-    return () => {
-      disposers.forEach((fn) => fn());
-    };
-    //eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isConnected]);
 
   const handleLoadMore = () => {
@@ -156,11 +185,7 @@ export const MemberListModal = () => {
     return (
       <EachChatObject
         key={item.chatId}
-        chatId={item.chatId}
-        chatName={item.chatName}
-        chatMemberNumber={item.chatMemberNumber}
-        channelType={item.channelType}
-        avatarFileId={item.avatarFileId}
+        item={item}
         onChannelSelected={onChannelSelected}
       />
     );
@@ -190,17 +215,27 @@ export const MemberListModal = () => {
   }, [loadChannel, channelObjects, handleLoadMore]);
 
   return (
-    <BottomModalScreen
-      onHolderPress={() => navigation.goBack()}
-      style={styles.screen}
-      horizontalIntent={true}
-    >
-      <View style={styles.header}>
-        <Text style={styles.chatHeader}>Select a chat</Text>
-      </View>
-      <Separator style={[styles.separator]} />
-      {renderRecentChat}
+    <>
+      <BottomModalScreen
+        onHolderPress={() => navigation.goBack()}
+        style={styles.screen}
+        horizontalIntent={true}
+      >
+        <View style={styles.header}>
+          <Text style={styles.chatHeader}>Select a chat</Text>
+        </View>
+        <Separator style={[styles.separator]} />
+        {renderRecentChat}
+        {shouldShowSend ? (
+          <TouchableOpacity
+            onPress={onSendClick}
+            style={styles.sendButtonContainer}
+          >
+            <Text style={styles.sendButtontext}>Send</Text>
+          </TouchableOpacity>
+        ) : null}
+      </BottomModalScreen>
       {loadChannel ? <LoadingOverlay isLoading /> : null}
-    </BottomModalScreen>
+    </>
   );
 };
