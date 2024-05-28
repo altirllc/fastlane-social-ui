@@ -1,9 +1,8 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { memo, useEffect, useMemo, useState } from 'react';
 import { View, TouchableOpacity, Text, Image } from 'react-native';
 // @ts-ignore
 // @ts-ignore
 import { Separator } from '../../../../../src/components/Separator/Separator';
-import { SendIcon } from '../../../src/svg/SendIcon';
 import { ChannelRepository } from '@amityco/ts-sdk-react-native';
 // @ts-ignore
 // import uiSlice from 'amity-react-native-social-ui-kit/src/redux/slices/uiSlice';
@@ -23,23 +22,14 @@ import { UserInterface } from '@amityco/react-native-cli-chat-ui-kit/src/types/u
 import { IGroupChatObject } from '@amityco/react-native-cli-chat-ui-kit/src/components/ChatList';
 import useAuth from '../../../src/hooks/useAuth';
 import { imagesize, useStyles } from './styles';
+import { TChannelObject } from '../../../src/screens/MemberListModal/MemberListModal';
+import RoundCheckbox from '../../../src/components/RoundCheckbox';
 
 export type TChatList = {
-  chatId: string;
-  chatName: string;
-  chatMemberNumber: number;
-  channelType: 'conversation' | 'broadcast' | 'live' | 'community' | '';
-  avatarFileId: string | undefined;
+  item: TChannelObject;
   onChannelSelected: (subChannelId: string) => void;
 };
-export const EachChatObject = ({
-  chatId,
-  chatName,
-  chatMemberNumber,
-  channelType,
-  avatarFileId,
-  onChannelSelected,
-}: TChatList) => {
+export const EachChatObject = memo(({ item, onChannelSelected }: TChatList) => {
   const { apiRegion, client } = useAuth();
   const styles = useStyles();
 
@@ -64,9 +54,9 @@ export const EachChatObject = ({
         ''
       );
     } else if (groupChatObject) {
-      return avatarFileId;
+      return item.avatarFileId;
     } else return '';
-  }, [oneOnOneChatObject, groupChatObject, avatarFileId, client]);
+  }, [oneOnOneChatObject, groupChatObject, item.avatarFileId, client]);
 
   const chatDisplayName = useMemo(() => {
     //return latest chat name
@@ -76,9 +66,9 @@ export const EachChatObject = ({
       );
       return oneOnOneChatObject[targetIndex]?.user?.displayName as string;
     } else if (groupChatObject) {
-      return chatName;
+      return item.chatName;
     } else return '';
-  }, [oneOnOneChatObject, groupChatObject, chatName, client]);
+  }, [oneOnOneChatObject, groupChatObject, item.chatName, client]);
 
   const groupChat = useMemo(() => {
     if (groupChatObject && groupChatObject?.length > 0) {
@@ -94,9 +84,9 @@ export const EachChatObject = ({
       );
       const groupChatObj: IGroupChatObject = {
         users: userArr,
-        displayName: chatName as string,
-        avatarFileId: avatarFileId,
-        memberCount: chatMemberNumber,
+        displayName: item.chatName as string,
+        avatarFileId: item.avatarFileId,
+        memberCount: item.chatMemberNumber,
       };
       if (channelModerator) {
         //if channel admin exist, add its info separately
@@ -108,31 +98,36 @@ export const EachChatObject = ({
       return groupChatObj;
     }
     return undefined;
-  }, [groupChatObject, chatName, avatarFileId, chatMemberNumber]);
+  }, [
+    groupChatObject,
+    item.chatName,
+    item.avatarFileId,
+    item.chatMemberNumber,
+  ]);
 
   const { avatarArray } = useAvatarArray(groupChat);
 
   useEffect(() => {
-    if (chatMemberNumber === 2 && usersArr) {
+    if (item.chatMemberNumber === 2 && usersArr) {
       setOneOnOneChatObject(usersArr);
     } else if (usersArr) {
       setGroupChatObject(usersArr);
     }
-  }, [usersArr, chatMemberNumber]);
+  }, [usersArr, item.chatMemberNumber]);
 
   useEffect(() => {
     ChannelRepository.Membership.getMembers(
-      { channelId: chatId, limit: 100 },
+      { channelId: item.chatId, limit: 100 },
       (data) => {
         setUsersObject(data);
       }
     );
-  }, [chatId]);
+  }, [item.chatId]);
 
   return (
     <>
       <TouchableOpacity
-        onPress={() => onChannelSelected(chatId)}
+        onPress={() => onChannelSelected(item.chatId)}
         style={[styles.itemContainer]}
         activeOpacity={0.5}
       >
@@ -146,7 +141,7 @@ export const EachChatObject = ({
             />
           ) : (
             <View style={styles.image}>
-              {channelType === 'community' ? (
+              {item.channelType === 'community' ? (
                 <Avatar
                   heightProp={imagesize}
                   widthProp={imagesize}
@@ -164,10 +159,10 @@ export const EachChatObject = ({
           </Text>
         </View>
         <View style={styles.sendIcon}>
-          <SendIcon height={20} width={20} />
+          <RoundCheckbox isChecked={item.selected} />
         </View>
       </TouchableOpacity>
       <Separator style={styles.itemSeparator} />
     </>
   );
-};
+});

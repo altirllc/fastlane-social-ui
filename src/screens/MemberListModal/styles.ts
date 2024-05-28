@@ -105,6 +105,21 @@ export const useStyles = () => {
     },
     chatHeader: { fontSize: 16, fontWeight: '500', textAlign: 'center' },
     chatDisplayName: { fontSize: 15, fontWeight: '500' },
+    sendButtontext: {
+      fontWeight: '700',
+      color: theme.colors.background,
+      fontSize: 16,
+    },
+    sendButtonContainer: {
+      height: 50,
+      width: '100%',
+      position: 'absolute',
+      bottom: 0,
+      backgroundColor: '#14151A',
+      alignItems: 'center',
+      justifyContent: 'center',
+      borderRadius: 15,
+    },
   });
   return styles;
 };
