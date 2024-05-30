@@ -38,9 +38,9 @@ import CreatePoll from '../screens/CreatePoll/CreatePoll';
 import ReactionListScreen from '../screens/ReactionListScreen/ReactionListScreen';
 import { SocialContext } from '../store/context';
 import { MemberListModal } from '../screens/MemberListModal/MemberListModal';
-
+ 
 export default function SocialNavigator({
-  hideCompleteProfileCard,
+  showCompleteProfileCard,
   selectedChapterId,
   selectedChapterName,
   defaultChapterId,
@@ -51,7 +51,7 @@ export default function SocialNavigator({
   screen,
   setIsTabBarVisible,
 }: {
-  hideCompleteProfileCard: boolean;
+  showCompleteProfileCard: boolean;
   selectedChapterId: string;
   selectedChapterName: string;
   defaultChapterId: string;
@@ -68,7 +68,7 @@ export default function SocialNavigator({
   const Stack = createNativeStackNavigator<RootStackParamList>();
   const { isConnected } = useAuth();
   const theme = useTheme() as MyMD3Theme;
-
+ 
   const styles = useStyles();
   return (
     <NavigationContainer independent={true}>
@@ -81,6 +81,7 @@ export default function SocialNavigator({
           onMemberClick,
           screen,
           setIsTabBarVisible,
+          showCompleteProfileCard
         }}
       >
         {isConnected && (
@@ -92,7 +93,6 @@ export default function SocialNavigator({
             <Stack.Screen name="Home">
               {() => (
                 <Home
-                  hideCompleteProfileCard={hideCompleteProfileCard}
                   selectedChapterId={selectedChapterId}
                   selectedChapterName={selectedChapterName}
                   defaultChapterId={defaultChapterId}
@@ -114,7 +114,7 @@ export default function SocialNavigator({
             <Stack.Screen
               name="CategoryList"
               component={CategoryList}
-              options={({}) => ({
+              options={({ }) => ({
                 title: 'Category',
               })}
             />

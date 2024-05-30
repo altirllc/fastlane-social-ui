@@ -8,6 +8,7 @@ export const SocialContext = createContext<{
   onMemberClick: (value) => void;
   screen: string;
   setIsTabBarVisible: (value: boolean) => void;
+  showCompleteProfileCard: boolean;
 }>({
   selectedChapterId: '',
   selectedChapterName: '',
@@ -16,4 +17,5 @@ export const SocialContext = createContext<{
   onMemberClick: () => {},
   screen: '',
   setIsTabBarVisible: () => {},
+  showCompleteProfileCard: false,
 });

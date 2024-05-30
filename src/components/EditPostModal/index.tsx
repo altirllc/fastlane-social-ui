@@ -38,7 +38,7 @@ interface IModal {
   userId?: string;
   onClose: () => void;
   onFinishEdit: (
-    postData: { text: string; mediaUrls: string[] | IVideoPost[] },
+    postData: { text: string; mediaUrls: string[] | IVideoPost[], childPosts: string[] },
     type: string
   ) => void;
   postDetail: IPost;
@@ -607,35 +607,35 @@ const EditPostModal = ({
               </View>
             </ScrollView>
             <View style={styles.InputWrap}>
-          <TouchableOpacity
-            disabled={displayVideos.length > 0 ? true : false}
-            onPress={pickCamera}
-          >
-            <View style={styles.iconWrap}>
-              <SvgXml xml={cameraIcon} width="27" height="27" />
-            </View>
-          </TouchableOpacity>
-          <TouchableOpacity
-            disabled={displayVideos.length > 0 ? true : false}
-            onPress={pickImage}
-          >
-            <View style={styles.iconWrap}>
-              <SvgXml xml={galleryIcon} width="27" height="27" />
-            </View>
-          </TouchableOpacity>
-          <TouchableOpacity
-            disabled={displayImages.length > 0 ? true : false}
-            onPress={pickVideo}
-            style={displayImages.length > 0 ? styles.disabled : []}
-          >
-            <View style={styles.iconWrap}>
-              <SvgXml xml={playVideoIcon} width="27" height="27" />
-            </View>
-          </TouchableOpacity>
-          {/* <TouchableOpacity onPress={() => Keyboard.dismiss()}>
+              <TouchableOpacity
+                disabled={displayVideos.length > 0 ? true : false}
+                onPress={pickCamera}
+              >
+                <View style={styles.iconWrap}>
+                  <SvgXml xml={cameraIcon} width="27" height="27" />
+                </View>
+              </TouchableOpacity>
+              <TouchableOpacity
+                disabled={displayVideos.length > 0 ? true : false}
+                onPress={pickImage}
+              >
+                <View style={styles.iconWrap}>
+                  <SvgXml xml={galleryIcon} width="27" height="27" />
+                </View>
+              </TouchableOpacity>
+              <TouchableOpacity
+                disabled={displayImages.length > 0 ? true : false}
+                onPress={pickVideo}
+                style={displayImages.length > 0 ? styles.disabled : []}
+              >
+                <View style={styles.iconWrap}>
+                  <SvgXml xml={playVideoIcon} width="27" height="27" />
+                </View>
+              </TouchableOpacity>
+              {/* <TouchableOpacity onPress={() => Keyboard.dismiss()}>
             <SvgXml xml={arrowDown(theme.colors.base)} width="20" height="20" />
           </TouchableOpacity> */}
-        </View>
+            </View>
           </KeyboardAvoidingView>
         </View>
       </View>
