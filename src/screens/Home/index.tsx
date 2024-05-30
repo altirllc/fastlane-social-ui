@@ -32,7 +32,6 @@ import { CompleteProfileCard } from '../../../../../src/components/CompleteProfi
 
 LogBox.ignoreAllLogs(true);
 export default function Home({
-  hideCompleteProfileCard,
   selectedChapterId,
   selectedChapterName,
   // defaultChapterId,
@@ -40,7 +39,6 @@ export default function Home({
   avatarUrl,
   stepsCompleted,
 }: {
-  hideCompleteProfileCard: boolean;
   selectedChapterId: string;
   selectedChapterName: string;
   defaultChapterId: string;
@@ -58,7 +56,7 @@ export default function Home({
   const navigation = useNavigation<NativeStackNavigationProp<any>>();
   const { colors } = useCustomTheme();
   const isFocused = useIsFocused();
-  const { onDropdownClick, screen, setIsTabBarVisible } =
+  const { onDropdownClick, screen, setIsTabBarVisible, showCompleteProfileCard } =
     useContext(SocialContext);
 
   const onClickSearch = () => {
@@ -118,7 +116,7 @@ export default function Home({
           { backgroundColor: colors.secondary.main },
         ]}
       >
-        <View style={styles.width1}>
+        <View>
           <TouchableOpacity
             onPress={() => {
               socialNavigation.dispatch(DrawerActions.openDrawer());
@@ -127,8 +125,18 @@ export default function Home({
             <SideBarIcon height={30} width={30} />
           </TouchableOpacity>
         </View>
-        <View style={styles.width2} />
-        <View style={styles.width1}>
+        {screen === screens.Home ? (
+        <TouchableOpacity
+        style={styles.titleContainer}
+        onPress={() => onDropdownClick(selectedChapterId)}
+        >
+        <Text style={styles.chapterName}>{selectedChapterName}</Text>
+          <View style={styles.chevronDownIcon}>
+            <ChevronDownIcon height={17} width={17} />
+          </View>
+      </TouchableOpacity>
+        ) : null}
+        <View>
           <Avatar
             image={avatarUrl}
             size={40}
@@ -137,23 +145,20 @@ export default function Home({
             }}
             light={true}
             shadow
-            disabled={hideCompleteProfileCard}
+            disabled={showCompleteProfileCard}
           />
         </View>
       </View>
+      {screen === screens.MarketPlace ? (
       <TouchableOpacity
-        style={styles.titleContainer}
+        style={styles.marketplaceContainer}
         onPress={() => onDropdownClick(selectedChapterId)}
         disabled={screen === screens.MarketPlace}
       >
-        <Text style={styles.chapterName}>{selectedChapterName}</Text>
-        {screen === screens.Home ? (
-          <View style={styles.chevronDownIcon}>
-            <ChevronDownIcon height={17} width={17} />
-          </View>
-        ) : null}
+        <Text style={styles.marketplaceTitle}>{selectedChapterName}</Text>
       </TouchableOpacity>
-      {hideCompleteProfileCard ? (
+    ) : null}
+      {showCompleteProfileCard ? (
         <View style={[styles.cardContainer]}>
           <CompleteProfileCard
             onPress={() => {
@@ -173,7 +178,7 @@ export default function Home({
       <TouchableOpacity
         onPress={openModal}
         style={[
-          hideCompleteProfileCard
+          showCompleteProfileCard
             ? styles.createFeedButton
             : styles.createFeedButtonWithoutProfileComplete,
           {

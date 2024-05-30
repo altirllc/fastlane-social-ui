@@ -90,7 +90,7 @@ export const useStyles = () => {
       justifyContent: 'space-between',
       alignItems: 'center',
       width: '100%',
-      paddingBottom: 10,
+      paddingBottom: 16,
     },
     width1: {
       width: '10%',
@@ -101,20 +101,26 @@ export const useStyles = () => {
       alignItems: 'center',
     },
     titleContainer: {
+      flexDirection: 'row',
+    },
+    marketplaceContainer: {
       width: '100%',
       alignSelf: 'flex-start',
       flexDirection: 'row',
-      paddingVertical: 15,
+      paddingVertical: 16,
       paddingHorizontal: SCREEN_PADDING,
-      marginTop: 6,
+    },
+    marketplaceTitle: {
+      fontWeight: '600',
+      fontSize: 24,
     },
     chevronDownIcon: {
       alignSelf: 'center',
-      marginStart: 20,
+      marginStart: 12,
     },
     chapterName: {
       fontWeight: '600',
-      fontSize: 24,
+      fontSize: 18,
     },
     cardContainer: {
       paddingHorizontal: SCREEN_PADDING,
