@@ -339,7 +339,7 @@ export default function CommunityHome({ route }: any) {
           tabName={[TabName.Timeline, TabName.Gallery]}
           onTabChange={handleTab}
         />
-        <Feed targetType="community" targetId={communityId} ref={feedRef} />
+        <Feed targetType="community" targetIds={[communityId]} ref={feedRef} />
       </ScrollView>
 
       <FloatingButton onPress={handleOnPressPostBtn} isGlobalFeed={false} />

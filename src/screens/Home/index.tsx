@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import * as React from 'react';
 import { useContext, useEffect, useLayoutEffect, useState } from 'react';
-import { View, TouchableOpacity, LogBox, Text } from 'react-native';
+import { LogBox, Text, TouchableOpacity, View } from 'react-native';
 import useAuth from '../../hooks/useAuth';
 import Feed from '../../screens/Feed/index';
 import { useStyles } from './styles';
@@ -14,21 +14,24 @@ import {
   useIsFocused,
   useNavigation,
 } from '@react-navigation/native';
-// import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 // import uiSlice from '../../redux/slices/uiSlice';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { getShadowProps } from '../../theme/helpers';
 import { useCustomTheme } from '../../hooks/useCustomTheme';
 import { PlusIcon } from '../../svg/PlusIcon';
 // @ts-ignore
-import { Avatar } from '../../../../../src/components/Avatar/Avatar';
+import { Avatar } from '../../../../src/components/Avatar/Avatar';
 // @ts-ignore
-import { screens } from '../../../../../src/constants/screens';
+import { screens } from '../../../../src/constants/screens';
 import { SideBarIcon } from '../../svg/Sidebar';
 import { ChevronDownIcon } from '../../svg/ChevronDown';
 import { SocialContext } from '../../store/context';
 // @ts-ignore
-import { CompleteProfileCard } from '../../../../../src/components/CompleteProfileCard/CompleteProfileCard';
+import { CompleteProfileCard } from '../../../../src/components/CompleteProfileCard/CompleteProfileCard';
+import { Client } from '@amityco/ts-sdk-react-native';
+import { RootState } from '~/redux/store';
+import chaptersSlice from '../../redux/slices/chapters';
 
 LogBox.ignoreAllLogs(true);
 export default function Home({
@@ -51,7 +54,7 @@ export default function Home({
   const styles = useStyles();
   const { client } = useAuth();
   // const theme = useTheme() as MyMD3Theme;
-  // const dispatch = useDispatch();
+  const dispatch = useDispatch();
   // const { openPostTypeChoiceModal } = uiSlice.actions;
   // const { excludes } = useConfig();
   const [activeTab] = useState<string>(TabName.NewsFeed);
@@ -60,6 +63,8 @@ export default function Home({
   const isFocused = useIsFocused();
   const { onDropdownClick, screen, setIsTabBarVisible } =
     useContext(SocialContext);
+  const { setChapters } = chaptersSlice.actions;
+  const { chapters } = useSelector((state: RootState) => state.chapters);
 
   const onClickSearch = () => {
     navigation.navigate('CommunitySearch');
@@ -109,6 +114,37 @@ export default function Home({
       }
     }, 500);
   }, [isFocused]);
+
+  useEffect(() => {
+    const fetchChapters = async () => {
+      const { data } = await Client.getActiveClient().http.get(
+        '/api/v3/communities',
+        {
+          params: {
+            'isDeleted': false,
+            'options[limit]': 100,
+            'tags[0]': 'chapter',
+          },
+        }
+      );
+
+      const chapters = data.communities as Amity.Community[];
+      console.debug(
+        `Fetched all chapters: ${JSON.stringify(
+          chapters.map((c) => ({
+            id: c.communityId,
+            name: c.displayName,
+          }))
+        )}`
+      );
+
+      return chapters;
+    };
+
+    fetchChapters()
+      .then((cc) => dispatch(setChapters(cc)))
+      .catch((e) => console.error('Error fetching chapters', e));
+  }, [dispatch]);
 
   return (
     <View style={styles.container}>
@@ -165,7 +201,11 @@ export default function Home({
       ) : null}
       <View style={{ flex: 1 }}>
         <Feed
-          targetId={selectedChapterId}
+          targetIds={
+            selectedChapterId
+              ? [selectedChapterId]
+              : chapters.map((c) => c.communityId)
+          }
           targetType="community"
           selectedChapterName={selectedChapterName}
         />

@@ -12,6 +12,18 @@ const feedSlice = createSlice({
   name: 'feed',
   initialState,
   reducers: {
+    mergeFeed: (state, action: PayloadAction<IPost[]>) => {
+      const existingPostIds = new Set(
+        state.postList.map((post) => post.postId)
+      );
+      const newPosts = action.payload.filter(
+        (p) => !existingPostIds.has(p.postId)
+      );
+      const mergedPostList = [...state.postList, ...newPosts];
+      mergedPostList.sort((a, b) => (a.createdAt > b.createdAt ? -1 : 1));
+
+      state.postList = mergedPostList;
+    },
     updateFeed: (state, action: PayloadAction<IPost[]>) => {
       const getUniqueArrayById = (arr: IPost[]) => {
         const uniqueIds = new Set(state.postList.map((post) => post.postId));

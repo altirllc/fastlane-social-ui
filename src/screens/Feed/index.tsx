@@ -1,282 +1,345 @@
 import React, {
   forwardRef,
   useCallback,
+  useEffect,
   useImperativeHandle,
   useState,
 } from 'react';
 
 // import { useTranslation } from 'react-i18next';
-
 import {
+  ActivityIndicator,
   FlatList,
   RefreshControl,
   View,
-  ActivityIndicator,
 } from 'react-native';
-import PostList from '../../components/Social/PostList';
+import PostList, { IPost } from '../../components/Social/PostList';
 import { useStyles } from './styles';
-import {
-  CommunityRepository,
-  PostRepository,
-  SubscriptionLevels,
-  UserRepository,
-  getCommunityTopic,
-  getUserTopic,
-  subscribeTopic,
-} from '@amityco/ts-sdk-react-native';
-import type { FeedRefType } from '../CommunityHome';
+import { Client } from '@amityco/ts-sdk-react-native';
 import { deletePostById } from '../../providers/Social/feed-sdk';
-import { amityPostsFormatter } from '../../util/postDataFormatter';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../redux/store';
 import feedSlice from '../../redux/slices/feedSlice';
-import { useFocusEffect } from '@react-navigation/native';
 import { useTheme } from 'react-native-paper';
 import type { MyMD3Theme } from '../../providers/amity-ui-kit-provider';
-import useAuth from '../../hooks/useAuth';
+import { useFocusEffect } from '@react-navigation/native';
+import { decode } from 'js-base64';
+import { getAmityUser } from '../../providers/user-provider';
+import { UserInterface } from '../../types';
+import { FeedRefType } from '~/screens/CommunityHome';
+
+enum PostLoadType {
+  INITIAL,
+  NEW,
+  MORE,
+}
+
+interface PostResponse {
+  posts: Amity.InternalPost[];
+  postChildren: Amity.InternalPost[];
+  communities: Amity.RawCommunity[];
+  communityUsers: Amity.RawMembership<'community'>[];
+  categories: Amity.InternalCategory[];
+  comments: Amity.InternalComment[];
+  users: Amity.InternalUser[];
+  files: Amity.File[];
+  paging?: {
+    previous?: string;
+    next?: string;
+  };
+}
+
+interface LastCreatedPostPaging {
+  before: string;
+  limit: number;
+}
+
+interface ChapterPagination {
+  first: string;
+  last: string;
+  limit: number;
+}
 
 interface IFeed {
-  targetId: string;
+  targetIds: string[];
   targetType: string;
   selectedChapterName?: string;
 }
-interface ICommunityItems {
-  communityId: string;
-  avatarFileId: string;
-  displayName: string;
-  isPublic: boolean;
-  isOfficial: boolean;
-}
 
-function Feed({ targetId, targetType }: IFeed, ref: React.Ref<FeedRefType>) {
+const formatPosts = (
+  posts: Amity.InternalPost,
+  posterInfoById: Map<string, UserInterface>
+): IPost[] =>
+  posts.map((post) => ({
+    postId: post.postId,
+    data: post.data as Record<string, any>,
+    dataType: post.dataType,
+    myReactions: post.myReactions as string[],
+    reactionCount: post.reactions as Record<string, number>,
+    commentsCount: post.commentsCount,
+    user: posterInfoById.get(post.postedUserId),
+    editedAt: post.editedAt,
+    createdAt: post.createdAt,
+    updatedAt: post.updatedAt,
+    targetType: post.targetType,
+    targetId: post.targetId,
+    childrenPosts: post.children,
+    mentionees: post.mentionees[0]?.userIds,
+    mentionPosition: post?.metadata?.mentioned || undefined,
+  }));
+
+const ALL_CHAPTERS_PAGE_SIZE = 4;
+const SINGLE_CHAPTER_PAGE_SIZE = 20;
+const AUTO_FEED_REFRESH_PERIOD_MS = 60_000;
+
+function Feed({ targetIds, targetType }: IFeed, ref: React.Ref<FeedRefType>) {
   const styles = useStyles();
   const theme = useTheme() as MyMD3Theme;
-  const [postData, setPostData] =
-    useState<Amity.LiveCollection<Amity.Post<any>>>();
-  const [communityItems, setCommunityItems] = useState<ICommunityItems[]>([]);
-  const [communityIds, setCommunityIds] = useState<string[]>([]);
   const { postList } = useSelector((state: RootState) => state.feed);
-  const { clearFeed, updateFeed, deleteByPostId } = feedSlice.actions;
+  const { chapterById } = useSelector((state: RootState) => state.chapters);
+  const { clearFeed, mergeFeed, deleteByPostId } = feedSlice.actions;
   const [refreshing, setRefreshing] = useState(false);
-  const { data: posts, onNextPage, hasNextPage } = postData ?? {};
+  const [chapterPaginationByTargetId, setChapterPaginationByTargetId] =
+    useState<Map<string, ChapterPagination | undefined>>(new Map());
   const [loading, setLoading] = useState(false);
-  const [unSubFunc, setUnSubPageFunc] = useState<() => void>();
-  const { client }: any = useAuth();
-  const accessToken = client?.token?.accessToken;
   const dispatch = useDispatch();
 
-  const queryCommunities = async () => {
-    const unsubscribe = CommunityRepository.getCommunities(
-      { tags: ['chapter', 'force-array-query-param'], limit: 100 },
-      async ({ data }) => {
-        const formattedData: ICommunityItems[] = data.map(
-          (item: Amity.Community) => {
-            return {
-              communityId: item.communityId as string,
-              avatarFileId: item.avatarFileId as string,
-              displayName: item.displayName as string,
-              isPublic: item.isPublic as boolean,
-              isOfficial: item.isOfficial as boolean,
-            };
-          }
-        );
-        const extractedCommunityIds = extractCommunityIds(formattedData);
-        setCommunityIds(extractedCommunityIds);
-        setCommunityItems(formattedData);
-      }
-    );
-    unsubscribe();
-  };
-
-  function extractCommunityIds(data) {
-    return data.map((item) => item.communityId);
-  }
-
-  const fetchAllChaptersPostId = () => {
-    fetch('https://beta.amity.services/search/v2/posts', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${accessToken}`,
-      },
-      body: JSON.stringify({
-        query: {
-          targetId: communityIds,
-          targetType: 'community',
-        },
-        sort: [{ createdAt: { order: 'desc' } }],
-        from: 0,
-        size: 500,
-        populatePostObject: true,
-      }),
-    })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-        return response.json();
-      })
-      .then((data) => {
-        return amityPostsFormatter(data?.objects?.posts);
-      })
-      .then((formattedPostList) => {
-        dispatch(updateFeed(formattedPostList));
-        setLoading(false);
-      })
-      .catch((error) => {
-        console.error('Error fetching data one:', error);
-        fetchAllChaptersPostId();
-      });
-  };
-
-  // const fetchPostDetail = (postIds) => {
-  //   const searchParams = postIds.reduce((acc, p) => {
-  //     acc.append("postIds", p);
-  //     return acc;
-  //   }, new URLSearchParams());
-
-  //   fetch(`https://api.us.amity.co/api/v3/posts/list?${searchParams}`, {
-  //     method: 'GET',
-  //     headers: {
-  //       'Content-Type': 'application/json',
-  //       'Authorization': `Bearer ${accessToken}`
-  //     },
-  //   })
-  //     .then(response => {
-  //       if (!response.ok) {
-  //         throw new Error('Network response was not ok');
-  //       }
-  //       return response.json();
-  //     })
-  //     .then(data => {
-  //       return amityPostsFormatter(data?.posts);
-  //     })
-  //     .then(formattedPostList => {
-  //       const invertedList = formattedPostList.reverse();
-  //       dispatch(updateFeed(invertedList));
-  //       setLoading(false);
-  //     })
-  //     .catch(error => {
-  //       console.error('Error fetching data two:', error);
-  //     });
-  // };
-
-  useFocusEffect(
-    useCallback(() => {
-      setLoading(true);
-      queryCommunities();
-    }, [])
-  );
-
-  useFocusEffect(
-    useCallback(() => {
-      if (targetId === '' && communityIds?.length > 0) {
-        setLoading(true);
-        fetchAllChaptersPostId();
-      }
-    }, [targetId, communityIds])
-  );
-
-  const disposers: Amity.Unsubscriber[] = [];
-  let isSubscribed = false;
-
-  const subscribePostTopic = useCallback((type: string, id: string) => {
-    if (isSubscribed) return;
-
-    if (type === 'user') {
-      let user = {} as Amity.User; // use getUser to get user by targetId
-      UserRepository.getUser(id, ({ data }) => {
-        user = data;
-      });
-      disposers.push(
-        subscribeTopic(getUserTopic(user, SubscriptionLevels.POST), () => {
-          // use callback to handle errors with event subscription
-        })
+  const fetchPostsFor = async (
+    targetId: string,
+    pagination?: Partial<ChapterPagination>
+  ) => {
+    if (pagination && !(pagination.first || pagination.last)) {
+      console.debug(
+        'Got pagination without first or last cursors: nothing to do'
       );
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-      isSubscribed = true;
-      return;
+
+      return {
+        targetId,
+        data: [] as unknown as PostResponse,
+      };
     }
 
-    if (type === 'community') {
-      CommunityRepository.getCommunity(id, (data) => {
-        if (data.data) {
-          if (data?.data?.postsCount === 0) {
-            setLoading(false);
-          }
-          subscribeTopic(getCommunityTopic(data.data, SubscriptionLevels.POST));
-        }
-      });
-    }
-  }, []);
-
-  const getFeed = useCallback(() => {
-    const unsubscribe = PostRepository.getPosts(
-      {
+    const response = await Client.getActiveClient().http.get('/api/v4/posts', {
+      params: {
         targetId,
         targetType,
-        sortBy: 'lastCreated',
-        limit: 10,
-        feedType: 'published',
+        'sortBy': 'lastCreated',
+        'isDeleted': false,
+        'options[limit]':
+          pagination?.limit ?? targetIds.length > 1
+            ? ALL_CHAPTERS_PAGE_SIZE
+            : SINGLE_CHAPTER_PAGE_SIZE,
+        'feedType': 'published',
+        ...(pagination?.first && { 'options[after]': pagination.first }),
+        ...(pagination?.last && { 'options[before]': pagination.last }),
       },
-      (data) => {
-        setPostData(data);
-        subscribePostTopic(targetType, targetId);
-      }
-    );
-    setUnSubPageFunc(() => unsubscribe());
-  }, [subscribePostTopic, targetId, targetType]);
+    });
 
-  const handleLoadMore = () => {
-    if (hasNextPage && targetId !== '') {
-      onNextPage && onNextPage();
-    }
+    return {
+      targetId,
+      data: response.data as PostResponse,
+    };
   };
 
-  const onRefresh = useCallback(() => {
-    if (targetId !== '') {
-      setRefreshing(true);
-      dispatch(clearFeed());
-      getFeed();
-      setRefreshing(false);
-    } else if (targetId === '') {
-      setRefreshing(true);
-      dispatch(clearFeed());
-      queryCommunities();
-      setRefreshing(false);
+  const mapPostResponse = async (
+    response: Array<{
+      targetId: string;
+      data: PostResponse;
+    }>,
+    loadType: PostLoadType
+  ) => {
+    const posts: Amity.InternalPost[] = [];
+    const allChapterPaginationByTargetId = new Map(chapterPaginationByTargetId);
+    for (const { targetId, data } of response) {
+      if (!(data.posts && data.posts.length)) {
+        console.debug(`No posts to map in response from ${targetId}`);
+
+        continue;
+      }
+
+      const paging = data.paging.next
+        ? (JSON.parse(decode(data.paging.next)) as LastCreatedPostPaging)
+        : undefined;
+      console.debug(`Paging for ${targetId}:`, paging);
+
+      const previousChapterPagination = chapterPaginationByTargetId.get(
+        targetId
+      ) as ChapterPagination | undefined;
+
+      const chapterPagination = {
+        first:
+          PostLoadType.MORE !== loadType
+            ? data.posts[0].postId
+            : previousChapterPagination?.first,
+        last:
+          PostLoadType.NEW !== loadType
+            ? paging?.before
+            : previousChapterPagination?.last,
+        limit: paging?.limit,
+      };
+      console.debug(`Chapter pagination for ${targetId}`, chapterPagination);
+
+      allChapterPaginationByTargetId.set(targetId, chapterPagination);
+
+      posts.push(...data.posts);
     }
-  }, [clearFeed, dispatch, getFeed]);
+
+    const posters = new Set<string>(posts.map((p) => p.postedUserId));
+    const posterInfo = await Promise.all(
+      Array.from(posters).map(async (u) => {
+        const { userObject } = await getAmityUser(u);
+
+        return userObject.data as UserInterface;
+      })
+    );
+    const posterInfoById = posterInfo.reduce((acc, u) => {
+      acc.set(u.userId, u);
+
+      return acc;
+    }, new Map<string, UserInterface>());
+
+    return {
+      posts: formatPosts(posts, posterInfoById),
+      allChapterPaginationByTargetId,
+    };
+  };
 
   useFocusEffect(
     useCallback(() => {
-      if (targetId !== '') {
-        setLoading(true);
-        getFeed();
+      console.debug(`Will fetch initial posts from [${targetIds}]`);
+
+      if (!targetIds.length) {
+        console.debug('No post targets specified: nothing to do');
+
+        return () => {};
       }
+
+      if (loading) {
+        console.debug('Already loading: will not send concurrent request');
+
+        return () => {};
+      }
+
+      setLoading(true);
+
+      Promise.all(targetIds.map((targetId) => fetchPostsFor(targetId)))
+        .then((response) => mapPostResponse(response, PostLoadType.INITIAL))
+        .then(({ posts, allChapterPaginationByTargetId }) => {
+          setChapterPaginationByTargetId(allChapterPaginationByTargetId);
+
+          if (posts.length) {
+            console.debug(
+              `Will dispatch initial feed update of ${posts.length} posts`
+            );
+            dispatch(mergeFeed(posts));
+          }
+          setLoading(false);
+        })
+        .catch((e) => {
+          setLoading(false);
+          console.error(`Error fetching posts for ${targetIds}:`, e);
+        });
+
       return () => {
-        unSubFunc && unSubFunc();
         dispatch(clearFeed());
       };
-    }, [clearFeed, targetId, dispatch, getFeed, unSubFunc])
+    }, [
+      targetIds.length === 1 ? targetIds[0] : targetIds.length,
+      targetType,
+      dispatch,
+      mergeFeed,
+      clearFeed,
+    ])
   );
 
-  const getPostList = useCallback(async () => {
-    if (posts.length > 0 && targetId !== '') {
-      const formattedPostList = await amityPostsFormatter(posts);
-      dispatch(updateFeed(formattedPostList));
-      setLoading(false);
-    }
-  }, [dispatch, posts, updateFeed]);
+  const handleLoadMore = () => {
+    console.debug(`Got request to load more posts for [${targetIds}]`);
+    setLoading(true);
 
-  useFocusEffect(
-    useCallback(() => {
-      posts && getPostList();
-    }, [posts, getPostList])
-  );
+    Promise.all(
+      targetIds.map(async (targetId) => {
+        const chapterPagination = chapterPaginationByTargetId.get(targetId);
+        if (!chapterPagination) {
+          return {
+            targetId,
+            data: [] as unknown as PostResponse,
+          };
+        }
+
+        console.debug(`Will load more posts from ${targetId}`);
+        const { first, ...morePostsChapterPagination } =
+          chapterPaginationByTargetId.get(targetId);
+        console.debug(
+          `More posts pagination for ${targetId}`,
+          morePostsChapterPagination
+        );
+
+        return fetchPostsFor(targetId, morePostsChapterPagination);
+      })
+    )
+      .then((response) => mapPostResponse(response, PostLoadType.MORE))
+      .then(({ posts, allChapterPaginationByTargetId }) => {
+        setChapterPaginationByTargetId(allChapterPaginationByTargetId);
+
+        if (posts.length) {
+          console.debug(
+            `Will dispatch feed update of ${posts.length} more posts`
+          );
+          dispatch(mergeFeed(posts));
+        }
+        setLoading(false);
+      })
+      .catch((e) => {
+        setLoading(false);
+        console.error(`Error loading more posts for [${targetIds}]:`, e);
+      });
+  };
 
   useImperativeHandle(ref, () => ({
     handleLoadMore,
   }));
+
+  const onRefresh = () => {
+    console.debug(`Got request to refresh posts for [${targetIds}]`);
+    setRefreshing(true);
+
+    Promise.all(
+      targetIds.map(async (targetId) => {
+        const chapterPagination = chapterPaginationByTargetId.get(targetId);
+        if (!chapterPagination) {
+          return {
+            targetId,
+            data: [] as unknown as PostResponse,
+          };
+        }
+
+        console.debug(`Will load newer posts from ${targetId}`);
+        const { last, ...newerPostsChapterPagination } = chapterPagination;
+        console.debug(
+          `Newer posts pagination for ${targetId}`,
+          newerPostsChapterPagination
+        );
+
+        return fetchPostsFor(targetId, newerPostsChapterPagination);
+      })
+    )
+      .then((response) => mapPostResponse(response, PostLoadType.NEW))
+      .then(({ posts, allChapterPaginationByTargetId }) => {
+        setChapterPaginationByTargetId(allChapterPaginationByTargetId);
+
+        if (posts.length) {
+          console.debug(
+            `Will dispatch refresh feed update of ${posts.length} posts`
+          );
+          dispatch(mergeFeed(posts));
+        }
+        setRefreshing(false);
+      })
+      .catch((e) => {
+        setRefreshing(false);
+        console.error(`Error load newer posts for [${targetIds}]:`, e);
+      });
+  };
 
   const onDeletePost = async (postId: string) => {
     const isDeleted = await deletePostById(postId);
@@ -285,16 +348,14 @@ function Feed({ targetId, targetType }: IFeed, ref: React.Ref<FeedRefType>) {
     }
   };
 
-  function getFeedChapterName(targetId: string) {
-    let chapterName = '';
-    const chapterObj = communityItems.find(
-      (item) => item.communityId === targetId
+  useEffect(() => {
+    const intervalId = setInterval(
+      () => onRefresh(),
+      AUTO_FEED_REFRESH_PERIOD_MS
     );
-    if (chapterObj) {
-      chapterName = chapterObj.displayName;
-    }
-    return chapterName;
-  }
+
+    return () => clearInterval(intervalId);
+  }, []);
 
   return (
     <View
@@ -316,7 +377,7 @@ function Feed({ targetId, targetType }: IFeed, ref: React.Ref<FeedRefType>) {
             isGlobalfeed={false}
             postIndex={index}
             showBackBtn={true}
-            chapterName={getFeedChapterName(item.targetId)}
+            chapterName={chapterById[item.targetId]?.displayName ?? 'Unknown'}
           />
         )}
         refreshControl={
@@ -327,8 +388,9 @@ function Feed({ targetId, targetType }: IFeed, ref: React.Ref<FeedRefType>) {
             tintColor="lightblue"
           />
         }
-        keyExtractor={(_, index) => index.toString()}
-        extraData={postList}
+        keyExtractor={(item) => item.postId}
+        onEndReached={handleLoadMore}
+        onEndReachedThreshold={2}
       />
       {loading ? (
         <View style={styles.activityIndicator}>
@@ -338,4 +400,5 @@ function Feed({ targetId, targetType }: IFeed, ref: React.Ref<FeedRefType>) {
     </View>
   );
 }
+
 export default forwardRef(Feed);

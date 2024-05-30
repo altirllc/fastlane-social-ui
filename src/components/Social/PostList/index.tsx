@@ -186,7 +186,9 @@ export default function PostList({
       setLikeReaction(reactionCount?.like);
     }
     if (targetType === 'community' && targetId) {
-      getCommunityInfo(targetId);
+      getCommunityInfo(targetId).catch((e) =>
+        console.warn(`Error getting community info for ${targetId}`, e)
+      );
     }
   }, [data?.text, myReactions, reactionCount?.like, targetId, targetType]);
 
