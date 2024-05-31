@@ -133,7 +133,7 @@ export default function PostList({
   } = postDetail ?? {};
   const [childPosts, setChildPosts] = useState(childrenPosts);
   const timeDifference = useTimeDifference(createdAt);
-  const { onMemberClick } = useContext(SocialContext);
+  const { onMemberClick, showCompleteProfileCard } = useContext(SocialContext);
 
   useEffect(() => {
     if (mentionPosition) {
@@ -510,24 +510,24 @@ export default function PostList({
         )} */}
 
         <View style={styles.actionSection}>
-          <TouchableOpacity onPress={addReactionToPost} style={styles.likeBtn}>
+          <TouchableOpacity onPress={addReactionToPost} style={[styles.likeBtn, { opacity: showCompleteProfileCard ? 0.4 : 1 }]} disabled={showCompleteProfileCard}>
             <HeartIcon
-              width={18}
-              height={18}
+              width={24}
+              height={24}
               color={isLike ? '#FF3830' : '#FFFFFF'}
               stroke={isLike ? '#FF3830' : '#14151A'}
             />
-            <Text style={isLike ? styles.likedText : styles.btnText}>
+            <Text style={styles.likedText}>
               {' '}
               {likeReaction}{' '}
             </Text>
           </TouchableOpacity>
-          <TouchableOpacity onPress={onClickComment} style={styles.commentBtn}>
-            <CommentIcon width={17} height={17} />
+          <TouchableOpacity onPress={onClickComment} style={[styles.commentBtn, { opacity: showCompleteProfileCard ? 0.4 : 1 }]} disabled={showCompleteProfileCard}>
+            <CommentIcon width={24} height={24} />
             <Text style={[styles.btnText]}>{commentsCount}</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.sendIcon} onPress={onSendPress}>
-            <SendIcon strokeColor={'#14151A'} width={17} height={17} />
+          <TouchableOpacity style={[styles.sendIcon, { opacity: showCompleteProfileCard ? 0.4 : 1 }]} onPress={onSendPress} disabled={showCompleteProfileCard}>
+            <SendIcon strokeColor={'#14151A'} width={24} height={24} />
           </TouchableOpacity>
         </View>
       </View>

@@ -84,6 +84,7 @@ export const useStyles = () => {
     },
     likeBtn: {
       flexDirection: 'row',
+      alignItems: 'center',
       paddingRight: 6,
       paddingVertical: 12,
     },
@@ -116,7 +117,7 @@ export const useStyles = () => {
       justifyContent: 'center',
     },
     likedText: {
-      color: theme.colors.primary,
+      color: theme.colors.baseShade2,
       fontSize: 15,
       fontWeight: '600',
       marginHorizontal: 4,

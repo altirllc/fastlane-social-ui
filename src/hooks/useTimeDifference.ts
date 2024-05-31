@@ -26,12 +26,8 @@ export const useTimeDifference = (
         isStory ? 'h' : differenceHour === 1 ? ' hour ago' : ' hours ago'
       }`;
     if (differenceDay < 365)
-      return `${differenceDay} ${
-        differenceDay === 1 ? ' day ago' : ' days ago'
-      }`;
-    return `${differenceYear} ${
-      differenceYear === 1 ? 'year ago' : 'years ago'
-    }`;
+      return `${differenceDay} ${differenceDay === 1 ? 'day ago' : 'days ago'}`;
+    return `${differenceYear} ${differenceYear === 1 ? 'year ago' : 'years ago'}`;
   }, [isStory, timestamp]);
   return timeDifference;
 };
