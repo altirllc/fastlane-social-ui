@@ -20,6 +20,7 @@ export interface IAmityUIkitProvider {
   children: any;
   authToken?: string;
   configs?: IConfigRaw;
+  setChatUnreadCount: React.Dispatch<React.SetStateAction<number>>;
 }
 
 interface CustomColors {
@@ -45,6 +46,7 @@ export default function AmityUiKitProvider({
   children,
   authToken,
   configs,
+  setChatUnreadCount,
 }: IAmityUIkitProvider) {
   const colorScheme = useColorScheme();
   const isValidConfig = useValidateConfig(configs);
@@ -80,6 +82,7 @@ export default function AmityUiKitProvider({
         apiRegion={apiRegion}
         apiEndpoint={apiEndpoint}
         authToken={authToken}
+        setChatUnreadCount={setChatUnreadCount}
       >
         <ConfigProvider configs={configData}>
           <PaperProvider theme={globalTheme}>{children}</PaperProvider>
