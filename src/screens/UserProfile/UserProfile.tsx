@@ -63,9 +63,8 @@ export default function UserProfile({ route }: any) {
     });
   };
   const onFollowTap = async () => {
-    const { data: followStatus } = await UserRepository.Relationship.follow(
-      userId
-    );
+    const { data: followStatus } =
+      await UserRepository.Relationship.follow(userId);
     if (followStatus) {
       setFollowStatus(followStatus.status);
     }

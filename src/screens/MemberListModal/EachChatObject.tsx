@@ -2,7 +2,7 @@ import React, { memo, useEffect, useMemo, useState } from 'react';
 import { View, TouchableOpacity, Text, Image } from 'react-native';
 // @ts-ignore
 // @ts-ignore
-import { Separator } from '../../../../../src/components/Separator/Separator';
+import { Separator } from '../../../../src/components/Separator/Separator';
 import { ChannelRepository } from '@amityco/ts-sdk-react-native';
 // @ts-ignore
 // import uiSlice from 'amity-react-native-social-ui-kit/src/redux/slices/uiSlice';
@@ -79,7 +79,7 @@ export const EachChatObject = memo(({ item, onChannelSelected }: TChatList) => {
           avatarFileId: item.user?.avatarFileId as string,
         };
       });
-      let channelModerator = groupChatObject?.find((eachUser) =>
+      const channelModerator = groupChatObject?.find((eachUser) =>
         eachUser.roles?.includes(EUserRoles['channel-moderator'])
       );
       const groupChatObj: IGroupChatObject = {

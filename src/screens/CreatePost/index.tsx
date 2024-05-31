@@ -52,7 +52,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { getAmityUser } from '../../providers/user-provider';
 import { UserInterface } from '../../types';
 // @ts-ignore
-import { screens } from '../../../../../src/constants/screens';
+import { screens } from '../../../../src/constants/screens';
 
 export interface IDisplayImage {
   url: string;
