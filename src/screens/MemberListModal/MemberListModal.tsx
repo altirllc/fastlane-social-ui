@@ -7,9 +7,9 @@ import React, {
 } from 'react';
 import { View, FlatList, Text, TouchableOpacity } from 'react-native';
 // @ts-ignore
-import { BottomModalScreen } from '../../../../../src/components/BottomModalScreen/BottomModalScreen';
+import { BottomModalScreen } from '../../../../src/components/BottomModalScreen/BottomModalScreen';
 // @ts-ignore
-import { Separator } from '../../../../../src/components/Separator/Separator';
+import { Separator } from '../../../../src/components/Separator/Separator';
 import { useStyles } from './styles';
 import {
   ChannelRepository,
