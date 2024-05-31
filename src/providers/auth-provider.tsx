@@ -25,6 +25,7 @@ export const AuthContextProvider: FC<IAmityUIkitProvider> = ({
   apiEndpoint,
   children,
   authToken,
+  setChatUnreadCount,
 }: IAmityUIkitProvider) => {
   const [error, setError] = useState('');
   const [isConnecting, setLoading] = useState(false);
@@ -46,6 +47,28 @@ export const AuthContextProvider: FC<IAmityUIkitProvider> = ({
       setSessionState(state)
     );
   }, []);
+
+  // handleLiveObject will be triggered every time unread count is updated.
+  const handleLiveObject = (
+    liveObject: Amity.LiveObject<Amity.UserUnread | undefined>
+  ) => {
+    if (liveObject.data) {
+      const { unreadCount } = liveObject.data;
+      // An example of a reading unread count is in the line below.
+      setChatUnreadCount(unreadCount);
+    }
+  };
+
+  const startSync = () => {
+    Client.enableUnreadCount();
+    Client.getUserUnread(handleLiveObject);
+  };
+
+  useEffect(() => {
+    if (isConnected) {
+      startSync();
+    }
+  }, [isConnected]);
 
   useEffect(() => {
     if (sessionState === 'established') {

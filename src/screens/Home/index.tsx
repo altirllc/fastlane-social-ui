@@ -59,8 +59,12 @@ export default function Home({
   const navigation = useNavigation<NativeStackNavigationProp<any>>();
   const { colors } = useCustomTheme();
   const isFocused = useIsFocused();
-  const { onDropdownClick, screen, setIsTabBarVisible, showCompleteProfileCard } =
-    useContext(SocialContext);
+  const {
+    onDropdownClick,
+    screen,
+    setIsTabBarVisible,
+    showCompleteProfileCard,
+  } = useContext(SocialContext);
   const { setChapters } = chaptersSlice.actions;
   const { chapters } = useSelector((state: RootState) => state.chapters);
 
@@ -161,17 +165,25 @@ export default function Home({
             <SideBarIcon height={30} width={30} />
           </TouchableOpacity>
         </View>
-        {screen === screens.Home ? (
         <TouchableOpacity
-        style={styles.titleContainer}
-        onPress={() => onDropdownClick(selectedChapterId)}
+          style={styles.titleContainer}
+          onPress={() => onDropdownClick(selectedChapterId)}
+          disabled={screen === screens.MarketPlace}
         >
-        <Text style={styles.chapterName}>{selectedChapterName}</Text>
-          <View style={styles.chevronDownIcon}>
-            <ChevronDownIcon height={17} width={17} />
-          </View>
-      </TouchableOpacity>
-        ) : null}
+          <Text
+            style={[
+              styles.chapterName,
+              { fontSize: screen === screens.MarketPlace ? 24 : 18 },
+            ]}
+          >
+            {selectedChapterName}
+          </Text>
+          {screen === screens.Home ? (
+            <View style={styles.chevronDownIcon}>
+              <ChevronDownIcon height={17} width={17} />
+            </View>
+          ) : null}
+        </TouchableOpacity>
         <View>
           <Avatar
             image={avatarUrl}
@@ -185,15 +197,6 @@ export default function Home({
           />
         </View>
       </View>
-      {screen === screens.MarketPlace ? (
-      <TouchableOpacity
-        style={styles.marketplaceContainer}
-        onPress={() => onDropdownClick(selectedChapterId)}
-        disabled={screen === screens.MarketPlace}
-      >
-        <Text style={styles.marketplaceTitle}>{selectedChapterName}</Text>
-      </TouchableOpacity>
-    ) : null}
       {showCompleteProfileCard ? (
         <View style={[styles.cardContainer]}>
           <CompleteProfileCard

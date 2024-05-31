@@ -120,7 +120,6 @@ export const useStyles = () => {
     },
     chapterName: {
       fontWeight: '600',
-      fontSize: 18,
     },
     cardContainer: {
       paddingHorizontal: SCREEN_PADDING,
