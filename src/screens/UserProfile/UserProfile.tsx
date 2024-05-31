@@ -214,7 +214,7 @@ export default function UserProfile({ route }: any) {
 
   const renderTabs = () => {
     if (currentTab === TabName.Timeline)
-      return <Feed targetType="user" targetId={userId} ref={feedRef} />;
+      return <Feed targetType="user" targetIds={[userId]} ref={feedRef} />;
     if (currentTab === TabName.Gallery)
       return <UserProfileGallery userId={userId} ref={galleryRef} />;
     return null;
