@@ -21,15 +21,15 @@ import { getShadowProps } from '../../theme/helpers';
 import { useCustomTheme } from '../../hooks/useCustomTheme';
 import { PlusIcon } from '../../svg/PlusIcon';
 // @ts-ignore
-import { Avatar } from '../../../../src/components/Avatar/Avatar';
+import { Avatar } from '../../../../../src/components/Avatar/Avatar';
 // @ts-ignore
-import { screens } from '../../../../src/constants/screens';
+import { screens } from '../../../../../src/constants/screens';
 import { SideBarIcon } from '../../svg/Sidebar';
 import { ChevronDownIcon } from '../../svg/ChevronDown';
 import { SocialContext } from '../../store/context';
 // @ts-ignore
-import { CompleteProfileCard } from '../../../../src/components/CompleteProfileCard/CompleteProfileCard';
-import { Client } from '@amityco/ts-sdk-react-native';
+import { CompleteProfileCard } from '../../../../../src/components/CompleteProfileCard/CompleteProfileCard';
+import { ChannelRepository, Client } from '@amityco/ts-sdk-react-native';
 import { RootState } from '~/redux/store';
 import chaptersSlice from '../../redux/slices/chapters';
 
@@ -50,7 +50,7 @@ export default function Home({
   stepsCompleted: number;
 }) {
   const styles = useStyles();
-  const { client } = useAuth();
+  const { client, isConnected } = useAuth();
   // const theme = useTheme() as MyMD3Theme;
   const dispatch = useDispatch();
   // const { openPostTypeChoiceModal } = uiSlice.actions;
@@ -147,6 +147,23 @@ export default function Home({
       .then((cc) => dispatch(setChapters(cc)))
       .catch((e) => console.error('Error fetching chapters', e));
   }, [dispatch]);
+
+  const onQueryChannel = () => {
+    ChannelRepository.getChannels(
+      {
+        sortBy: 'lastActivity',
+        limit: 15,
+        membership: 'member',
+        isDeleted: false,
+      },
+      (value) => {
+      }
+    );
+  };
+
+  useEffect(() => {
+    onQueryChannel();
+  }, [isConnected]);
 
   return (
     <View style={styles.container}>

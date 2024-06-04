@@ -1,3 +1,4 @@
+import { TCommunity } from '../../src/routes/SocialNavigator';
 import { createContext } from 'react';
 
 export const SocialContext = createContext<{
@@ -9,13 +10,15 @@ export const SocialContext = createContext<{
   screen: string;
   setIsTabBarVisible: (value: boolean) => void;
   showCompleteProfileCard: boolean;
+  chapters: TCommunity[];
 }>({
   selectedChapterId: '',
   selectedChapterName: '',
   defaultChapterId: '',
-  onDropdownClick: () => {},
-  onMemberClick: () => {},
+  onDropdownClick: () => { },
+  onMemberClick: () => { },
   screen: '',
-  setIsTabBarVisible: () => {},
+  setIsTabBarVisible: () => { },
   showCompleteProfileCard: false,
+  chapters: []
 });

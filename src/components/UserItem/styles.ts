@@ -1,6 +1,6 @@
 import { StyleSheet } from 'react-native';
 import { useTheme } from 'react-native-paper';
-import type { MyMD3Theme } from 'src/providers/amity-ui-kit-provider';
+import type { MyMD3Theme } from '../../providers/amity-ui-kit-provider';
 
 export const useStyles = () => {
   const theme = useTheme() as MyMD3Theme;
@@ -10,7 +10,6 @@ export const useStyles = () => {
       alignItems: 'center',
       justifyContent: 'space-between',
       paddingVertical: 8,
-      paddingHorizontal: 16,
     },
     avatar: {
       width: 40,

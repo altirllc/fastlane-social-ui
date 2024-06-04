@@ -349,7 +349,7 @@ export default function PostList({
               styles.modalContent,
               modalStyle,
               user?.userId === (client as Amity.Client).userId &&
-                styles.twoOptions,
+              styles.twoOptions,
             ]}
           >
             {user?.userId === (client as Amity.Client).userId ? (
@@ -468,7 +468,7 @@ export default function PostList({
             </View>
           </View>
         </View>
-        {user?.userId === (client as Amity.Client).userId ? (
+        {user?.userId === (client as Amity.Client).userId && !showCompleteProfileCard ? (
           <TouchableOpacity onPress={openModal} style={styles.threeDots}>
             <SvgXml xml={threeDots(theme.colors.base)} width="20" height="16" />
           </TouchableOpacity>
