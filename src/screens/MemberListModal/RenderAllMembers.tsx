@@ -2,13 +2,14 @@ import React, { ReactElement, memo, useContext, useEffect, useState } from "reac
 import { useStyles } from "./styles";
 import { FlatList, View, TouchableOpacity, TextInput } from "react-native";
 import { UserInterface } from "../../../src/types";
+// @ts-ignore
 import { SearchIcon } from "@amityco/react-native-cli-chat-ui-kit/src/svg/SearchIcon";
 import { CircleCloseIcon } from "../../../src/svg/CircleCloseIcon";
 import { useTheme } from 'react-native-paper';
 import type { MyMD3Theme } from '../../providers/amity-ui-kit-provider';
 import { UserRepository } from "@amityco/ts-sdk-react-native";
-import { SocialContext } from "amity-react-native-social-ui-kit/src/store/context";
-import UserItem from "amity-react-native-social-ui-kit/src/components/UserItem";
+import { SocialContext } from "../../store/context";
+import UserItem from "../../components/UserItem";
 // @ts-ignore
 import { Separator } from '../../../../../src/components/Separator/Separator';
 
@@ -69,12 +70,6 @@ export const RenderAllMembers = memo(({ sectionedUserList, setSectionedUserList,
         return users
             .filter((eachUser) => eachUser?.metadata?.chapter?.id)
             .map((item) => {
-                const user =
-                    sectionedUserList.length > 0
-                        ? sectionedUserList.find(
-                            (eachUser) => eachUser.userId === item.userId
-                        )
-                        : null;
                 const chapterName =
                     chapters.find(
                         (eachChapter) =>

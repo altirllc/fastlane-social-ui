@@ -156,7 +156,7 @@ export default function Home({
         membership: 'member',
         isDeleted: false,
       },
-      (value) => {
+      () => {
       }
     );
   };

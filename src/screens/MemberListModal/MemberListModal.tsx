@@ -21,7 +21,8 @@ import { SwitchTab } from '../../../../../src/components/SwitchTab/SwitchTab';
 
 import { UserInterface } from '../../../src/types';
 import { RenderRecentChat } from './RenderRecentChat';
-import { RenderAllMembers } from 'amity-react-native-social-ui-kit/src/screens/MemberListModal/RenderAllMembers';
+import { RenderAllMembers } from '../../../src/screens/MemberListModal/RenderAllMembers';
+// @ts-ignore
 import { createAmityChannel } from '@amityco/react-native-cli-chat-ui-kit/src/providers/channel-provider';
 import useAuth from '../../../src/hooks/useAuth';
 
@@ -173,7 +174,7 @@ export const MemberListModal = () => {
   const onSendToGroupClick = () => {
     if (selectedRecentChats.length <= 0) return;
     let selectedUserList: UserInterface[] = [];
-    selectedChatRecievers.forEach((value, key) => {
+    selectedChatRecievers.forEach((value) => {
       selectedUserList.push(value.chatReceiver)
     });
     navigation.navigate("EnterGroupName", { selectedUserList, postId })

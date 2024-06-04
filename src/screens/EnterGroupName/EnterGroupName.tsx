@@ -18,10 +18,12 @@ import UserItem from '../../../src/components/UserItem';
 import useAuth from '../../hooks/useAuth';
 import { LoadingOverlay } from '../../../src/components/LoadingOverlay';
 import { BackIcon } from '../../svg/BackIcon';
+// @ts-ignore
 import { createAmityChannel, updateAmityChannel } from '@amityco/react-native-cli-chat-ui-kit/src/providers/channel-provider';
 // @ts-ignore
 import { BottomModalScreen } from '../../../../../src/components/BottomModalScreen/BottomModalScreen';
 import { MessageContentType, MessageRepository } from '@amityco/ts-sdk-react-native';
+// @ts-ignore
 import { ECustomData } from '@amityco/react-native-cli-chat-ui-kit/src/screens/ChatRoom/ChatRoom';
 
 export const EnterGroupName = () => {
