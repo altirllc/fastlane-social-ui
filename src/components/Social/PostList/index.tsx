@@ -349,7 +349,7 @@ export default function PostList({
               styles.modalContent,
               modalStyle,
               user?.userId === (client as Amity.Client).userId &&
-              styles.twoOptions,
+                styles.twoOptions,
             ]}
           >
             {user?.userId === (client as Amity.Client).userId ? (
@@ -427,6 +427,7 @@ export default function PostList({
           <TouchableOpacity
             style={styles.displayNameContainer}
             onPress={handleDisplayNamePress}
+            disabled={showCompleteProfileCard}
           >
             {user?.avatarFileId ? (
               <Image
@@ -444,7 +445,10 @@ export default function PostList({
 
           <View style={styles.fillSpace}>
             <View style={styles.headerRow}>
-              <TouchableOpacity onPress={handleDisplayNamePress}>
+              <TouchableOpacity
+                disabled={showCompleteProfileCard}
+                onPress={handleDisplayNamePress}
+              >
                 <Text style={styles.headerText}>{user?.displayName}</Text>
               </TouchableOpacity>
             </View>
@@ -468,11 +472,13 @@ export default function PostList({
             </View>
           </View>
         </View>
-        {user?.userId === (client as Amity.Client).userId && !showCompleteProfileCard ? (
-          <TouchableOpacity onPress={openModal} style={styles.threeDots}>
-            <SvgXml xml={threeDots(theme.colors.base)} width="20" height="16" />
-          </TouchableOpacity>
-        ) : null}
+        <TouchableOpacity
+          onPress={openModal}
+          style={styles.threeDots}
+          disabled={showCompleteProfileCard}
+        >
+          <SvgXml xml={threeDots(theme.colors.base)} width="20" height="16" />
+        </TouchableOpacity>
       </View>
       <View>
         <View style={styles.bodySection}>
@@ -510,23 +516,41 @@ export default function PostList({
         )} */}
 
         <View style={styles.actionSection}>
-          <TouchableOpacity onPress={addReactionToPost} style={[styles.likeBtn, { opacity: showCompleteProfileCard ? 0.4 : 1 }]} disabled={showCompleteProfileCard}>
+          <TouchableOpacity
+            onPress={addReactionToPost}
+            style={[
+              styles.likeBtn,
+              { opacity: showCompleteProfileCard ? 0.4 : 1 },
+            ]}
+            disabled={showCompleteProfileCard}
+          >
             <HeartIcon
               width={24}
               height={24}
               color={isLike ? '#FF3830' : '#FFFFFF'}
               stroke={isLike ? '#FF3830' : '#14151A'}
             />
-            <Text style={styles.likedText}>
-              {' '}
-              {likeReaction}{' '}
-            </Text>
+            <Text style={styles.likedText}> {likeReaction} </Text>
           </TouchableOpacity>
-          <TouchableOpacity onPress={onClickComment} style={[styles.commentBtn, { opacity: showCompleteProfileCard ? 0.4 : 1 }]} disabled={showCompleteProfileCard}>
+          <TouchableOpacity
+            onPress={onClickComment}
+            style={[
+              styles.commentBtn,
+              { opacity: showCompleteProfileCard ? 0.4 : 1 },
+            ]}
+            disabled={showCompleteProfileCard}
+          >
             <CommentIcon width={24} height={24} />
             <Text style={[styles.btnText]}>{commentsCount}</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={[styles.sendIcon, { opacity: showCompleteProfileCard ? 0.4 : 1 }]} onPress={onSendPress} disabled={showCompleteProfileCard}>
+          <TouchableOpacity
+            style={[
+              styles.sendIcon,
+              { opacity: showCompleteProfileCard ? 0.4 : 1 },
+            ]}
+            onPress={onSendPress}
+            disabled={showCompleteProfileCard}
+          >
             <SendIcon strokeColor={'#14151A'} width={24} height={24} />
           </TouchableOpacity>
         </View>
