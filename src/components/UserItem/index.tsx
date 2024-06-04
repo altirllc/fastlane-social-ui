@@ -12,6 +12,8 @@ export default function UserItem({
   onPress,
   onThreeDotTap,
   hideMenu,
+  hztPadding = true,
+  showCheckMark = true
 }: {
   user: UserInterface;
   isCheckmark?: boolean;
@@ -19,6 +21,8 @@ export default function UserItem({
   onPress?: (user: UserInterface) => void;
   onThreeDotTap?: (user: UserInterface) => void;
   hideMenu?: boolean;
+  hztPadding?: boolean;
+  showCheckMark?: boolean;
 }) {
   const styles = useStyles();
   const { apiRegion } = useAuth();
@@ -62,7 +66,7 @@ export default function UserItem({
           />
         </TouchableOpacity>
       );
-    return <RoundCheckbox isChecked={isCheckmark ?? false} />;
+    return showCheckMark ? <RoundCheckbox isChecked={isCheckmark ?? false} /> : null;
   }, [
     hideMenu,
     isCheckmark,
@@ -71,11 +75,12 @@ export default function UserItem({
     styles.dotIcon,
     styles.threeDotsContainerStyle,
     user,
+    showCheckMark
   ]);
 
   return (
     <TouchableOpacity
-      style={styles.listItem}
+      style={[styles.listItem, hztPadding && { paddingHorizontal: 16 }]}
       disabled={!onPress}
       onPress={handleToggle}
     >
@@ -85,8 +90,8 @@ export default function UserItem({
           source={
             user.avatarFileId
               ? {
-                  uri: user.avatarFileId && avatarFileURL(user.avatarFileId!),
-                }
+                uri: user.avatarFileId && avatarFileURL(user.avatarFileId!),
+              }
               : require('../../../assets/icon/Placeholder.png')
           }
         />

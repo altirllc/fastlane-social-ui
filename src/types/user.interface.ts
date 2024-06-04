@@ -11,4 +11,6 @@ export interface UserInterface {
   userId: string;
   displayName: string;
   avatarFileId: string;
+  chapterId?: string;
+  chapterName?: string;
 }

@@ -1,13 +1,8 @@
 import React, { memo, useEffect, useMemo, useState } from 'react';
 import { View, TouchableOpacity, Text, Image } from 'react-native';
 // @ts-ignore
-// @ts-ignore
 import { Separator } from '../../../../../src/components/Separator/Separator';
 import { ChannelRepository } from '@amityco/ts-sdk-react-native';
-// @ts-ignore
-// import uiSlice from 'amity-react-native-social-ui-kit/src/redux/slices/uiSlice';
-// import { useDispatch } from 'react-redux';
-// import Toast from '../../components/Toast/Toast';
 // @ts-ignore
 import { Avatar } from '@amityco/react-native-cli-chat-ui-kit/src/components/Avatar/Avatar';
 // @ts-ignore
@@ -27,7 +22,7 @@ import RoundCheckbox from '../../../src/components/RoundCheckbox';
 
 export type TChatList = {
   item: TChannelObject;
-  onChannelSelected: (subChannelId: string) => void;
+  onChannelSelected: (subChannelId: string, chatReceiver: UserInterface | undefined) => void;
 };
 export const EachChatObject = memo(({ item, onChannelSelected }: TChatList) => {
   const { apiRegion, client } = useAuth();
@@ -41,6 +36,22 @@ export const EachChatObject = memo(({ item, onChannelSelected }: TChatList) => {
     useState<Amity.Membership<'channel'>[]>();
   const [groupChatObject, setGroupChatObject] =
     useState<Amity.Membership<'channel'>[]>();
+
+  const chatReceiver = useMemo(() => {
+    if (oneOnOneChatObject && oneOnOneChatObject.length > 0) {
+      const targetIndex: number = oneOnOneChatObject?.findIndex(
+        (item) => item.userId !== (client as Amity.Client).userId
+      );
+      const chatReceiver: UserInterface = {
+        userId: oneOnOneChatObject[targetIndex]?.userId as string,
+        displayName: oneOnOneChatObject[targetIndex]?.user
+          ?.displayName as string,
+        avatarFileId: oneOnOneChatObject[targetIndex]?.user?.avatarFileId ?? '',
+      };
+      return chatReceiver;
+    }
+    return undefined
+  }, [oneOnOneChatObject, client])
 
   const avatarId = useMemo(() => {
     //return latest avatarID
@@ -127,7 +138,7 @@ export const EachChatObject = memo(({ item, onChannelSelected }: TChatList) => {
   return (
     <>
       <TouchableOpacity
-        onPress={() => onChannelSelected(item.chatId)}
+        onPress={() => onChannelSelected(item.chatId, chatReceiver)}
         style={[styles.itemContainer]}
         activeOpacity={0.5}
       >

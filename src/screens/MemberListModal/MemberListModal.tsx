@@ -1,30 +1,30 @@
 import React, {
-  ReactElement,
   useCallback,
-  useEffect,
   useMemo,
   useState,
 } from 'react';
-import { View, FlatList, Text, TouchableOpacity } from 'react-native';
+import { View, Text, TouchableOpacity } from 'react-native';
 // @ts-ignore
 import { BottomModalScreen } from '../../../../../src/components/BottomModalScreen/BottomModalScreen';
-// @ts-ignore
-import { Separator } from '../../../../../src/components/Separator/Separator';
 import { useStyles } from './styles';
 import {
-  ChannelRepository,
   MessageContentType,
   MessageRepository,
 } from '@amityco/ts-sdk-react-native';
-import useAuth from '../../../src/hooks/useAuth';
 import { LoadingOverlay } from '../../../src/components/LoadingOverlay';
 import { useNavigation, useRoute } from '@react-navigation/native';
 // @ts-ignore
 import { ECustomData } from '@amityco/react-native-cli-chat-ui-kit/src/screens/ChatRoom/ChatRoom';
-// import uiSlice from 'amity-react-native-social-ui-kit/src/redux/slices/uiSlice';
-// import { useDispatch } from 'react-redux';
-// import Toast from '../../components/Toast/Toast';
-import { EachChatObject } from './EachChatObject';
+
+// @ts-ignore
+import { SwitchTab } from '../../../../../src/components/SwitchTab/SwitchTab';
+
+import { UserInterface } from '../../../src/types';
+import { RenderRecentChat } from './RenderRecentChat';
+import { RenderAllMembers } from '../../../src/screens/MemberListModal/RenderAllMembers';
+// @ts-ignore
+import { createAmityChannel } from '@amityco/react-native-cli-chat-ui-kit/src/providers/channel-provider';
+import useAuth from '../../../src/hooks/useAuth';
 
 export type TChannelObject = {
   chatId: string;
@@ -35,48 +35,86 @@ export type TChannelObject = {
   selected: boolean;
 };
 
+type TTab = {
+  index: number;
+  label: 'Recent chat' | 'All members';
+  testID: string;
+}
+
+export const TABS: TTab[] = [
+  { index: 0, label: 'Recent chat', testID: 'RecentChatTabID' },
+  { index: 1, label: 'All members', testID: 'AllMembersTabID' },
+];
+
+type TSelectedChatRecievers = Map<string, { chatReceiver: UserInterface }>
+export type TSelectedChat = { id: string; chatMemberNumber: number }
+
 export const MemberListModal = () => {
-  const { isConnected } = useAuth();
   const [loadChannel, setLoadChannel] = useState<boolean>(false);
   const styles = useStyles();
   const route = useRoute<any>();
-  const navigation = useNavigation();
+  const { client } = useAuth();
+  const navigation = useNavigation<any>();
   const postId = route?.params?.postId;
+  const [selectedIndex, setSelectedIndex] = useState(0);
+  const [selectedChatRecievers, setSelectedChatRecievers] = useState<TSelectedChatRecievers>(new Map())
 
+  //selected recentChats
   const [channelObjects, setChannelObjects] = useState<TChannelObject[]>([]);
-  const [channelData, setChannelData] =
-    useState<Amity.LiveCollection<Amity.Channel>>();
 
-  const shouldShowSend = useMemo(() => {
-    return channelObjects.some((eachChannel) => eachChannel.selected);
-  }, [channelObjects]);
+  //selected members from "All members" tab
+  const [sectionedUserList, setSectionedUserList] = useState<UserInterface[]>([]);
+  const [selectedSectionedUsers, setSelectedSectionedUsers] =
+    useState<UserInterface[]>([]);
 
-  const { data: channels = [], onNextPage, hasNextPage } = channelData ?? {};
+  const selectedRecentChats = useMemo(() => {
+    return channelObjects.filter((each) => each.selected)
+  }, [channelObjects])
 
-  const onSendClick = useCallback(async () => {
-    if (!postId || !channelObjects) return;
+  const totalSelectedLength = useMemo(() => {
+    return selectedRecentChats.length + selectedSectionedUsers.length;
+  }, [selectedRecentChats, selectedSectionedUsers])
+
+  const shouldShowCreateGroup = useMemo(() => {
+    /*
+    we need to show this button in following scenarios
+    1.when more than 1 chat is selected
+    2.when all selected chats from recent chats are one to one
+    */
+    if (selectedIndex === 0) {
+      return totalSelectedLength > 1 && selectedRecentChats.every((eachChat) => eachChat.chatMemberNumber === 2);
+    } else return totalSelectedLength > 1;
+  }, [selectedRecentChats, totalSelectedLength])
+
+  const sendButtonText = useMemo(() => {
+    return totalSelectedLength > 1 ? 'Send separately' : 'Send'
+  }, [totalSelectedLength])
+
+  const onAllMemberGroupSendClick = async () => {
+    if (!postId || selectedSectionedUsers.length === 0) return;
+    navigation.navigate("EnterGroupName", { selectedUserList: selectedSectionedUsers, postId })
+  }
+
+  const onSendAllMembersClick = async () => {
+    if (!postId || selectedSectionedUsers.length === 0) return;
+    //first off all for every selected member, create the separate channel with logged in user.
     setLoadChannel(true);
-    // for (const eachChannel of channelObjects) {
-    //   if (eachChannel.selected) {
-    //     const customMessage = {
-    //       subChannelId: eachChannel.chatId,
-    //       dataType: MessageContentType.CUSTOM,
-    //       data: {
-    //         id: postId,
-    //         type: ECustomData.post,
-    //       },
-    //     };
-    //     const { data: message } = await MessageRepository.createMessage(
-    //       customMessage
-    //     );
-    //     console.log('message', message);
-    //   }
-    // }
-    // Create an array to hold all the promises
-    const promises = channelObjects.map((eachChannel) => {
-      if (eachChannel.selected) {
+
+    const createChannelPromises = selectedSectionedUsers.map((eachMember) => {
+      return createAmityChannel(
+        (client as Amity.Client).userId as string,
+        [eachMember]
+      );
+    });
+
+    try {
+      // Wait for all promises to be resolved
+      const newChannels = await Promise.all(createChannelPromises);
+
+      // Now for each of the newly created channel, send message to that channel
+      const messageCreationPromises = newChannels.map((eachChannel) => {
         const customMessage = {
-          subChannelId: eachChannel.chatId,
+          subChannelId: eachChannel.channelId,
           dataType: MessageContentType.CUSTOM,
           data: {
             id: postId,
@@ -84,9 +122,34 @@ export const MemberListModal = () => {
           },
         };
         return MessageRepository.createMessage(customMessage);
-      }
-      // Return a resolved promise for unselected channels to keep the array length consistent
-      return Promise.resolve(null);
+      });
+
+      // Wait for all promises to be resolved
+      await Promise.all(messageCreationPromises);
+
+    } catch (e) {
+      console.log('e', e);
+    } finally {
+      setLoadChannel(false);
+      navigation.goBack();
+    }
+  }
+
+  const onSendClick = useCallback(async () => {
+    if (!postId || selectedRecentChats.length === 0) return;
+    setLoadChannel(true);
+
+    // Create an array to hold all the promises
+    const promises = selectedRecentChats.map((eachChannel) => {
+      const customMessage = {
+        subChannelId: eachChannel.chatId,
+        dataType: MessageContentType.CUSTOM,
+        data: {
+          id: postId,
+          type: ECustomData.post,
+        },
+      };
+      return MessageRepository.createMessage(customMessage);
     });
 
     try {
@@ -108,111 +171,46 @@ export const MemberListModal = () => {
     }
   }, [postId, navigation, channelObjects]);
 
-  const onChannelSelected = useCallback(async (subChannelId: string) => {
-    if (!subChannelId) return;
-    setChannelObjects((prevChannels) =>
-      prevChannels.map((eachChannel) => {
-        if (eachChannel.chatId === subChannelId) {
-          return {
-            ...eachChannel,
-            selected: !eachChannel.selected,
-          };
-        } else return eachChannel;
-      })
-    );
+  const onSendToGroupClick = () => {
+    if (selectedRecentChats.length <= 0) return;
+    let selectedUserList: UserInterface[] = [];
+    selectedChatRecievers.forEach((value) => {
+      selectedUserList.push(value.chatReceiver)
+    });
+    navigation.navigate("EnterGroupName", { selectedUserList, postId })
+  }
+
+  const pushToChatRecievers = useCallback((chatId: string, chatReceiver: UserInterface) => {
+    setSelectedChatRecievers((prevMap) => {
+      const newMap = new Map(prevMap);
+      newMap.set(chatId, { chatReceiver });
+      return newMap;
+    });
   }, []);
 
-  useEffect(() => {
-    if (channels.length > 0) {
-      const formattedChannelObjects: TChannelObject[] = channels.map(
-        (item: Amity.Channel<any>) => {
-          const channel =
-            channelObjects.length > 0
-              ? channelObjects.find(
-                  (eachChannel) => eachChannel.chatId === item.channelId
-                )
-              : null;
-          return {
-            chatId: item.channelId ?? '',
-            chatName: item.displayName ?? '',
-            chatMemberNumber: item.memberCount ?? 0,
-            channelType: item.type ?? '',
-            avatarFileId: item.avatarFileId,
-            selected: channel ? channel.selected : false,
-          };
-        }
-      );
-      setChannelObjects([...formattedChannelObjects]);
-      setLoadChannel(false);
-    }
-    //eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [channelData]);
 
-  const onQueryChannel = () => {
-    setLoadChannel(true);
-    ChannelRepository.getChannels(
-      {
-        sortBy: 'lastActivity',
-        limit: 15,
-        membership: 'member',
-        isDeleted: false,
-      },
-      (value) => {
-        setChannelData(value);
-        if (
-          value.data.length > 0 ||
-          (value.data.length === 0 && !value.hasNextPage && !value.loading)
-        ) {
-          setTimeout(() => {
-            setLoadChannel(false);
-          }, 1000);
-        }
+  const removeFromChatRecievers = useCallback((chatId: string) => {
+    setSelectedChatRecievers((prevMap) => {
+      const newMap = new Map(prevMap);
+      if (newMap.has(chatId)) {
+        newMap.delete(chatId)
       }
-    );
-  };
+      return newMap;
+    });
+  }, []);
 
-  useEffect(() => {
-    onQueryChannel();
-  }, [isConnected]);
-
-  const handleLoadMore = () => {
-    if (hasNextPage && onNextPage) {
-      onNextPage();
+  const onChannelSelected = useCallback(async (subChannelId: string, chatReceiver?: UserInterface | undefined) => {
+    if (!subChannelId) return;
+    if (chatReceiver) {
+      if (selectedChatRecievers.has(subChannelId)) {
+        //if chat is already selected
+        removeFromChatRecievers(subChannelId)
+      } else {
+        //if chat is not already selected
+        pushToChatRecievers(subChannelId, chatReceiver)
+      }
     }
-  };
-
-  const renderItem = (item: TChannelObject): ReactElement => {
-    return (
-      <EachChatObject
-        key={item.chatId}
-        item={item}
-        onChannelSelected={onChannelSelected}
-      />
-    );
-  };
-
-  const renderRecentChat = useMemo(() => {
-    return !loadChannel ? (
-      channelObjects.length > 0 ? (
-        <FlatList
-          data={channelObjects}
-          renderItem={({ item }) => renderItem(item)}
-          keyExtractor={(item) => item.chatId.toString()}
-          onEndReached={handleLoadMore}
-          showsVerticalScrollIndicator={false}
-          onEndReachedThreshold={0.4}
-        />
-      ) : (
-        <View style={styles.noMessageContainer}>
-          <Text style={styles.noMessageText}>No Messages, yet.</Text>
-          <Text style={styles.noMessageDesc}>
-            No messages in your inbox, yet!
-          </Text>
-        </View>
-      )
-    ) : null;
-    //eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loadChannel, channelObjects, handleLoadMore]);
+  }, [selectedChatRecievers, removeFromChatRecievers, pushToChatRecievers]);
 
   return (
     <>
@@ -224,16 +222,58 @@ export const MemberListModal = () => {
         <View style={styles.header}>
           <Text style={styles.chatHeader}>Select a chat</Text>
         </View>
-        <Separator style={[styles.separator]} />
-        {renderRecentChat}
-        {shouldShowSend ? (
-          <TouchableOpacity
-            onPress={onSendClick}
-            style={styles.sendButtonContainer}
-          >
-            <Text style={styles.sendButtontext}>Send</Text>
-          </TouchableOpacity>
-        ) : null}
+        {
+          TABS.length > 0 ? (
+            <View style={{ marginBottom: 10 }}>
+              <SwitchTab items={TABS} onChange={index => {
+                setSelectedIndex(index)
+                setSectionedUserList([]);
+                setChannelObjects([])
+              }} />
+            </View>
+          ) : null
+        }
+        {
+          selectedIndex === 0 ?
+            <RenderRecentChat
+              onChannelSelected={onChannelSelected}
+              setLoadChannel={setLoadChannel}
+              loadChannel={loadChannel}
+              channelObjects={channelObjects}
+              setChannelObjects={setChannelObjects}
+            />
+            : null
+        }
+        {
+          selectedIndex === 1 ? (
+            <RenderAllMembers
+              sectionedUserList={sectionedUserList}
+              setSectionedUserList={setSectionedUserList}
+              selectedSectionedUsers={selectedSectionedUsers}
+              setSelectedSectionedUsers={setSelectedSectionedUsers}
+            />
+          ) : null
+        }
+        <View style={styles.buttonContainer}>
+          {shouldShowCreateGroup ? (
+            <TouchableOpacity
+              onPress={selectedIndex === 0 ? onSendToGroupClick : onAllMemberGroupSendClick}
+              style={styles.sendButtonContainer}
+            >
+              <Text style={styles.sendButtontext}>{`Send to group (${totalSelectedLength})`}</Text>
+            </TouchableOpacity>
+          ) : null}
+          {shouldShowCreateGroup &&
+            totalSelectedLength > 0 && <View style={styles.buttonSeparator} />}
+          {totalSelectedLength > 0 ? (
+            <TouchableOpacity
+              onPress={selectedIndex === 0 ? onSendClick : onSendAllMembersClick}
+              style={styles.sendButtonContainer}
+            >
+              <Text style={styles.sendButtontext}>{`${sendButtonText} (${totalSelectedLength})`}</Text>
+            </TouchableOpacity>
+          ) : null}
+        </View>
       </BottomModalScreen>
       {loadChannel ? <LoadingOverlay isLoading /> : null}
     </>

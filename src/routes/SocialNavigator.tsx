@@ -38,7 +38,40 @@ import CreatePoll from '../screens/CreatePoll/CreatePoll';
 import ReactionListScreen from '../screens/ReactionListScreen/ReactionListScreen';
 import { SocialContext } from '../store/context';
 import { MemberListModal } from '../screens/MemberListModal/MemberListModal';
- 
+import { EnterGroupName } from '../../src/screens/EnterGroupName/EnterGroupName';
+
+export type TCommunity = {
+  _id: string;
+  path: string;
+  isOfficial: boolean;
+  isPublic: boolean;
+  onlyAdminCanPost: boolean;
+  postsCount: number;
+  membersCount: number;
+  moderatorMemberCount: number;
+  updatedAt: string;
+  createdAt: string;
+  isDeleted: boolean;
+  needApprovalOnPostCreation: boolean;
+  displayName: string;
+  tags: string[];
+  metadata: {
+    partners?: string[];
+  };
+  hasFlaggedComment: boolean;
+  hasFlaggedPost: boolean;
+  allowCommentInStory: boolean;
+  communityId: string;
+  channelId: string;
+  userId: string;
+  userPublicId: string;
+  userInternalId: string;
+  isJoined: boolean;
+  avatarFileId: string;
+  categoryIds: string[];
+  notificationMode: 'default' | 'custom';
+};
+
 export default function SocialNavigator({
   showCompleteProfileCard,
   selectedChapterId,
@@ -50,6 +83,7 @@ export default function SocialNavigator({
   userData,
   screen,
   setIsTabBarVisible,
+  chapters
 }: {
   showCompleteProfileCard: boolean;
   selectedChapterId: string;
@@ -64,11 +98,12 @@ export default function SocialNavigator({
   };
   screen: string;
   setIsTabBarVisible: (value: boolean) => void;
+  chapters: TCommunity[]
 }) {
   const Stack = createNativeStackNavigator<RootStackParamList>();
   const { isConnected } = useAuth();
   const theme = useTheme() as MyMD3Theme;
- 
+
   const styles = useStyles();
   return (
     <NavigationContainer independent={true}>
@@ -81,7 +116,8 @@ export default function SocialNavigator({
           onMemberClick,
           screen,
           setIsTabBarVisible,
-          showCompleteProfileCard
+          showCompleteProfileCard,
+          chapters
         }}
       >
         {isConnected && (
@@ -263,6 +299,7 @@ export default function SocialNavigator({
                 presentation: 'modal',
               }}
             >
+              <Stack.Screen name={'EnterGroupName'} component={EnterGroupName} />
               <Stack.Screen name={'MembersList'} component={MemberListModal} />
             </Stack.Group>
           </Stack.Navigator>

@@ -1,3 +1,5 @@
+import { UserInterface } from "../../src/types";
+
 export type RootStackParamList = {
   Home: {
     postIdCallBack?: string;
@@ -89,4 +91,8 @@ export type RootStackParamList = {
   MembersList: {
     postId: string;
   };
+  EnterGroupName: {
+    selectedUserList: UserInterface[];
+    postId: string;
+  }
 };
