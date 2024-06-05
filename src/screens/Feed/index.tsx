@@ -1,7 +1,6 @@
 import React, {
   forwardRef,
   useCallback,
-  useEffect,
   useImperativeHandle,
   useState,
 } from 'react';
@@ -27,6 +26,9 @@ import { decode } from 'js-base64';
 import { getAmityUser } from '../../providers/user-provider';
 import { UserInterface } from '../../types';
 import { FeedRefType } from '~/screens/CommunityHome';
+import { FeedTargetType } from '../../constants';
+import { Typography } from '../../../../src/components/Typography/Typography';
+import { t } from 'i18next';
 
 enum PostLoadType {
   INITIAL,
@@ -60,9 +62,9 @@ interface ChapterPagination {
   limit: number;
 }
 
-interface IFeed {
+export interface IFeed {
   targetIds: string[];
-  targetType: string;
+  targetType: FeedTargetType;
   selectedChapterName?: string;
 }
 
@@ -103,11 +105,13 @@ function Feed({ targetIds, targetType }: IFeed, ref: React.Ref<FeedRefType>) {
     useState<Map<string, ChapterPagination | undefined>>(new Map());
   const [loading, setLoading] = useState(false);
   const dispatch = useDispatch();
+  const targetIdsDep = targetIds.length === 1 ? targetIds[0] : targetIds.length;
 
   const fetchPostsFor = async (
     targetId: string,
+    targetType: FeedTargetType,
     pagination?: Partial<ChapterPagination>
-  ) => {
+  ): Promise<{ targetId: string; data: PostResponse }> => {
     if (pagination && !(pagination.first || pagination.last)) {
       console.debug(
         'Got pagination without first or last cursors: nothing to do'
@@ -119,26 +123,63 @@ function Feed({ targetIds, targetType }: IFeed, ref: React.Ref<FeedRefType>) {
       };
     }
 
-    const response = await Client.getActiveClient().http.get('/api/v4/posts', {
-      params: {
-        targetId,
-        targetType,
-        'sortBy': 'lastCreated',
-        'isDeleted': false,
-        'options[limit]':
-          pagination?.limit ?? targetIds.length > 1
-            ? ALL_CHAPTERS_PAGE_SIZE
-            : SINGLE_CHAPTER_PAGE_SIZE,
-        'feedType': 'published',
-        ...(pagination?.first && { 'options[after]': pagination.first }),
-        ...(pagination?.last && { 'options[before]': pagination.last }),
-      },
-    });
+    switch (targetType) {
+      case FeedTargetType.COMMUNITY: {
+        const response = await Client.getActiveClient().http.get(
+          '/api/v4/posts',
+          {
+            params: {
+              targetId,
+              targetType,
+              'sortBy': 'lastCreated',
+              'isDeleted': false,
+              'options[limit]':
+                pagination?.limit ?? targetIds.length > 1
+                  ? ALL_CHAPTERS_PAGE_SIZE
+                  : SINGLE_CHAPTER_PAGE_SIZE,
+              'feedType': 'published',
+              ...(pagination?.first && { 'options[after]': pagination.first }),
+              ...(pagination?.last && { 'options[before]': pagination.last }),
+            },
+          }
+        );
 
-    return {
-      targetId,
-      data: response.data as PostResponse,
-    };
+        return {
+          targetId,
+          data: response.data as PostResponse,
+        };
+      }
+      case FeedTargetType.USER: {
+        const response = await (
+          await fetch('https://beta.amity.services/search/v2/posts', {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${Client.getActiveClient().token.accessToken}`,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              populatePostObject: true,
+              query: {
+                targetId: Object.keys(chapterById),
+                targetType: 'community',
+                postedUserId: targetId,
+              },
+              sort: [
+                {
+                  createdAt: 'desc',
+                },
+              ],
+              size: SINGLE_CHAPTER_PAGE_SIZE,
+            }),
+          })
+        ).json();
+
+        return {
+          targetId,
+          data: response.objects as PostResponse,
+        };
+      }
+    }
   };
 
   const mapPostResponse = async (
@@ -157,7 +198,7 @@ function Feed({ targetIds, targetType }: IFeed, ref: React.Ref<FeedRefType>) {
         continue;
       }
 
-      const paging = data.paging.next
+      const paging = data.paging?.next
         ? (JSON.parse(decode(data.paging.next)) as LastCreatedPostPaging)
         : undefined;
       console.debug(`Paging for ${targetId}:`, paging);
@@ -222,14 +263,16 @@ function Feed({ targetIds, targetType }: IFeed, ref: React.Ref<FeedRefType>) {
 
       setLoading(true);
 
-      Promise.all(targetIds.map((targetId) => fetchPostsFor(targetId)))
+      Promise.all(
+        targetIds.map((targetId) => fetchPostsFor(targetId, targetType))
+      )
         .then((response) => mapPostResponse(response, PostLoadType.INITIAL))
         .then(({ posts, allChapterPaginationByTargetId }) => {
           setChapterPaginationByTargetId(allChapterPaginationByTargetId);
 
           if (posts.length) {
             console.debug(
-              `Will dispatch initial feed update of ${posts.length} posts`
+              `Will dispatch initial feed update of ${posts.length} posts for [${targetIds}]`
             );
             dispatch(mergeFeed(posts));
           }
@@ -237,19 +280,15 @@ function Feed({ targetIds, targetType }: IFeed, ref: React.Ref<FeedRefType>) {
         })
         .catch((e) => {
           setLoading(false);
-          console.error(`Error fetching posts for ${targetIds}:`, e);
+          console.error(`Error fetching posts for [${targetIds}]:`, e);
         });
 
       return () => {
+        console.debug(`Will cleanup posts for [${targetIds}]`);
+
         dispatch(clearFeed());
       };
-    }, [
-      targetIds.length === 1 ? targetIds[0] : targetIds.length,
-      targetType,
-      dispatch,
-      mergeFeed,
-      clearFeed,
-    ])
+    }, [targetIdsDep, targetType, dispatch, mergeFeed, clearFeed])
   );
 
   const handleLoadMore = () => {
@@ -274,7 +313,7 @@ function Feed({ targetIds, targetType }: IFeed, ref: React.Ref<FeedRefType>) {
           morePostsChapterPagination
         );
 
-        return fetchPostsFor(targetId, morePostsChapterPagination);
+        return fetchPostsFor(targetId, targetType, morePostsChapterPagination);
       })
     )
       .then((response) => mapPostResponse(response, PostLoadType.MORE))
@@ -320,7 +359,7 @@ function Feed({ targetIds, targetType }: IFeed, ref: React.Ref<FeedRefType>) {
           newerPostsChapterPagination
         );
 
-        return fetchPostsFor(targetId, newerPostsChapterPagination);
+        return fetchPostsFor(targetId, targetType, newerPostsChapterPagination);
       })
     )
       .then((response) => mapPostResponse(response, PostLoadType.NEW))
@@ -348,14 +387,20 @@ function Feed({ targetIds, targetType }: IFeed, ref: React.Ref<FeedRefType>) {
     }
   };
 
-  useEffect(() => {
-    const intervalId = setInterval(
-      () => onRefresh(),
-      AUTO_FEED_REFRESH_PERIOD_MS
-    );
+  useFocusEffect(
+    useCallback(() => {
+      const intervalId = setInterval(
+        () => onRefresh(),
+        AUTO_FEED_REFRESH_PERIOD_MS
+      );
 
-    return () => clearInterval(intervalId);
-  }, []);
+      return () => {
+        console.debug(`Will stop automatic post refresh for [${targetIds}]`);
+
+        clearInterval(intervalId);
+      };
+    }, [targetIdsDep, targetType])
+  );
 
   return (
     <View
@@ -368,33 +413,38 @@ function Feed({ targetIds, targetType }: IFeed, ref: React.Ref<FeedRefType>) {
         },
       ]}
     >
-      <FlatList
-        data={postList}
-        renderItem={({ item, index }) => (
-          <PostList
-            onDelete={onDeletePost}
-            postDetail={item}
-            isGlobalfeed={false}
-            postIndex={index}
-            showBackBtn={true}
-            chapterName={chapterById[item.targetId]?.displayName ?? 'Unknown'}
-          />
-        )}
-        refreshControl={
-          <RefreshControl
-            refreshing={refreshing}
-            onRefresh={onRefresh}
-            colors={['lightblue']}
-            tintColor="lightblue"
-          />
-        }
-        keyExtractor={(item) => item.postId}
-        onEndReached={handleLoadMore}
-        onEndReachedThreshold={2}
-      />
       {loading ? (
         <View style={styles.activityIndicator}>
           <ActivityIndicator color={theme.colors.baseShade1} />
+        </View>
+      ) : postList.length ? (
+        <FlatList
+          data={postList}
+          renderItem={({ item, index }) => (
+            <PostList
+              onDelete={onDeletePost}
+              postDetail={item}
+              isGlobalfeed={false}
+              postIndex={index}
+              showBackBtn={true}
+              chapterName={chapterById[item.targetId]?.displayName ?? 'Unknown'}
+            />
+          )}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              colors={['lightblue']}
+              tintColor="lightblue"
+            />
+          }
+          keyExtractor={(item) => item.postId}
+          onEndReached={handleLoadMore}
+          onEndReachedThreshold={2}
+        />
+      ) : targetIds.length ? (
+        <View style={styles.emptyFeedContainer}>
+          <Typography>{t('home.noPosts')}</Typography>
         </View>
       ) : null}
     </View>

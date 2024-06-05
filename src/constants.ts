@@ -52,3 +52,8 @@ export const ALLOWED_MEDIA_TYPE = {
 };
 
 export const STORY_DEFAULT_DURATION = 7000;
+
+export enum FeedTargetType {
+  COMMUNITY = 'community',
+  USER = 'user',
+}

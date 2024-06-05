@@ -31,6 +31,7 @@ import { useDispatch } from 'react-redux';
 import uiSlice from '../../redux/slices/uiSlice';
 import { PostTargetType } from '../../enum/postTargetType';
 import UserProfileGallery from './Components/UserProfileGallery';
+import { FeedTargetType } from '../../constants';
 
 export default function UserProfile({ route }: any) {
   const theme = useTheme() as MyMD3Theme;
@@ -63,9 +64,8 @@ export default function UserProfile({ route }: any) {
     });
   };
   const onFollowTap = async () => {
-    const { data: followStatus } = await UserRepository.Relationship.follow(
-      userId
-    );
+    const { data: followStatus } =
+      await UserRepository.Relationship.follow(userId);
     if (followStatus) {
       setFollowStatus(followStatus.status);
     }
@@ -214,7 +214,13 @@ export default function UserProfile({ route }: any) {
 
   const renderTabs = () => {
     if (currentTab === TabName.Timeline)
-      return <Feed targetType="user" targetIds={[userId]} ref={feedRef} />;
+      return (
+        <Feed
+          targetType={FeedTargetType.USER}
+          targetIds={[userId]}
+          ref={feedRef}
+        />
+      );
     if (currentTab === TabName.Gallery)
       return <UserProfileGallery userId={userId} ref={galleryRef} />;
     return null;
