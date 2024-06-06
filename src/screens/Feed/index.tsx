@@ -29,6 +29,7 @@ import { decode } from 'js-base64';
 import { getAmityUser } from '../../providers/user-provider';
 import { UserInterface } from '../../types';
 import { FeedRefType } from '~/screens/CommunityHome';
+import { screens } from '../../../../../src/constants/screens';
 import { FeedTargetType } from '../../constants';
 // @ts-ignore
 import { Typography } from '../../../../../src/components/Typography/Typography';
@@ -112,7 +113,7 @@ function Feed({ targetIds, targetType }: IFeed, ref: React.Ref<FeedRefType>) {
   const dispatch = useDispatch();
   const targetIdsDep = targetIds.length === 1 ? targetIds[0] : targetIds.length;
   const flatlistRef = useRef<FlatList | null>(null);
-  const { scrollFeedToTop, setScrollFeedToTop } = useContext(SocialContext)
+  const { scrollFeedToTop, setScrollFeedToTop, screen } = useContext(SocialContext)
 
   useEffect(() => {
     if (flatlistRef.current && scrollFeedToTop) {
@@ -446,7 +447,7 @@ function Feed({ targetIds, targetType }: IFeed, ref: React.Ref<FeedRefType>) {
                 isGlobalfeed={false}
                 postIndex={index}
                 showBackBtn={true}
-                chapterName={chapterById[item.targetId]?.displayName ?? 'Unknown'}
+                chapterName={screen === screens.MarketPlace ? chapterById[item?.user?.metadata?.chapter?.id]?.displayName : chapterById[item.targetId]?.displayName}
               />
             )}
             refreshControl={

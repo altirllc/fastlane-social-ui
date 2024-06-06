@@ -54,6 +54,8 @@ import { closeIcon } from '../../svg/svg-xml-list';
 import AmityMentionInput from '../../components/MentionInput/AmityMentionInput';
 import { TSearchItem } from '../../hooks/useSearch';
 import { SocialContext } from '../../store/context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { screens } from '../../../../../src/constants/screens';
 
 const PostDetail = () => {
   const theme = useTheme() as MyMD3Theme;
@@ -76,7 +78,8 @@ const PostDetail = () => {
   const flatListRef = useRef(null);
   let isSubscribed = false;
   const disposers: Amity.Unsubscriber[] = [];
-  const { setIsTabBarVisible } = useContext(SocialContext);
+  const { setIsTabBarVisible, screen } = useContext(SocialContext);
+  const { bottom } = useSafeAreaInsets();
 
   const [postCollection, setPostCollection] = useState<Amity.Post<any>>();
 
@@ -357,7 +360,7 @@ const PostDetail = () => {
           </TouchableOpacity>
         </View>
       )}
-      <View style={styles.InputWrap}>
+      <View style={[styles.InputWrap, { paddingBottom: screen === screens.MarketPlace ? bottom - 20 : bottom + 10 }]}>
         <View style={styles.inputContainer}>
           <AmityMentionInput
             resetValue={resetValue}
