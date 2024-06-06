@@ -83,7 +83,9 @@ export default function SocialNavigator({
   userData,
   screen,
   setIsTabBarVisible,
-  chapters
+  chapters,
+  scrollFeedToTop,
+  setScrollFeedToTop
 }: {
   showCompleteProfileCard: boolean;
   selectedChapterId: string;
@@ -98,7 +100,9 @@ export default function SocialNavigator({
   };
   screen: string;
   setIsTabBarVisible: (value: boolean) => void;
-  chapters: TCommunity[]
+  chapters: TCommunity[],
+  scrollFeedToTop: boolean,
+  setScrollFeedToTop: React.Dispatch<React.SetStateAction<boolean>>
 }) {
   const Stack = createNativeStackNavigator<RootStackParamList>();
   const { isConnected } = useAuth();
@@ -117,7 +121,9 @@ export default function SocialNavigator({
           screen,
           setIsTabBarVisible,
           showCompleteProfileCard,
-          chapters
+          chapters,
+          scrollFeedToTop,
+          setScrollFeedToTop
         }}
       >
         {isConnected && (
