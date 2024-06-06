@@ -30,6 +30,7 @@ import { getAmityUser } from '../../providers/user-provider';
 import { UserInterface } from '../../types';
 import { FeedRefType } from '~/screens/CommunityHome';
 import { FeedTargetType } from '../../constants';
+// @ts-ignore
 import { Typography } from '../../../../src/components/Typography/Typography';
 import { t } from 'i18next';
 import { SocialContext } from '../../../src/store/context';
@@ -451,7 +452,7 @@ function Feed({ targetIds, targetType }: IFeed, ref: React.Ref<FeedRefType>) {
             refreshControl={
               <RefreshControl
                 refreshing={refreshing}
-                onRefresh={onRefresh}
+                onRefresh={() => onRefresh(true)}
                 colors={['lightblue']}
                 tintColor="lightblue"
               />
