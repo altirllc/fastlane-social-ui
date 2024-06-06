@@ -31,7 +31,7 @@ import { UserInterface } from '../../types';
 import { FeedRefType } from '~/screens/CommunityHome';
 import { FeedTargetType } from '../../constants';
 // @ts-ignore
-import { Typography } from '../../../../src/components/Typography/Typography';
+import { Typography } from '../../../../../src/components/Typography/Typography';
 import { t } from 'i18next';
 import { SocialContext } from '../../../src/store/context';
 
