@@ -195,7 +195,7 @@ export default function Home({
           >
             {selectedChapterName}
           </Text>
-          {screen === screens.Home ? (
+          {screen === screens.Home && selectedChapterName ? (
             <View style={styles.chevronDownIcon}>
               <ChevronDownIcon height={17} width={17} />
             </View>
