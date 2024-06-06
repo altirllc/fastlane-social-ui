@@ -32,6 +32,7 @@ import { CompleteProfileCard } from '../../../../../src/components/CompleteProfi
 import { ChannelRepository, Client } from '@amityco/ts-sdk-react-native';
 import { RootState } from '~/redux/store';
 import chaptersSlice from '../../redux/slices/chapters';
+import { FeedTargetType } from '../../constants';
 
 LogBox.ignoreAllLogs(true);
 export default function Home({
@@ -156,8 +157,7 @@ export default function Home({
         membership: 'member',
         isDeleted: false,
       },
-      () => {
-      }
+      () => {}
     );
   };
 
@@ -231,7 +231,7 @@ export default function Home({
               ? [selectedChapterId]
               : chapters.map((c) => c.communityId)
           }
-          targetType="community"
+          targetType={FeedTargetType.COMMUNITY}
           selectedChapterName={selectedChapterName}
         />
       </View>

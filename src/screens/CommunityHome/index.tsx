@@ -42,6 +42,7 @@ import { TabName } from '../../enum/tabNameState';
 import uiSlice from '../../redux/slices/uiSlice';
 import { PostTargetType } from '../../enum/postTargetType';
 import CommunityStories from '../../components/CommunityStories';
+import { FeedTargetType } from '../../constants';
 
 export type FeedRefType = {
   handleLoadMore: () => void;
@@ -339,7 +340,11 @@ export default function CommunityHome({ route }: any) {
           tabName={[TabName.Timeline, TabName.Gallery]}
           onTabChange={handleTab}
         />
-        <Feed targetType="community" targetIds={[communityId]} ref={feedRef} />
+        <Feed
+          targetType={FeedTargetType.COMMUNITY}
+          targetIds={[communityId]}
+          ref={feedRef}
+        />
       </ScrollView>
 
       <FloatingButton onPress={handleOnPressPostBtn} isGlobalFeed={false} />

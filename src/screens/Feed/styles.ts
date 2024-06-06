@@ -16,6 +16,10 @@ export const useStyles = () => {
       left: screenWidth / 2.1,
       top: screenHeight / 3.2,
     },
+    emptyFeedContainer: {
+      padding: 50,
+      alignItems: 'center',
+    },
   });
 
   return styles;
