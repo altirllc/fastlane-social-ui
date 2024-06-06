@@ -1,7 +1,10 @@
 import React, {
   forwardRef,
   useCallback,
+  useContext,
+  useEffect,
   useImperativeHandle,
+  useRef,
   useState,
 } from 'react';
 
@@ -27,8 +30,10 @@ import { getAmityUser } from '../../providers/user-provider';
 import { UserInterface } from '../../types';
 import { FeedRefType } from '~/screens/CommunityHome';
 import { FeedTargetType } from '../../constants';
-import { Typography } from '../../../../src/components/Typography/Typography';
+// @ts-ignore
+import { Typography } from '../../../../../src/components/Typography/Typography';
 import { t } from 'i18next';
+import { SocialContext } from '../../../src/store/context';
 
 enum PostLoadType {
   INITIAL,
@@ -106,6 +111,16 @@ function Feed({ targetIds, targetType }: IFeed, ref: React.Ref<FeedRefType>) {
   const [loading, setLoading] = useState(false);
   const dispatch = useDispatch();
   const targetIdsDep = targetIds.length === 1 ? targetIds[0] : targetIds.length;
+  const flatlistRef = useRef<FlatList | null>(null);
+  const { scrollFeedToTop, setScrollFeedToTop } = useContext(SocialContext)
+
+  useEffect(() => {
+    if (flatlistRef.current && scrollFeedToTop) {
+      flatlistRef.current.scrollToIndex({ index: 0, animated: true });
+      setScrollFeedToTop(false);
+      onRefresh?.(false);
+    }
+  }, [scrollFeedToTop])
 
   const fetchPostsFor = async (
     targetId: string,
@@ -252,13 +267,13 @@ function Feed({ targetIds, targetType }: IFeed, ref: React.Ref<FeedRefType>) {
       if (!targetIds.length) {
         console.debug('No post targets specified: nothing to do');
 
-        return () => {};
+        return () => { };
       }
 
       if (loading) {
         console.debug('Already loading: will not send concurrent request');
 
-        return () => {};
+        return () => { };
       }
 
       setLoading(true);
@@ -338,9 +353,11 @@ function Feed({ targetIds, targetType }: IFeed, ref: React.Ref<FeedRefType>) {
     handleLoadMore,
   }));
 
-  const onRefresh = () => {
+  const onRefresh = (shouldRefresh: boolean) => {
     console.debug(`Got request to refresh posts for [${targetIds}]`);
-    setRefreshing(true);
+    if (shouldRefresh) {
+      setRefreshing(true);
+    }
 
     Promise.all(
       targetIds.map(async (targetId) => {
@@ -390,7 +407,7 @@ function Feed({ targetIds, targetType }: IFeed, ref: React.Ref<FeedRefType>) {
   useFocusEffect(
     useCallback(() => {
       const intervalId = setInterval(
-        () => onRefresh(),
+        () => onRefresh(false),
         AUTO_FEED_REFRESH_PERIOD_MS
       );
 
@@ -413,41 +430,44 @@ function Feed({ targetIds, targetType }: IFeed, ref: React.Ref<FeedRefType>) {
         },
       ]}
     >
-      {loading ? (
-        <View style={styles.activityIndicator}>
-          <ActivityIndicator color={theme.colors.baseShade1} />
-        </View>
-      ) : postList.length ? (
-        <FlatList
-          data={postList}
-          renderItem={({ item, index }) => (
-            <PostList
-              onDelete={onDeletePost}
-              postDetail={item}
-              isGlobalfeed={false}
-              postIndex={index}
-              showBackBtn={true}
-              chapterName={chapterById[item.targetId]?.displayName ?? 'Unknown'}
-            />
-          )}
-          refreshControl={
-            <RefreshControl
-              refreshing={refreshing}
-              onRefresh={onRefresh}
-              colors={['lightblue']}
-              tintColor="lightblue"
-            />
-          }
-          keyExtractor={(item) => item.postId}
-          onEndReached={handleLoadMore}
-          onEndReachedThreshold={2}
-        />
-      ) : targetIds.length ? (
-        <View style={styles.emptyFeedContainer}>
-          <Typography>{t('home.noPosts')}</Typography>
-        </View>
-      ) : null}
-    </View>
+      {
+        loading ? (
+          <View style={styles.activityIndicator}>
+            <ActivityIndicator color={theme.colors.baseShade1} />
+          </View>
+        ) : postList.length ? (
+          <FlatList
+            ref={flatlistRef}
+            data={postList}
+            renderItem={({ item, index }) => (
+              <PostList
+                onDelete={onDeletePost}
+                postDetail={item}
+                isGlobalfeed={false}
+                postIndex={index}
+                showBackBtn={true}
+                chapterName={chapterById[item.targetId]?.displayName ?? 'Unknown'}
+              />
+            )}
+            refreshControl={
+              <RefreshControl
+                refreshing={refreshing}
+                onRefresh={() => onRefresh(true)}
+                colors={['lightblue']}
+                tintColor="lightblue"
+              />
+            }
+            keyExtractor={(item) => item.postId}
+            onEndReached={handleLoadMore}
+            onEndReachedThreshold={2}
+          />
+        ) : targetIds.length ? (
+          <View style={styles.emptyFeedContainer}>
+            <Typography>{t('home.noPosts')}</Typography>
+          </View>
+        ) : null
+      }
+    </View >
   );
 }
 

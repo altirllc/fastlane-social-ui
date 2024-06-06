@@ -11,6 +11,8 @@ export const SocialContext = createContext<{
   setIsTabBarVisible: (value: boolean) => void;
   showCompleteProfileCard: boolean;
   chapters: TCommunity[];
+  scrollFeedToTop: boolean;
+  setScrollFeedToTop: React.Dispatch<React.SetStateAction<boolean>>
 }>({
   selectedChapterId: '',
   selectedChapterName: '',
@@ -20,5 +22,7 @@ export const SocialContext = createContext<{
   screen: '',
   setIsTabBarVisible: () => { },
   showCompleteProfileCard: false,
-  chapters: []
+  chapters: [],
+  scrollFeedToTop: false,
+  setScrollFeedToTop: () => { }
 });
