@@ -55,6 +55,7 @@ import AmityMentionInput from '../../components/MentionInput/AmityMentionInput';
 import { TSearchItem } from '../../hooks/useSearch';
 import { SocialContext } from '../../store/context';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+// @ts-ignore
 import { screens } from '../../../../../src/constants/screens';
 
 const PostDetail = () => {
@@ -322,7 +323,7 @@ const PostDetail = () => {
     >
       <ScrollView onScroll={handleScroll} style={styles.container}>
         <PostList
-          onChange={() => {}}
+          onChange={() => { }}
           postDetail={currentPostdetail as IPost}
           isGlobalfeed={isFromGlobalfeed}
         />
