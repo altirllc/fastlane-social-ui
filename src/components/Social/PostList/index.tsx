@@ -276,7 +276,8 @@ export default function PostList({
 
   const handleDisplayNamePress = () => {
     if (user?.userId) {
-      onMemberClick?.(user.userId);
+      // @ts-ignore
+      onMemberClick?.(user.userId, user.displayName);
     }
   };
 
@@ -349,7 +350,7 @@ export default function PostList({
               styles.modalContent,
               modalStyle,
               user?.userId === (client as Amity.Client).userId &&
-                styles.twoOptions,
+              styles.twoOptions,
             ]}
           >
             {user?.userId === (client as Amity.Client).userId ? (

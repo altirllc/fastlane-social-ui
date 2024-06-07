@@ -29,6 +29,7 @@ import { decode } from 'js-base64';
 import { getAmityUser } from '../../providers/user-provider';
 import { UserInterface } from '../../types';
 import { FeedRefType } from '~/screens/CommunityHome';
+// @ts-ignore
 import { screens } from '../../../../../src/constants/screens';
 import { FeedTargetType } from '../../constants';
 // @ts-ignore
