@@ -94,5 +94,8 @@ export type RootStackParamList = {
   EnterGroupName: {
     selectedUserList: UserInterface[];
     postId: string;
-  }
+  };
+  ReactionUsersList: {
+    postId: string;
+  };
 };

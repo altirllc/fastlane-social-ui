@@ -120,7 +120,6 @@ export const useStyles = () => {
       color: theme.colors.baseShade2,
       fontSize: 15,
       fontWeight: '600',
-      marginHorizontal: 4,
     },
     headerRow: {
       flexDirection: 'row',

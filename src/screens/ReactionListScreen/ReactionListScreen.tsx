@@ -106,8 +106,8 @@ const ReactionListScreen = ({ route }) => {
       {loading
         ? renderContentLoading()
         : isError
-        ? errorContent()
-        : renderContent()}
+          ? errorContent()
+          : renderContent()}
     </View>
   );
 };
