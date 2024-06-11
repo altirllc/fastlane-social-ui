@@ -15,6 +15,7 @@ import {
   Pressable,
   Animated,
   Alert,
+  ActivityIndicator,
 } from 'react-native';
 import { SvgXml } from 'react-native-svg';
 import { personXml, threeDots } from '../../../svg/svg-xml-list';
@@ -97,6 +98,7 @@ export default function PostList({
   const styles = useStyles();
   const theme = useTheme() as MyMD3Theme;
   const [isLike, setIsLike] = useState<boolean>(false);
+  const [isLikeLoading, setIsLikeLoading] = useState(false);
   const [likeReaction, setLikeReaction] = useState<number>(0);
   const [, setCommunityName] = useState('');
   const [textPost, setTextPost] = useState<string>('');
@@ -210,6 +212,7 @@ export default function PostList({
   // );
 
   const addReactionToPost = useCallback(async () => {
+    setIsLikeLoading(true)
     setIsLike((prev) => !prev);
     setLikeReaction((prev) => (prev ? prev - 1 : prev + 1));
     const updatedLikeReaction = isLike ? likeReaction - 1 : likeReaction + 1;
@@ -233,6 +236,8 @@ export default function PostList({
       }
     } catch (error) {
       setLikeReaction((prev) => prev);
+    } finally {
+      setIsLikeLoading(false)
     }
   }, [
     dispatch,
@@ -240,10 +245,14 @@ export default function PostList({
     isLike,
     likeReaction,
     postDetail,
-    postId,
+    ,
     updateByPostId,
     updateByPostIdGlobalFeed,
   ]);
+
+  const onLikedByPress = () => {
+    navigation.navigate("ReactionUsersList", { postId: postId })
+  }
 
   async function getCommunityInfo(id: string) {
     const { data: community }: { data: Amity.LiveObject<Amity.Community> } =
@@ -517,20 +526,34 @@ export default function PostList({
         )} */}
 
         <View style={styles.actionSection}>
+          {
+            isLikeLoading ? <View style={{ paddingVertical: 12, width: 30 }}><ActivityIndicator /></View> : (
+              <TouchableOpacity
+                onPress={addReactionToPost}
+                style={[
+                  styles.likeBtn,
+                  { opacity: showCompleteProfileCard ? 0.4 : 1 },
+                ]}
+                disabled={showCompleteProfileCard}
+              >
+                <HeartIcon
+                  width={24}
+                  height={24}
+                  color={isLike ? '#FF3830' : '#FFFFFF'}
+                  stroke={isLike ? '#FF3830' : '#14151A'}
+                />
+              </TouchableOpacity>
+            )
+          }
+
           <TouchableOpacity
-            onPress={addReactionToPost}
             style={[
               styles.likeBtn,
               { opacity: showCompleteProfileCard ? 0.4 : 1 },
             ]}
-            disabled={showCompleteProfileCard}
+            onPress={onLikedByPress}
+            disabled={isLikeLoading}
           >
-            <HeartIcon
-              width={24}
-              height={24}
-              color={isLike ? '#FF3830' : '#FFFFFF'}
-              stroke={isLike ? '#FF3830' : '#14151A'}
-            />
             <Text style={styles.likedText}> {likeReaction} </Text>
           </TouchableOpacity>
           <TouchableOpacity
@@ -557,15 +580,17 @@ export default function PostList({
         </View>
       </View>
       {renderOptionModal()}
-      {editPostModalVisible && (
-        <EditPostModal
-          privateCommunityId={privateCommunityId}
-          visible={editPostModalVisible}
-          onClose={closeEditPostModal}
-          postDetail={{ ...postDetail, data: { ...data, text: textPost } }}
-          onFinishEdit={handleOnFinishEdit}
-        />
-      )}
-    </View>
+      {
+        editPostModalVisible && (
+          <EditPostModal
+            privateCommunityId={privateCommunityId}
+            visible={editPostModalVisible}
+            onClose={closeEditPostModal}
+            postDetail={{ ...postDetail, data: { ...data, text: textPost } }}
+            onFinishEdit={handleOnFinishEdit}
+          />
+        )
+      }
+    </View >
   );
 }

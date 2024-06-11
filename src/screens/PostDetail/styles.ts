@@ -40,15 +40,16 @@ export const useStyles = () => {
     postDisabledBtn: {
       color: '#A0BDF8',
       fontSize: 16,
-      marginBottom: 13,
     },
     postBtnText: {
       color: theme.colors.primary,
-      marginBottom: 13,
       fontSize: 16,
     },
     postBtn: {
-      marginHorizontal: 12,
+      width: '15%',
+      height: '100%',
+      alignItems: 'center',
+      paddingTop: 10
     },
     commentItem: {
       padding: 16,
@@ -79,9 +80,8 @@ export const useStyles = () => {
       color: 'transparent',
     },
     inputContainer: {
-      flex: 1,
+      width: '85%',
       justifyContent: 'center',
-      alignItems: 'flex-start',
       paddingVertical: 10,
       paddingHorizontal: 12,
       backgroundColor: theme.colors.baseShade4,

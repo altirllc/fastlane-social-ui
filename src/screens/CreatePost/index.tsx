@@ -576,7 +576,11 @@ const CreatePost = ({ route }: any) => {
               setIsScrollEnabled(true);
             }}
             multiline
-            placeholder="Share your thoughts..."
+            placeholder={
+              screen === screens.MarketPlace
+                ? 'Post Item...'
+                : 'Share your thoughts...'
+            }
             placeholderTextColor={theme.colors.baseShade3}
             setInputMessage={setInputMessage}
             mentionsPosition={mentionsPosition}

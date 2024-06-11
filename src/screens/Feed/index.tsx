@@ -119,7 +119,7 @@ function Feed({ targetIds, targetType }: IFeed, ref: React.Ref<FeedRefType>) {
   useEffect(() => {
     if (flatlistRef.current && scrollFeedToTop) {
       flatlistRef.current.scrollToIndex({ index: 0, animated: true });
-      setScrollFeedToTop(false);
+      setScrollFeedToTop?.(false);
       onRefresh?.(false);
     }
   }, [scrollFeedToTop])
@@ -262,51 +262,95 @@ function Feed({ targetIds, targetType }: IFeed, ref: React.Ref<FeedRefType>) {
     };
   };
 
-  useFocusEffect(
-    useCallback(() => {
-      console.debug(`Will fetch initial posts from [${targetIds}]`);
+  useEffect(() => {
+    console.debug(`Will fetch initial posts from [${targetIds}]`);
 
-      if (!targetIds.length) {
-        console.debug('No post targets specified: nothing to do');
+    if (!targetIds.length) {
+      console.debug('No post targets specified: nothing to do');
 
-        return () => { };
-      }
+      return () => { };
+    }
 
-      if (loading) {
-        console.debug('Already loading: will not send concurrent request');
+    if (loading) {
+      console.debug('Already loading: will not send concurrent request');
 
-        return () => { };
-      }
+      return () => { };
+    }
 
-      setLoading(true);
+    setLoading(true);
 
-      Promise.all(
-        targetIds.map((targetId) => fetchPostsFor(targetId, targetType))
-      )
-        .then((response) => mapPostResponse(response, PostLoadType.INITIAL))
-        .then(({ posts, allChapterPaginationByTargetId }) => {
-          setChapterPaginationByTargetId(allChapterPaginationByTargetId);
+    Promise.all(
+      targetIds.map((targetId) => fetchPostsFor(targetId, targetType))
+    )
+      .then((response) => mapPostResponse(response, PostLoadType.INITIAL))
+      .then(({ posts, allChapterPaginationByTargetId }) => {
+        setChapterPaginationByTargetId(allChapterPaginationByTargetId);
 
-          if (posts.length) {
-            console.debug(
-              `Will dispatch initial feed update of ${posts.length} posts for [${targetIds}]`
-            );
-            dispatch(mergeFeed(posts));
-          }
-          setLoading(false);
-        })
-        .catch((e) => {
-          setLoading(false);
-          console.error(`Error fetching posts for [${targetIds}]:`, e);
-        });
+        if (posts.length) {
+          console.debug(
+            `Will dispatch initial feed update of ${posts.length} posts for [${targetIds}]`
+          );
+          dispatch(mergeFeed(posts));
+        }
+        setLoading(false);
+      })
+      .catch((e) => {
+        setLoading(false);
+        console.error(`Error fetching posts for [${targetIds}]:`, e);
+      });
 
-      return () => {
-        console.debug(`Will cleanup posts for [${targetIds}]`);
+    return () => {
+      console.debug(`Will cleanup posts for [${targetIds}]`);
 
-        dispatch(clearFeed());
-      };
-    }, [targetIdsDep, targetType, dispatch, mergeFeed, clearFeed])
-  );
+      dispatch(clearFeed());
+    };
+  }, [targetIdsDep, targetType])
+
+  // useFocusEffect(
+  //   useCallback(() => {
+  //     console.debug(`Will fetch initial posts from [${targetIds}]`);
+
+  //   if (!targetIds.length) {
+  //     console.debug('No post targets specified: nothing to do');
+
+  //     return () => { };
+  //   }
+
+  //   if (loading) {
+  //     console.debug('Already loading: will not send concurrent request');
+
+  //     return () => { };
+  //   }
+
+  //   setLoading(true);
+
+  //   Promise.all(
+  //     targetIds.map((targetId) => fetchPostsFor(targetId, targetType))
+  //   )
+  //     .then((response) => mapPostResponse(response, PostLoadType.INITIAL))
+  //     .then(({ posts, allChapterPaginationByTargetId }) => {
+  //       setChapterPaginationByTargetId(allChapterPaginationByTargetId);
+
+  //       if (posts.length) {
+  //         console.debug(
+  //           `Will dispatch initial feed update of ${posts.length} posts for [${targetIds}]`
+  //         );
+  //         dispatch(mergeFeed(posts));
+  //       }
+  //       setLoading(false);
+  //     })
+  //     .catch((e) => {
+  //       setLoading(false);
+  //       console.error(`Error fetching posts for [${targetIds}]:`, e);
+  //     });
+
+  //   return () => {
+  //     console.debug(`Will cleanup posts for [${targetIds}]`);
+
+  //     dispatch(clearFeed());
+  //   };
+  //   }, [targetIdsDep, targetType])
+  // );
 
   const handleLoadMore = () => {
     console.debug(`Got request to load more posts for [${targetIds}]`);

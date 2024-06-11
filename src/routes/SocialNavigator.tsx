@@ -39,6 +39,7 @@ import ReactionListScreen from '../screens/ReactionListScreen/ReactionListScreen
 import { SocialContext } from '../store/context';
 import { MemberListModal } from '../screens/MemberListModal/MemberListModal';
 import { EnterGroupName } from '../../src/screens/EnterGroupName/EnterGroupName';
+import { ReactionUsersModal } from '../../src/screens/ReactionUsersModal/ReactionUsersModal';
 
 export type TCommunity = {
   _id: string;
@@ -307,6 +308,7 @@ export default function SocialNavigator({
             >
               <Stack.Screen name={'EnterGroupName'} component={EnterGroupName} />
               <Stack.Screen name={'MembersList'} component={MemberListModal} />
+              <Stack.Screen name={'ReactionUsersList'} component={ReactionUsersModal} />
             </Stack.Group>
           </Stack.Navigator>
         )}
