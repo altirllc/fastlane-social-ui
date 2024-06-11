@@ -492,8 +492,8 @@ const CreatePost = ({ route }: any) => {
             source={
               myUser?.avatarFileId
                 ? {
-                  uri: `https://api.${apiRegion}.amity.co/api/v3/files/${myUser.avatarFileId}/download`,
-                }
+                    uri: `https://api.${apiRegion}.amity.co/api/v3/files/${myUser.avatarFileId}/download`,
+                  }
                 : require('./../../../assets/icon/Placeholder.png')
             }
           />
@@ -536,8 +536,8 @@ const CreatePost = ({ route }: any) => {
         <TouchableOpacity
           disabled={
             inputMessage.length > 0 ||
-              displayImages.length > 0 ||
-              displayVideos.length > 0
+            displayImages.length > 0 ||
+            displayVideos.length > 0
               ? false
               : true
           }
@@ -546,8 +546,8 @@ const CreatePost = ({ route }: any) => {
           <Text
             style={
               inputMessage.length > 0 ||
-                displayImages.length > 0 ||
-                displayVideos.length > 0
+              displayImages.length > 0 ||
+              displayVideos.length > 0
                 ? styles.postText
                 : [styles.postText, styles.disabled]
             }
@@ -576,7 +576,11 @@ const CreatePost = ({ route }: any) => {
               setIsScrollEnabled(true);
             }}
             multiline
-            placeholder={screen === screens.MarketPlace ? "Sell your car here..." : "Share your thoughts..."}
+            placeholder={
+              screen === screens.MarketPlace
+                ? 'Post Item...'
+                : 'Share your thoughts...'
+            }
             placeholderTextColor={theme.colors.baseShade3}
             setInputMessage={setInputMessage}
             mentionsPosition={mentionsPosition}
