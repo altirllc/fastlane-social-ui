@@ -33,10 +33,7 @@ import {
   CommunityRepository,
   PostRepository,
   SubscriptionLevels,
-  UserRepository,
-  getCommunityTopic,
   getPostTopic,
-  getUserTopic,
   subscribeTopic,
 } from '@amityco/ts-sdk-react-native';
 import {
@@ -46,7 +43,7 @@ import {
 } from '../../providers/Social/comment-sdk';
 import type { MyMD3Theme } from '../../providers/amity-ui-kit-provider';
 import { useTheme } from 'react-native-paper';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../redux/store';
 import { IMentionPosition } from '../CreatePost';
 import { SvgXml } from 'react-native-svg';
@@ -57,6 +54,9 @@ import { SocialContext } from '../../store/context';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 // @ts-ignore
 import { screens } from '../../../../../src/constants/screens';
+import globalFeedSlice from '../../redux/slices/globalfeedSlice';
+import feedSlice from '../../redux/slices/feedSlice';
+import postDetailSlice from '../../redux/slices/postDetailSlice';
 
 const PostDetail = () => {
   const theme = useTheme() as MyMD3Theme;
@@ -67,18 +67,15 @@ const PostDetail = () => {
 
   const [commentList, setCommentList] = useState<IComment[]>([]);
   const [commentCollection, setCommentCollection] =
-    useState<Amity.LiveCollection<Amity.Comment>>();
+    useState<Amity.LiveCollection<Amity.InternalComment<any>>>();
   const { data: comments, hasNextPage, onNextPage } = commentCollection ?? {};
   const [inputMessage, setInputMessage] = useState('');
   const [communityObject, setCommunityObject] = useState<Amity.Community>();
   const privateCommunityId =
     !communityObject?.isPublic && communityObject?.communityId;
-  const [userObject, setUserObject] = useState<Amity.User>();
   const [initialInputText, setInitialInputText] = useState('');
   const [resetValue, setResetValue] = useState(false);
   const flatListRef = useRef(null);
-  let isSubscribed = false;
-  const disposers: Amity.Unsubscriber[] = [];
   const { setIsTabBarVisible, screen } = useContext(SocialContext);
   const { bottom } = useSafeAreaInsets();
 
@@ -104,6 +101,13 @@ const PostDetail = () => {
   const [replyUserName, setReplyUserName] = useState<string>('');
   const [replyCommentId, setReplyCommentId] = useState<string>('');
 
+  const dispatch = useDispatch();
+
+  const { updateByPostId: updateByPostIdGlobalFeed } = globalFeedSlice.actions;
+
+  const { updateByPostId } = feedSlice.actions;
+  const { updatePostDetail } = postDetailSlice.actions;
+
   useLayoutEffect(() => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.spring);
     setIsTabBarVisible?.(false);
@@ -120,52 +124,26 @@ const PostDetail = () => {
     setMentionsPosition(checkMentionPosition);
   }, [inputMessage]);
 
-  const getPost = (postId: string) => {
-    PostRepository.getPost(postId, async ({ data }) => {
-      setPostCollection(data);
-    });
-  };
-
   useEffect(() => {
     setTimeout(() => {
       setLoading(false);
     }, 100);
-    getPost(postId);
+    const unsub =
+      postId &&
+      PostRepository.getPost(postId, async ({ data }) => {
+        setPostCollection(data);
+      });
+    return () => unsub && unsub();
   }, [postId]);
 
   useEffect(() => {
-    if (postCollection) {
-      subscribeTopic(getPostTopic(postCollection));
-    }
+    const unsub =
+      postCollection &&
+      subscribeTopic(getPostTopic(postCollection, SubscriptionLevels.COMMENT));
+
+    return () => unsub && unsub();
   }, [postCollection]);
 
-  const subscribeCommentTopic = (targetType: string) => {
-    if (isSubscribed) return;
-
-    if (targetType === 'user') {
-      const user = userObject as Amity.User; // use getUser to get user by targetId
-      disposers.push(
-        subscribeTopic(getUserTopic(user, SubscriptionLevels.COMMENT), () => {
-          // use callback to handle errors with event subscription
-        })
-      );
-      isSubscribed = true;
-      return;
-    }
-
-    if (targetType === 'community') {
-      const community = communityObject as Amity.Community; // use getCommunity to get community by targetId
-      disposers.push(
-        subscribeTopic(
-          getCommunityTopic(community, SubscriptionLevels.COMMENT),
-          () => {
-            // use callback to handle errors with event subscription
-          }
-        )
-      );
-      isSubscribed = true;
-    }
-  };
   function getCommentsByPostId(postId: string) {
     CommentRepository.getComments(
       {
@@ -174,7 +152,7 @@ const PostDetail = () => {
         referenceType: 'post',
         limit: 8,
       },
-      (data: Amity.LiveCollection<Amity.Comment>) => {
+      (data) => {
         if (data.error) throw data.error;
         if (!data.loading) {
           setCommentCollection(data);
@@ -185,13 +163,6 @@ const PostDetail = () => {
 
   useEffect(() => {
     const postList = isFromGlobalfeed ? postListGlobal : postListFeed;
-    if (communityObject || userObject) {
-      subscribeCommentTopic(postList[postIndex]?.targetType as string);
-    }
-  }, [communityObject, userObject]);
-
-  useEffect(() => {
-    const postList = isFromGlobalfeed ? postListGlobal : postListFeed;
     if (postList[postIndex] && postList[postIndex].targetType === 'community') {
       CommunityRepository.getCommunity(
         postList[postIndex].targetId,
@@ -199,13 +170,6 @@ const PostDetail = () => {
           setCommunityObject(community);
         }
       );
-    } else if (
-      postList[postIndex] &&
-      postList[postIndex].targetType === 'user'
-    ) {
-      UserRepository.getUser(postList[postIndex].targetId, ({ data: user }) => {
-        setUserObject(user);
-      });
     }
     getCommentsByPostId(postList[postIndex]?.postId);
   }, []);
@@ -213,7 +177,7 @@ const PostDetail = () => {
   const queryComment = async () => {
     if (comments && comments.length > 0) {
       const formattedCommentList = await Promise.all(
-        comments.map(async (item: Amity.Comment) => {
+        comments.map(async (item) => {
           const { userObject } = await getAmityUser(item.userId);
           let formattedUserObject: UserInterface;
 
@@ -263,6 +227,7 @@ const PostDetail = () => {
     }
   };
   const handleSend: () => Promise<void> = async () => {
+    setResetValue(false);
     if (inputMessage.trim() === '') {
       return;
     }
@@ -292,7 +257,24 @@ const PostDetail = () => {
     setMentionsPosition([]);
     onCloseReply();
     setResetValue(true);
+
+    const updatedPost = {
+      ...currentPostdetail,
+      commentsCount: isNaN(currentPostdetail.commentsCount)
+        ? 1
+        : currentPostdetail.commentsCount + 1,
+    };
+    dispatch(
+      updatePostDetail({
+        ...updatedPost,
+      })
+    );
+    dispatch(
+      updateByPostIdGlobalFeed({ postId: postId, postDetail: updatedPost })
+    );
+    dispatch(updateByPostId({ postId: postId, postDetail: updatedPost }));
   };
+
   const onDeleteComment = async (commentId: string) => {
     const isDeleted = await deleteCommentById(commentId);
     if (isDeleted) {
@@ -302,6 +284,19 @@ const PostDetail = () => {
       );
       setCommentList(updatedCommentList);
     }
+    const updatedPost = {
+      ...currentPostdetail,
+      commentsCount: currentPostdetail.commentsCount - 1,
+    };
+    dispatch(
+      updatePostDetail({
+        ...updatedPost,
+      })
+    );
+    dispatch(
+      updateByPostIdGlobalFeed({ postId: postId, postDetail: updatedPost })
+    );
+    dispatch(updateByPostId({ postId: postId, postDetail: updatedPost }));
   };
 
   const handleClickReply = (user: UserInterface, commentId: string) => {
@@ -323,7 +318,7 @@ const PostDetail = () => {
     >
       <ScrollView onScroll={handleScroll} style={styles.container}>
         <PostList
-          onChange={() => { }}
+          onChange={() => {}}
           postDetail={currentPostdetail as IPost}
           isGlobalfeed={isFromGlobalfeed}
         />
@@ -361,7 +356,15 @@ const PostDetail = () => {
           </TouchableOpacity>
         </View>
       )}
-      <View style={[styles.InputWrap, { paddingBottom: screen === screens.MarketPlace ? bottom - 20 : bottom + 10 }]}>
+      <View
+        style={[
+          styles.InputWrap,
+          {
+            paddingBottom:
+              screen === screens.MarketPlace ? bottom - 20 : bottom + 10,
+          },
+        ]}
+      >
         <View style={styles.inputContainer}>
           <AmityMentionInput
             resetValue={resetValue}
