@@ -227,8 +227,8 @@ const CommentListItem = ({
 
   const deletePostObject = () => {
     Alert.alert(
-      'Delete this post',
-      `This post will be permanently deleted. You'll no longer see and find this post`,
+      'Delete this comment',
+      `This comment will be permanently deleted. You'll no longer see and find this comment`,
       [
         {
           text: 'Cancel',
