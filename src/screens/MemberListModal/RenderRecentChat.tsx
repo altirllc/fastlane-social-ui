@@ -133,7 +133,7 @@ export const RenderRecentChat = memo(({
                 )}
                 keyExtractor={(item) => item.chatId.toString()}
                 onEndReached={handleLoadMore}
-                style={{ marginBottom: 50 }}
+                // style={{ marginBottom: 50 }}
                 showsVerticalScrollIndicator={false}
                 onEndReachedThreshold={0.4}
             />
