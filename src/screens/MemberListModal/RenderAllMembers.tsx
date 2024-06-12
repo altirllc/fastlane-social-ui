@@ -176,7 +176,7 @@ export const RenderAllMembers = memo(({ sectionedUserList, setSectionedUserList,
                 )}
                 keyExtractor={(item) => item.userId.toString()}
                 onEndReached={handleLoadMore}
-                style={{ marginBottom: 50 }}
+                // style={{ marginBottom: 50 }}
                 showsVerticalScrollIndicator={false}
                 onEndReachedThreshold={0.4}
             />
