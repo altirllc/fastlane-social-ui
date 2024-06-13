@@ -17,14 +17,14 @@ import {
 } from 'react-native';
 import PostList, { IPost } from '../../components/Social/PostList';
 import { useStyles } from './styles';
-import { Client } from '@amityco/ts-sdk-react-native';
+import { Client, PostRepository } from '@amityco/ts-sdk-react-native';
 import { deletePostById } from '../../providers/Social/feed-sdk';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../redux/store';
 import feedSlice from '../../redux/slices/feedSlice';
 import { useTheme } from 'react-native-paper';
 import type { MyMD3Theme } from '../../providers/amity-ui-kit-provider';
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { decode } from 'js-base64';
 import { getAmityUser } from '../../providers/user-provider';
 import { UserInterface } from '../../types';
@@ -36,6 +36,7 @@ import { FeedTargetType } from '../../constants';
 import { Typography } from '../../../../../src/components/Typography/Typography';
 import { t } from 'i18next';
 import { SocialContext } from '../../../src/store/context';
+import postDetailSlice from '../../redux/slices/postDetailSlice';
 
 enum PostLoadType {
   INITIAL,
@@ -73,6 +74,7 @@ export interface IFeed {
   targetIds: string[];
   targetType: FeedTargetType;
   selectedChapterName?: string;
+  postIdProp?: string;
 }
 
 const formatPosts = (
@@ -101,7 +103,7 @@ const ALL_CHAPTERS_PAGE_SIZE = 4;
 const SINGLE_CHAPTER_PAGE_SIZE = 20;
 const AUTO_FEED_REFRESH_PERIOD_MS = 60_000;
 
-function Feed({ targetIds, targetType }: IFeed, ref: React.Ref<FeedRefType>) {
+function Feed({ targetIds, targetType, postIdProp }: IFeed, ref: React.Ref<FeedRefType>) {
   const styles = useStyles();
   const theme = useTheme() as MyMD3Theme;
   const { postList } = useSelector((state: RootState) => state.feed);
@@ -115,6 +117,14 @@ function Feed({ targetIds, targetType }: IFeed, ref: React.Ref<FeedRefType>) {
   const targetIdsDep = targetIds.length === 1 ? targetIds[0] : targetIds.length;
   const flatlistRef = useRef<FlatList | null>(null);
   const { scrollFeedToTop, setScrollFeedToTop, screen } = useContext(SocialContext)
+
+  const [postId, setPostId] = useState('');
+  const { updatePostDetail } = postDetailSlice.actions;
+  const navigation = useNavigation<any>();
+
+  useEffect(() => {
+    setPostId(postIdProp)
+  }, [postIdProp])
 
   useEffect(() => {
     if (flatlistRef.current && scrollFeedToTop) {
@@ -263,6 +273,32 @@ function Feed({ targetIds, targetType }: IFeed, ref: React.Ref<FeedRefType>) {
   };
 
   useEffect(() => {
+    (async () => {
+      if (!postId) return;
+      try {
+        //if we have postId from route, that means we need to navigate to post detail for that post
+        //when user click on some post in the chats, we need to fetch the post and navigate user to post detail
+        setLoading(true);
+        PostRepository.getPost(postId, ({ data }) => {
+          dispatch(
+            updatePostDetail(data)
+          );
+          navigation.navigate('PostDetail', {
+            postId: data.postId,
+            postIndex: null,
+            isFromGlobalfeed: false,
+          });
+        });
+      } catch (e) {
+        console.log("error", e)
+      } finally {
+        setLoading(false);
+      }
+    })()
+  }, [postId])
+
+  useEffect(() => {
+    if (postId) return () => { };
     console.debug(`Will fetch initial posts from [${targetIds}]`);
 
     if (!targetIds.length) {
@@ -304,7 +340,7 @@ function Feed({ targetIds, targetType }: IFeed, ref: React.Ref<FeedRefType>) {
 
       dispatch(clearFeed());
     };
-  }, [targetIdsDep, targetType])
+  }, [targetIdsDep, targetType, postId])
 
   // useFocusEffect(
   //   useCallback(() => {
@@ -489,6 +525,7 @@ function Feed({ targetIds, targetType }: IFeed, ref: React.Ref<FeedRefType>) {
               <PostList
                 onDelete={onDeletePost}
                 postDetail={item}
+                from='Feed'
                 isGlobalfeed={false}
                 postIndex={index}
                 showBackBtn={true}

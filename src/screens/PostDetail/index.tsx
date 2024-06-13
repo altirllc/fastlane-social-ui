@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { type RouteProp, useRoute } from '@react-navigation/native';
+import { type RouteProp, useRoute, useIsFocused } from '@react-navigation/native';
 import React, {
   useContext,
   useEffect,
@@ -102,6 +102,7 @@ const PostDetail = () => {
   const [replyCommentId, setReplyCommentId] = useState<string>('');
 
   const dispatch = useDispatch();
+  const isFocused = useIsFocused();
 
   const { updateByPostId: updateByPostIdGlobalFeed } = globalFeedSlice.actions;
 
@@ -110,8 +111,13 @@ const PostDetail = () => {
 
   useLayoutEffect(() => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.spring);
-    setIsTabBarVisible?.(false);
-  }, []);
+    //IMP: Don't remove setTimeout as this is used for showing footer on the screen.
+    setTimeout(() => {
+      if (isFocused) {
+        setIsTabBarVisible?.(false);
+      }
+    }, 500);
+  }, [isFocused]);
 
   useEffect(() => {
     const checkMentionNames = mentionNames.filter((item) => {
@@ -163,15 +169,32 @@ const PostDetail = () => {
 
   useEffect(() => {
     const postList = isFromGlobalfeed ? postListGlobal : postListFeed;
-    if (postList[postIndex] && postList[postIndex].targetType === 'community') {
-      CommunityRepository.getCommunity(
-        postList[postIndex].targetId,
-        ({ data: community }) => {
-          setCommunityObject(community);
-        }
-      );
+    if (postIndex !== null) {
+      if (postList[postIndex] && postList[postIndex].targetType === 'community') {
+        CommunityRepository.getCommunity(
+          postList[postIndex].targetId,
+          ({ data: community }) => {
+            setCommunityObject(community);
+          }
+        );
+      }
+      getCommentsByPostId(postList[postIndex]?.postId);
+    } else {
+      //we are sending postIndex null when there is a navigation from chat screen to post when user click on some post from chat.
+      if (
+        currentPostdetail &&
+        currentPostdetail?.targetType === 'community' &&
+        currentPostdetail.targetId
+      ) {
+        CommunityRepository.getCommunity(
+          currentPostdetail.targetId,
+          ({ data: community }) => {
+            setCommunityObject(community);
+          }
+        );
+      }
+      getCommentsByPostId(currentPostdetail?.postId);
     }
-    getCommentsByPostId(postList[postIndex]?.postId);
   }, []);
 
   const queryComment = async () => {
@@ -321,6 +344,7 @@ const PostDetail = () => {
           onChange={() => { }}
           postDetail={currentPostdetail as IPost}
           isGlobalfeed={isFromGlobalfeed}
+          from='PostDetail'
         />
         <View style={styles.commentListWrap}>
           <FlatList
