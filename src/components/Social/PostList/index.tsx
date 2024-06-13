@@ -76,6 +76,7 @@ export interface IPostList {
   isGlobalfeed?: boolean;
   showBackBtn?: boolean;
   chapterName?: string;
+  from?: 'Feed' | 'PostDetail';
 }
 export interface MediaUri {
   uri: string;
@@ -93,6 +94,7 @@ export default function PostList({
   isGlobalfeed = true,
   showBackBtn = false,
   chapterName,
+  from,
 }: IPostList) {
   const { client, apiRegion } = useAuth();
   const styles = useStyles();
@@ -213,8 +215,6 @@ export default function PostList({
 
   const addReactionToPost = useCallback(async () => {
     setIsLikeLoading(true)
-    setIsLike((prev) => !prev);
-    setLikeReaction((prev) => (prev ? prev - 1 : prev + 1));
     const updatedLikeReaction = isLike ? likeReaction - 1 : likeReaction + 1;
     const updatedPost = {
       ...postDetail,
@@ -222,6 +222,11 @@ export default function PostList({
       myReactions: isLike ? [] : ['like'],
     };
     try {
+      if (isLike) {
+        await removePostReaction(postId, 'like');
+      } else {
+        await addPostReaction(postId, 'like');
+      }
       if (isGlobalfeed) {
         dispatch(
           updateByPostIdGlobalFeed({ postId: postId, postDetail: updatedPost })
@@ -229,25 +234,20 @@ export default function PostList({
       } else {
         dispatch(updateByPostId({ postId: postId, postDetail: updatedPost }));
       }
-      if (isLike) {
-        await removePostReaction(postId, 'like');
-      } else {
-        await addPostReaction(postId, 'like');
+      if (from && from === 'PostDetail') {
+        //if on postdetail screen, update current post detail in redux
+        dispatch(updatePostDetail(updatedPost));
       }
     } catch (error) {
-      setLikeReaction((prev) => prev);
     } finally {
       setIsLikeLoading(false)
     }
   }, [
-    dispatch,
     isGlobalfeed,
     isLike,
     likeReaction,
+    postId,
     postDetail,
-    ,
-    updateByPostId,
-    updateByPostIdGlobalFeed,
   ]);
 
   const onLikedByPress = () => {

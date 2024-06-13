@@ -86,7 +86,8 @@ export default function SocialNavigator({
   setIsTabBarVisible,
   chapters,
   scrollFeedToTop,
-  setScrollFeedToTop
+  setScrollFeedToTop,
+  postId
 }: {
   showCompleteProfileCard: boolean;
   selectedChapterId: string;
@@ -103,7 +104,8 @@ export default function SocialNavigator({
   setIsTabBarVisible: (value: boolean) => void;
   chapters: TCommunity[],
   scrollFeedToTop: boolean,
-  setScrollFeedToTop: React.Dispatch<React.SetStateAction<boolean>>
+  setScrollFeedToTop: React.Dispatch<React.SetStateAction<boolean>>,
+  postId: string;
 }) {
   const Stack = createNativeStackNavigator<RootStackParamList>();
   const { isConnected } = useAuth();
@@ -142,6 +144,7 @@ export default function SocialNavigator({
                   socialNavigation={socialNavigation}
                   avatarUrl={userData?.avatarUrl}
                   stepsCompleted={userData?.stepsCompleted}
+                  postId={postId}
                 />
               )}
             </Stack.Screen>
