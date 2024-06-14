@@ -15,8 +15,6 @@ import { useStyles } from './styles';
 import { SvgXml } from 'react-native-svg';
 import {
   expandIcon,
-  likedXml,
-  likeXml,
   personXml,
   threeDots,
 } from '../../../svg/svg-xml-list';
@@ -40,6 +38,7 @@ import { useTheme } from 'react-native-paper';
 import type { MyMD3Theme } from '../../../providers/amity-ui-kit-provider';
 import { IMentionPosition } from '../../../screens/CreatePost';
 import RenderTextWithMention from '../PostList/Components/RenderTextWithMention';
+import { HeartIcon } from '../../../../src/svg/HeartIcon';
 
 export interface IComment {
   commentId: string;
@@ -284,19 +283,13 @@ export default function ReplyCommentList({
               onPress={() => addReactionToComment()}
               style={styles.likeBtn}
             >
-              {isLike ? (
-                <SvgXml
-                  xml={likedXml(theme.colors.primary)}
-                  width="20"
-                  height="16"
-                />
-              ) : (
-                <SvgXml xml={likeXml} width="20" height="16" />
-              )}
-
-              <Text style={isLike ? styles.likedText : styles.btnText}>
-                {!isLike && likeReaction === 0 ? 'Like' : likeReaction}
-              </Text>
+              <HeartIcon
+                width={18}
+                height={18}
+                color={isLike ? '#FF3830' : '#FFFFFF'}
+                stroke={isLike ? '#FF3830' : theme.colors.baseShade2}
+              />
+              <Text style={styles.likedText}>{likeReaction}</Text>
             </TouchableOpacity>
 
             <TouchableOpacity onPress={openModal} style={styles.threeDots}>
