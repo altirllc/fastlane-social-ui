@@ -251,6 +251,7 @@ const PostDetail = () => {
   };
   const handleSend: () => Promise<void> = async () => {
     setResetValue(false);
+    const updatedInput = inputMessage
     if (inputMessage.trim() === '') {
       return;
     }
@@ -258,7 +259,7 @@ const PostDetail = () => {
     setInputMessage('');
     if (replyCommentId.length > 0) {
       await createReplyComment(
-        inputMessage,
+        updatedInput,
         postId,
         replyCommentId,
         mentionNames?.map((item) => item.id),
@@ -267,7 +268,7 @@ const PostDetail = () => {
       );
     } else {
       await createComment(
-        inputMessage,
+        updatedInput,
         postId,
         mentionNames?.map((item) => item.id),
         mentionsPosition,

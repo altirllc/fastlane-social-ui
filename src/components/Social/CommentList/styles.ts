@@ -85,14 +85,14 @@ export const useStyles = () => {
     likeBtn: {
       flexDirection: 'row',
       paddingTop: 4,
-      marginRight: 15,
+      marginRight: 10,
       alignItems: 'center',
     },
     actionSection: {
       flexDirection: 'row',
     },
     likedText: {
-      color: theme.colors.primary,
+      color: theme.colors.baseShade2,
       fontSize: 15,
       fontWeight: '600',
       marginLeft: 1,

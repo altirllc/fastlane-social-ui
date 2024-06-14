@@ -16,11 +16,7 @@ import { useStyles } from './styles';
 import { SvgXml } from 'react-native-svg';
 import {
   expandIcon,
-  likeCircle,
-  likedXml,
-  likeXml,
   personXml,
-  replyIcon,
   threeDots,
 } from '../../../svg/svg-xml-list';
 
@@ -48,6 +44,7 @@ import ReplyCommentList from '../ReplyCommentList';
 import { CommentRepository } from '@amityco/ts-sdk-react-native';
 import { useTimeDifference } from '../../../hooks/useTimeDifference';
 import RenderTextWithMention from '../PostList/Components/RenderTextWithMention';
+import { HeartIcon } from '../../../../src/svg/HeartIcon';
 export interface IComment {
   commentId: string;
   data: Record<string, any>;
@@ -337,36 +334,24 @@ const CommentList = ({
               onPress={() => addReactionToComment()}
               style={styles.likeBtn}
             >
-              {isLike ? (
-                <SvgXml
-                  xml={likedXml(theme.colors.primary)}
-                  width="20"
-                  height="16"
-                />
-              ) : (
-                <SvgXml xml={likeXml} width="20" height="16" />
-              )}
-
-              <Text style={isLike ? styles.likedText : styles.btnText}>
-                {!isLike ? 'Like' : 'Liked'}
-              </Text>
+              <HeartIcon
+                width={18}
+                height={18}
+                color={isLike ? '#FF3830' : '#FFFFFF'}
+                stroke={isLike ? '#FF3830' : theme.colors.baseShade2}
+              />
             </TouchableOpacity>
-            {likeReaction > 0 && (
-              <TouchableOpacity
-                onPress={onPressCommentReaction}
-                style={styles.likeBtn}
-              >
-                <SvgXml xml={likeCircle} width="20" height="16" />
-                <Text style={styles.likedText}>{likeReaction}</Text>
-              </TouchableOpacity>
-            )}
+            <TouchableOpacity
+              onPress={onPressCommentReaction}
+              style={styles.likeBtn}
+            >
+              <Text style={styles.likedText}>{likeReaction}</Text>
+            </TouchableOpacity>
             <TouchableOpacity
               onPress={onHandleReply}
               // onPress={() => addReactionToComment()}
               style={styles.likeBtn}
             >
-              <SvgXml xml={replyIcon} width="20" height="16" />
-
               <Text style={styles.btnText}>Reply</Text>
             </TouchableOpacity>
 

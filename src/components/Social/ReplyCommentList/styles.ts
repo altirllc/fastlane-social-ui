@@ -91,10 +91,10 @@ export const useStyles = () => {
       flexDirection: 'row',
     },
     likedText: {
-      color: theme.colors.primary,
+      color: theme.colors.baseShade2,
       fontSize: 15,
       fontWeight: '600',
-      marginHorizontal: 4,
+      marginHorizontal: 8,
     },
     btnText: {
       color: theme.colors.baseShade2,

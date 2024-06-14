@@ -15,7 +15,6 @@ import {
   Pressable,
   Animated,
   Alert,
-  ActivityIndicator,
 } from 'react-native';
 import { SvgXml } from 'react-native-svg';
 import { personXml, threeDots } from '../../../svg/svg-xml-list';
@@ -100,7 +99,6 @@ export default function PostList({
   const styles = useStyles();
   const theme = useTheme() as MyMD3Theme;
   const [isLike, setIsLike] = useState<boolean>(false);
-  const [isLikeLoading, setIsLikeLoading] = useState(false);
   const [likeReaction, setLikeReaction] = useState<number>(0);
   const [, setCommunityName] = useState('');
   const [textPost, setTextPost] = useState<string>('');
@@ -214,33 +212,31 @@ export default function PostList({
   // );
 
   const addReactionToPost = useCallback(async () => {
-    setIsLikeLoading(true)
     const updatedLikeReaction = isLike ? likeReaction - 1 : likeReaction + 1;
     const updatedPost = {
       ...postDetail,
       reactionCount: { like: updatedLikeReaction },
       myReactions: isLike ? [] : ['like'],
     };
+    if (isGlobalfeed) {
+      dispatch(
+        updateByPostIdGlobalFeed({ postId: postId, postDetail: updatedPost })
+      );
+    } else {
+      dispatch(updateByPostId({ postId: postId, postDetail: updatedPost }));
+    }
+    if (from && from === 'PostDetail') {
+      //if on postdetail screen, update current post detail in redux
+      dispatch(updatePostDetail(updatedPost));
+    }
     try {
       if (isLike) {
         await removePostReaction(postId, 'like');
       } else {
         await addPostReaction(postId, 'like');
       }
-      if (isGlobalfeed) {
-        dispatch(
-          updateByPostIdGlobalFeed({ postId: postId, postDetail: updatedPost })
-        );
-      } else {
-        dispatch(updateByPostId({ postId: postId, postDetail: updatedPost }));
-      }
-      if (from && from === 'PostDetail') {
-        //if on postdetail screen, update current post detail in redux
-        dispatch(updatePostDetail(updatedPost));
-      }
     } catch (error) {
     } finally {
-      setIsLikeLoading(false)
     }
   }, [
     isGlobalfeed,
@@ -526,25 +522,21 @@ export default function PostList({
         )} */}
 
         <View style={styles.actionSection}>
-          {
-            isLikeLoading ? <View style={{ paddingVertical: 12, width: 30 }}><ActivityIndicator /></View> : (
-              <TouchableOpacity
-                onPress={addReactionToPost}
-                style={[
-                  styles.likeBtn,
-                  { opacity: showCompleteProfileCard ? 0.4 : 1 },
-                ]}
-                disabled={showCompleteProfileCard}
-              >
-                <HeartIcon
-                  width={24}
-                  height={24}
-                  color={isLike ? '#FF3830' : '#FFFFFF'}
-                  stroke={isLike ? '#FF3830' : '#14151A'}
-                />
-              </TouchableOpacity>
-            )
-          }
+          <TouchableOpacity
+            onPress={addReactionToPost}
+            style={[
+              styles.likeBtn,
+              { opacity: showCompleteProfileCard ? 0.4 : 1 },
+            ]}
+            disabled={showCompleteProfileCard}
+          >
+            <HeartIcon
+              width={24}
+              height={24}
+              color={isLike ? '#FF3830' : '#FFFFFF'}
+              stroke={isLike ? '#FF3830' : '#14151A'}
+            />
+          </TouchableOpacity>
 
           <TouchableOpacity
             style={[
@@ -552,7 +544,7 @@ export default function PostList({
               { opacity: showCompleteProfileCard ? 0.4 : 1 },
             ]}
             onPress={onLikedByPress}
-            disabled={isLikeLoading}
+            disabled={true}
           >
             <Text style={styles.likedText}> {likeReaction} </Text>
           </TouchableOpacity>
