@@ -87,7 +87,7 @@ export default function SocialNavigator({
   chapters,
   scrollFeedToTop,
   setScrollFeedToTop,
-  postId
+  // postId
 }: {
   showCompleteProfileCard: boolean;
   selectedChapterId: string;
@@ -105,7 +105,7 @@ export default function SocialNavigator({
   chapters: TCommunity[],
   scrollFeedToTop: boolean,
   setScrollFeedToTop: React.Dispatch<React.SetStateAction<boolean>>,
-  postId: string;
+  //postId: string;
 }) {
   const Stack = createNativeStackNavigator<RootStackParamList>();
   const { isConnected } = useAuth();
@@ -144,7 +144,7 @@ export default function SocialNavigator({
                   socialNavigation={socialNavigation}
                   avatarUrl={userData?.avatarUrl}
                   stepsCompleted={userData?.stepsCompleted}
-                  postId={postId}
+                //postId={postId}
                 />
               )}
             </Stack.Screen>
