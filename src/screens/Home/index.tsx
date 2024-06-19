@@ -42,7 +42,7 @@ export default function Home({
   socialNavigation,
   avatarUrl,
   stepsCompleted,
-  postId,
+  //postId,
 }: {
   selectedChapterId: string;
   selectedChapterName: string;
@@ -50,7 +50,7 @@ export default function Home({
   socialNavigation: any;
   avatarUrl: string;
   stepsCompleted: number;
-  postId: string;
+  //postId: string;
 }) {
   const styles = useStyles();
   const { client, isConnected } = useAuth();
@@ -235,7 +235,7 @@ export default function Home({
           }
           targetType={FeedTargetType.COMMUNITY}
           selectedChapterName={selectedChapterName}
-          postIdProp={postId}
+        //postIdProp={postId}
         />
       </View>
       <TouchableOpacity
