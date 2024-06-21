@@ -2,7 +2,7 @@
 import React, { useEffect, useState, type FC } from 'react';
 import { Client } from '@amityco/ts-sdk-react-native';
 import type { AuthContextInterface } from '../types/auth.interface';
-import { Alert } from 'react-native';
+import { Alert, Platform } from 'react-native';
 import type { IAmityUIkitProvider } from './amity-ui-kit-provider';
 
 export const AuthContext = React.createContext<AuthContextInterface>({
@@ -26,6 +26,7 @@ export const AuthContextProvider: FC<IAmityUIkitProvider> = ({
   children,
   authToken,
   setChatUnreadCount,
+  pushNotificationToken,
 }: IAmityUIkitProvider) => {
   const [error, setError] = useState('');
   const [isConnecting, setLoading] = useState(false);
@@ -76,6 +77,17 @@ export const AuthContextProvider: FC<IAmityUIkitProvider> = ({
     }
   }, [sessionState]);
 
+  const generateUUID = () => {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(
+      /[xy]/g,
+      function (c) {
+        const r = (Math.random() * 16) | 0;
+        const v = c === 'x' ? r : (r & 0x3) | 0x8;
+        return v.toString(16);
+      }
+    );
+  };
+
   const handleConnect = async () => {
     let loginParam;
 
@@ -87,9 +99,27 @@ export const AuthContextProvider: FC<IAmityUIkitProvider> = ({
       loginParam = { ...loginParam, authToken: authToken };
     }
     const response = await Client.login(loginParam, sessionHandler);
-
-    if (response) {
-      console.log('response:', response);
+    if (response && pushNotificationToken) {
+      try {
+        fetch(`${apiEndpoint}/v1/notification`, {
+          method: 'POST',
+          headers: {
+            'X-API-KEY': apiKey,
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            deviceId: generateUUID(),
+            platform: Platform.OS,
+            userId: userId,
+            token: pushNotificationToken,
+          }),
+        })
+          .then((res) => console.log('v1/notification success', res))
+          .catch((err) => console.error('v1/notification error', err));
+      } catch (err) {
+        console.error('v1/notification error', err);
+      }
     }
   };
 
@@ -108,9 +138,12 @@ export const AuthContextProvider: FC<IAmityUIkitProvider> = ({
       setLoading(false);
     }
   };
+
   useEffect(() => {
-    login();
-  }, [userId]);
+    if (pushNotificationToken) {
+      login();
+    }
+  }, [userId, pushNotificationToken]);
 
   // TODO
   const logout = async () => {
