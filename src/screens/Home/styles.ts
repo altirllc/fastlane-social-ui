@@ -1,5 +1,5 @@
 import { SCREEN_PADDING } from '../../theme';
-import { StyleSheet } from 'react-native';
+import { Dimensions, StyleSheet } from 'react-native';
 import { useTheme } from 'react-native-paper';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import type { MyMD3Theme } from 'src/providers/amity-ui-kit-provider';
@@ -7,6 +7,7 @@ import type { MyMD3Theme } from 'src/providers/amity-ui-kit-provider';
 export const useStyles = () => {
   const theme = useTheme() as MyMD3Theme;
   const { top } = useSafeAreaInsets();
+  const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
   const styles = StyleSheet.create({
     container: {
@@ -124,6 +125,12 @@ export const useStyles = () => {
     cardContainer: {
       paddingHorizontal: SCREEN_PADDING,
       paddingBottom: SCREEN_PADDING,
+    },
+    activityIndicator: {
+      flex: 1,
+      position: 'absolute',
+      left: screenWidth / 2.1,
+      top: screenHeight / 3.2,
     },
   });
 

@@ -1,13 +1,13 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import * as React from 'react';
 import { useContext, useEffect, useLayoutEffect, useState } from 'react';
-import { LogBox, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, LogBox, Text, TouchableOpacity, View } from 'react-native';
 import useAuth from '../../hooks/useAuth';
 import Feed from '../../screens/Feed/index';
 import { useStyles } from './styles';
 import { Icon } from 'react-native-paper';
-// import type { MyMD3Theme } from '../../providers/amity-ui-kit-provider';
-// import useConfig from '../../hooks/useConfig';
+import type { MyMD3Theme } from '../../providers/amity-ui-kit-provider';
+import { useTheme } from 'react-native-paper';
 import { TabName } from '../../enum/tabNameState';
 import {
   DrawerActions,
@@ -33,6 +33,9 @@ import { ChannelRepository, Client } from '@amityco/ts-sdk-react-native';
 import { RootState } from '~/redux/store';
 import chaptersSlice from '../../redux/slices/chapters';
 import { FeedTargetType } from '../../constants';
+import postDetailSlice from '../../../src/redux/slices/postDetailSlice';
+import { getAmityUser } from '../../providers/user-provider';
+import { UserInterface } from '../../types';
 
 LogBox.ignoreAllLogs(true);
 export default function Home({
@@ -42,7 +45,7 @@ export default function Home({
   socialNavigation,
   avatarUrl,
   stepsCompleted,
-  //postId,
+  postId,
 }: {
   selectedChapterId: string;
   selectedChapterName: string;
@@ -50,11 +53,11 @@ export default function Home({
   socialNavigation: any;
   avatarUrl: string;
   stepsCompleted: number;
-  //postId: string;
+  postId: string;
 }) {
   const styles = useStyles();
   const { client, isConnected } = useAuth();
-  // const theme = useTheme() as MyMD3Theme;
+  const theme = useTheme() as MyMD3Theme;
   const dispatch = useDispatch();
   // const { openPostTypeChoiceModal } = uiSlice.actions;
   // const { excludes } = useConfig();
@@ -70,6 +73,8 @@ export default function Home({
   } = useContext(SocialContext);
   const { setChapters } = chaptersSlice.actions;
   const { chapters } = useSelector((state: RootState) => state.chapters);
+  const { updatePostDetail } = postDetailSlice.actions;
+  const [loading, setLoading] = useState(false);
 
   const onClickSearch = () => {
     navigation.navigate('CommunitySearch');
@@ -119,6 +124,52 @@ export default function Home({
       }
     }, 500);
   }, [isFocused]);
+
+  useEffect(() => {
+    (async () => {
+      if (!postId) return;
+      setLoading(true)
+      const response = await Client.getActiveClient().http.get(`/api/v3/posts/${postId}`, {
+        params: {
+          postId: postId,
+        },
+      });
+      console.log("API response for post postId New v4 api", JSON.stringify(response.data));
+      if (response?.data?.posts?.length > 0) {
+        const post = response?.data?.posts[0];
+        const { userObject } = await getAmityUser(post.postedUserId);
+        let postDetail = {
+          postId: post.postId,
+          data: post.data as Record<string, any>,
+          dataType: post.dataType,
+          myReactions: post.myReactions as string[],
+          reactionCount: post.reactions as Record<string, number>,
+          commentsCount: post.commentsCount,
+          user: userObject.data as UserInterface,
+          editedAt: post.editedAt,
+          createdAt: post.createdAt,
+          updatedAt: post.updatedAt,
+          targetType: post.targetType,
+          targetId: post.targetId,
+          childrenPosts: post.children,
+          mentionees: post.mentionees[0]?.userIds,
+          mentionPosition: post?.metadata?.mentioned || undefined,
+        }
+        dispatch(
+          updatePostDetail({
+            ...postDetail
+          })
+        );
+        setLoading(false)
+        navigation.navigate('PostDetail', {
+          postId: postDetail.postId,
+          postIndex: null, //pass it as null as we don't have complete postlist to fetch index from.
+          isFromGlobalfeed: false,
+        });
+      }
+
+    })()
+  }, [postId])
 
   useEffect(() => {
     const fetchChapters = async () => {
@@ -235,9 +286,9 @@ export default function Home({
           }
           targetType={FeedTargetType.COMMUNITY}
           selectedChapterName={selectedChapterName}
-        //postIdProp={postId}
         />
       </View>
+
       <TouchableOpacity
         onPress={openModal}
         style={[
@@ -252,6 +303,11 @@ export default function Home({
       >
         <Icon source={PlusIcon} size={'xs'} color="transparent" />
       </TouchableOpacity>
+      {/* {loading ? (
+        <View style={styles.activityIndicator}>
+          <ActivityIndicator color={theme.colors.baseShade1} />
+        </View>
+      ) : null} */}
     </View>
   );
 }

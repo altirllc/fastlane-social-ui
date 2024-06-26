@@ -7,10 +7,10 @@
   resolved "https://registry.npmjs.org/@aashutoshrathi/word-wrap/-/word-wrap-1.2.6.tgz"
   integrity sha512-1Yjs2SvM8TflER/OD3cOjhWWOZb58A2t7wpE2S9XfBYTiIl+XFhQG2bjy4Pu1I+EAlCNUzRDYDdFwFYUKvXcIA==
 
-"@amityco/ts-sdk-react-native@^6.20.0":
-  version "6.22.0"
-  resolved "https://registry.npmjs.org/@amityco/ts-sdk-react-native/-/ts-sdk-react-native-6.22.0.tgz"
-  integrity sha512-PD4wyS5kN25fw46umU3ihLG21KvXRXQSnb4pfxmmcoQTf+D076rrhnXeaDun1G42P/wd6OeF16M0XdiK3pbFag==
+"@amityco/ts-sdk-react-native@^6.25.0":
+  version "6.27.0"
+  resolved "https://registry.npmjs.org/@amityco/ts-sdk-react-native/-/ts-sdk-react-native-6.27.0.tgz"
+  integrity sha512-kiNMobpLIx/rU+iJjoGVHOR7ib8cMd1yptXsk6CI+578YX9Ji0PZxSUqKQGW1VwVO5nmA86J2MTso7mSgBiFVA==
   dependencies:
     "@react-native-async-storage/async-storage" "^1.17.7"
     "@react-native-community/netinfo" "^9.4.1"
@@ -8047,6 +8047,18 @@ modify-values@^1.0.0:
   version "1.0.1"
   resolved "https://registry.npmjs.org/modify-values/-/modify-values-1.0.1.tgz"
   integrity sha512-xV2bxeN6F7oYjZWTe/YPAy6MN2M+sL4u/Rlm2AHCIVGfo2p1yGmBHQ6vHehl4bRTZBdHu3TSkWdYgkwpYzAGSw==
+
+moment-timezone@^0.5.45:
+  version "0.5.45"
+  resolved "https://registry.npmjs.org/moment-timezone/-/moment-timezone-0.5.45.tgz"
+  integrity sha512-HIWmqA86KcmCAhnMAN0wuDOARV/525R2+lOLotuGFzn4HO+FH+/645z2wx0Dt3iDv6/p61SIvKnDstISainhLQ==
+  dependencies:
+    moment "^2.29.4"
+
+moment@^2.29.4:
+  version "2.30.1"
+  resolved "https://registry.npmjs.org/moment/-/moment-2.30.1.tgz"
+  integrity sha512-uEmtNhbDOrWPFS+hdjFCBfy9f2YoyzRpwcl+DqpC6taX21FzsTLQVbMV/W7PzNSX6x/bhC1zA3c2UQ5NzH6how==
 
 mqtt-packet@^6.8.0:
   version "6.10.0"
