@@ -24,7 +24,7 @@ import { RootState } from '../../redux/store';
 import feedSlice from '../../redux/slices/feedSlice';
 import { useTheme } from 'react-native-paper';
 import type { MyMD3Theme } from '../../providers/amity-ui-kit-provider';
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect, useIsFocused } from '@react-navigation/native';
 import { decode } from 'js-base64';
 import { getAmityUser } from '../../providers/user-provider';
 import { UserInterface } from '../../types';
@@ -109,6 +109,7 @@ function Feed({ targetIds, targetType }: IFeed, ref: React.Ref<FeedRefType>) {
   const [loading, setLoading] = useState(false);
   const dispatch = useDispatch();
   const flatlistRef = useRef<FlatList | null>(null);
+  const isFocused = useIsFocused();
   const { scrollFeedToTop, setScrollFeedToTop, screen } = useContext(SocialContext)
 
   useEffect(() => {
@@ -218,6 +219,10 @@ function Feed({ targetIds, targetType }: IFeed, ref: React.Ref<FeedRefType>) {
       allChapterPaginationByTargetId,
     };
   };
+
+  useEffect(() => {
+    dispatch(clearFeed());
+  }, [isFocused])
 
   useFocusEffect(
     useCallback(() => {
