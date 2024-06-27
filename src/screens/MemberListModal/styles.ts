@@ -1,6 +1,6 @@
 import { useTheme } from 'react-native-paper';
 import { SCREEN_PADDING } from '../../theme';
-import { StyleSheet } from 'react-native';
+import { Platform, StyleSheet } from 'react-native';
 import { MyMD3Theme } from '../../../src/providers/amity-ui-kit-provider';
 // @ts-ignore
 import { AVATAR_SIZE } from '@amityco/react-native-cli-chat-ui-kit/src/components/Avatar/Avatar.styles';
@@ -140,7 +140,7 @@ export const useStyles = () => {
       alignItems: 'center',
       paddingHorizontal: 10,
       marginVertical: 10,
-      paddingVertical: 10,
+      paddingVertical: Platform.OS === "ios" ? 10 : 0,
       borderWidth: 1,
     },
     input: { flex: 1, marginHorizontal: 6 },

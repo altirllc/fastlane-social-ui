@@ -1,5 +1,7 @@
 import React, {
   useCallback,
+  useContext,
+  useLayoutEffect,
   useMemo,
   useState,
 } from 'react';
@@ -12,7 +14,7 @@ import {
   MessageRepository,
 } from '@amityco/ts-sdk-react-native';
 import { LoadingOverlay } from '../../../src/components/LoadingOverlay';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { useIsFocused, useNavigation, useRoute } from '@react-navigation/native';
 // @ts-ignore
 import { ECustomData } from '@amityco/react-native-cli-chat-ui-kit/src/screens/ChatRoom/ChatRoom';
 
@@ -25,6 +27,7 @@ import { RenderAllMembers } from '../../../src/screens/MemberListModal/RenderAll
 // @ts-ignore
 import { createAmityChannel } from '@amityco/react-native-cli-chat-ui-kit/src/providers/channel-provider';
 import useAuth from '../../../src/hooks/useAuth';
+import { SocialContext } from '../../../src/store/context';
 
 export type TChannelObject = {
   chatId: string;
@@ -54,9 +57,13 @@ export const MemberListModal = () => {
   const styles = useStyles();
   const route = useRoute<any>();
   const { client } = useAuth();
+  const isFocused = useIsFocused();
   const navigation = useNavigation<any>();
   const postId = route?.params?.postId;
   const [selectedIndex, setSelectedIndex] = useState(0);
+
+  const { setIsTabBarVisible } = useContext(SocialContext);
+
   const [selectedChatRecievers, setSelectedChatRecievers] = useState<TSelectedChatRecievers>(new Map())
 
   //selected recentChats
@@ -89,6 +96,15 @@ export const MemberListModal = () => {
   const sendButtonText = useMemo(() => {
     return totalSelectedLength > 1 ? 'Send separately' : 'Send'
   }, [totalSelectedLength])
+
+  useLayoutEffect(() => {
+    //IMP: Don't remove setTimeout as this is used for showing/hiding footer on the screen.
+    setTimeout(() => {
+      if (isFocused) {
+        setIsTabBarVisible?.(false);
+      }
+    }, 500);
+  }, [isFocused]);
 
   const onAllMemberGroupSendClick = async () => {
     if (!postId || selectedSectionedUsers.length === 0) return;

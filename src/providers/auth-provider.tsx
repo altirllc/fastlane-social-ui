@@ -140,9 +140,7 @@ export const AuthContextProvider: FC<IAmityUIkitProvider> = ({
   };
 
   useEffect(() => {
-    if (pushNotificationToken) {
-      login();
-    }
+    login();
   }, [userId, pushNotificationToken]);
 
   // TODO

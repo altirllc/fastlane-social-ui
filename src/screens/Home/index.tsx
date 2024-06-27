@@ -1,13 +1,11 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import * as React from 'react';
 import { useContext, useEffect, useLayoutEffect, useState } from 'react';
-import { ActivityIndicator, LogBox, Text, TouchableOpacity, View } from 'react-native';
+import { LogBox, Text, TouchableOpacity, View } from 'react-native';
 import useAuth from '../../hooks/useAuth';
 import Feed from '../../screens/Feed/index';
 import { useStyles } from './styles';
 import { Icon } from 'react-native-paper';
-import type { MyMD3Theme } from '../../providers/amity-ui-kit-provider';
-import { useTheme } from 'react-native-paper';
 import { TabName } from '../../enum/tabNameState';
 import {
   DrawerActions,
@@ -57,7 +55,6 @@ export default function Home({
 }) {
   const styles = useStyles();
   const { client, isConnected } = useAuth();
-  const theme = useTheme() as MyMD3Theme;
   const dispatch = useDispatch();
   // const { openPostTypeChoiceModal } = uiSlice.actions;
   // const { excludes } = useConfig();
@@ -74,7 +71,6 @@ export default function Home({
   const { setChapters } = chaptersSlice.actions;
   const { chapters } = useSelector((state: RootState) => state.chapters);
   const { updatePostDetail } = postDetailSlice.actions;
-  const [loading, setLoading] = useState(false);
 
   const onClickSearch = () => {
     navigation.navigate('CommunitySearch');
@@ -128,7 +124,6 @@ export default function Home({
   useEffect(() => {
     (async () => {
       if (!postId) return;
-      setLoading(true)
       const response = await Client.getActiveClient().http.get(`/api/v3/posts/${postId}`, {
         params: {
           postId: postId,
@@ -160,7 +155,6 @@ export default function Home({
             ...postDetail
           })
         );
-        setLoading(false)
         navigation.navigate('PostDetail', {
           postId: postDetail.postId,
           postIndex: null, //pass it as null as we don't have complete postlist to fetch index from.
@@ -303,11 +297,6 @@ export default function Home({
       >
         <Icon source={PlusIcon} size={'xs'} color="transparent" />
       </TouchableOpacity>
-      {/* {loading ? (
-        <View style={styles.activityIndicator}>
-          <ActivityIndicator color={theme.colors.baseShade1} />
-        </View>
-      ) : null} */}
     </View>
   );
 }
